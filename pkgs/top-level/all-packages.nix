@@ -7468,6 +7468,8 @@ in
 
   mpi = openmpi; # this attribute should used to build MPI applications
 
+  serenata = callPackage ../development/misc/serenata { };
+
   ucx = callPackage ../development/libraries/ucx {};
 
   openmodelica = callPackage ../applications/science/misc/openmodelica {
