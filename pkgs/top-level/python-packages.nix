@@ -4641,6 +4641,8 @@ in {
 
   npyscreen = callPackage ../development/python-modules/npyscreen { };
 
+  ntfy-webpush = callPackage ../tools/misc/ntfy-webpush { };
+
   ntc-templates = callPackage ../development/python-modules/ntc-templates { };
 
   ntlm-auth = callPackage ../development/python-modules/ntlm-auth { };
