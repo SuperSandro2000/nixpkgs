@@ -24,7 +24,8 @@ buildPythonPackage rec {
   postPatch = ''
     substituteInPlace pyproject.toml \
       --replace 'numpy = "1.18.5"' 'numpy = "^1.18.5"' \
-      --replace 'hyperopt = "0.1.2"' 'hyperopt = ">=0.1.2"'
+      --replace 'hyperopt = "0.1.2"' 'hyperopt = ">=0.1.2"' \
+      --replace 'wheel = "^0.35.1"' 'wheel = "*"'
   '';
 
   nativeBuildInputs = [ poetry ];
