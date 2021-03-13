@@ -1,5 +1,5 @@
 {pkgs}: [
-  pkgs.coreutils
+  pkgs.coreutils-gnu
   pkgs.findutils
   pkgs.diffutils
   pkgs.gnused

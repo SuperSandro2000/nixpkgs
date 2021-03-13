@@ -3478,7 +3478,10 @@ in
 
   cpcfs = callPackage ../tools/filesystems/cpcfs { };
 
-  coreutils = callPackage ../tools/misc/coreutils { };
+  # By declaring coreutils-gnu explicitly we can overwrite it globally without causing infinite loops
+  # coreutils = uutils-coreutils;
+  coreutils = coreutils-gnu;
+  coreutils-gnu = callPackage ../tools/misc/coreutils { };
   coreutils-full = coreutils.override { minimal = false; };
   coreutils-prefixed = coreutils.override { withPrefix = true; singleBinary = false; };
 
@@ -3705,7 +3708,9 @@ in
 
   diffstat = callPackage ../tools/text/diffstat { };
 
-  diffutils = callPackage ../tools/text/diffutils { };
+  diffutils = callPackage ../tools/text/diffutils {
+    coreutils = coreutils-gnu;
+  };
 
   dir2opus = callPackage ../tools/audio/dir2opus {
     inherit (pythonPackages) mutagen python wrapPython;
@@ -4281,7 +4286,9 @@ in
     inherit (darwin.apple_sdk.frameworks) Security;
   };
 
-  findutils = callPackage ../tools/misc/findutils { };
+  findutils = callPackage ../tools/misc/findutils {
+    coreutils = coreutils-gnu;
+  };
 
   finger_bsd = callPackage ../tools/networking/bsd-finger { };
 
@@ -11217,6 +11224,8 @@ in
     nativePrefix = stdenv.cc.nativePrefix or "";
 
     noLibc = (self.libc == null);
+
+    coreutils = coreutils-gnu;
 
     inherit bintools libc;
   } // extraArgs; in self);

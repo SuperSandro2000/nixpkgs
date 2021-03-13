@@ -314,8 +314,9 @@ in
         cc = prevStage.gcc-unwrapped;
         bintools = self.binutils;
         libc = getLibc self;
+        coreutils = self.coreutils-gnu;
         inherit lib;
-        inherit (self) stdenvNoCC coreutils gnugrep;
+        inherit (self) stdenvNoCC gnugrep;
         shell = self.bash + "/bin/bash";
       };
     };
@@ -375,7 +376,7 @@ in
       allowedRequisites = with prevStage; with lib;
         # Simple executable tools
         concatMap (p: [ (getBin p) (getLib p) ]) [
-            gzip bzip2 xz bash binutils.bintools coreutils diffutils findutils
+            gzip bzip2 xz bash binutils.bintools coreutils-gnu diffutils findutils
             gawk gnumake gnused gnutar gnugrep gnupatch patchelf ed
           ]
         # Library dependencies
