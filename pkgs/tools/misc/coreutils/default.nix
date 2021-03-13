@@ -65,6 +65,12 @@ stdenv.mkDerivation (rec {
     for f in gnulib-tests/{test-chown.c,test-fchownat.c,test-lchown.c}; do
       echo "int main() { return 77; }" > "$f"
     done
+
+    # tests try to access user 1000 which is forbidden in sandbox
+    sed '2i print "Skipping id uid test"; exit 77' -i ./tests/id/uid.sh
+    sed '2i print "Skipping id zero test"; exit 77' -i ./tests/id/zero.sh
+    sed '2i print "Skipping misc help-versiob test"; exit 77' -i ./tests/misc/help-version.sh
+    sed '2i print "Skipping chown separator test"; exit 77' -i ./tests/chown/separator.sh
   '' + optionalString (stdenv.hostPlatform.libc == "musl") (lib.concatStringsSep "\n" [
     ''
       echo "int main() { return 77; }" > gnulib-tests/test-parse-datetime.c
