@@ -1,7 +1,7 @@
 { stdenv, lib, rustPlatform, fetchFromGitHub, openssl, pkg-config, Security
 , sqliteSupport ? true, sqlite
 , postgresqlSupport ? true, postgresql
-, mysqlSupport ? true, mysql, zlib, libiconv
+, mysqlSupport ? true, mariadb, zlib, libiconv
 }:
 
 assert lib.assertMsg (sqliteSupport == true || postgresqlSupport == true || mysqlSupport == true)
@@ -44,7 +44,7 @@ rustPlatform.buildRustPackage rec {
     ++ optional (stdenv.isDarwin && mysqlSupport) libiconv
     ++ optional sqliteSupport sqlite
     ++ optional postgresqlSupport postgresql
-    ++ optionals mysqlSupport [ mysql zlib ];
+    ++ optionals mysqlSupport [ mariadb zlib ];
 
   buildAndTestSubdir = "diesel_cli";
 
