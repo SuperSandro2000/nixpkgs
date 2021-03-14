@@ -1,5 +1,5 @@
 { lib, stdenv, fetchurl, cmake, makeWrapper, python
-, boost, lzma
+, boost, xz
 , withGog ? false, unar ? null }:
 
 stdenv.mkDerivation rec {
@@ -10,7 +10,7 @@ stdenv.mkDerivation rec {
     sha256 = "09l1z1nbl6ijqqwszdwch9mqr54qb7df0wp2sd77v17dq6gsci33";
   };
 
-  buildInputs = [ python lzma boost ];
+  buildInputs = [ python xz boost ];
 
   nativeBuildInputs = [ cmake makeWrapper ];
 

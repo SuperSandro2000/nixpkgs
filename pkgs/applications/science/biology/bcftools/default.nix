@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, htslib, zlib, bzip2, lzma, curl, perl, python, bash }:
+{ lib, stdenv, fetchurl, htslib, zlib, bzip2, xz, curl, perl, python, bash }:
 
 stdenv.mkDerivation rec {
   pname = "bcftools";
@@ -9,7 +9,7 @@ stdenv.mkDerivation rec {
     sha256 = "0r508mp15pqzf8r1269kb4v5naw9zsvbwd3cz8s1yj7carsf9viw";
   };
 
-  buildInputs = [ htslib zlib bzip2 lzma curl perl python ];
+  buildInputs = [ htslib zlib bzip2 xz curl perl python ];
 
   makeFlags = [
     "HSTDIR=${htslib}"

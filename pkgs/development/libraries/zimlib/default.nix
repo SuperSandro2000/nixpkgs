@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, lzma }:
+{ lib, stdenv, fetchurl, xz }:
 
 stdenv.mkDerivation rec {
   pname = "zimlib";
@@ -9,7 +9,7 @@ stdenv.mkDerivation rec {
     sha256 = "14ra3iq42x53k1nqxb5lsg4gadlkpkgv6cbjjl6305ajmbrghcdq";
   };
 
-  buildInputs = [ lzma ];
+  buildInputs = [ xz ];
 
   enableParallelBuilding = true;
 

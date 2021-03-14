@@ -2,7 +2,7 @@
 , cmake, kodi, libcec_platform, tinyxml, pugixml
 , steam, udev, libusb1, jsoncpp, libhdhomerun, zlib
 , python3Packages, expat, glib, nspr, nss, openssl
-, libssh, libarchive, lzma, bzip2, lz4, lzo }:
+, libssh, libarchive, xz, bzip2, lz4, lzo }:
 
 with lib;
 
@@ -555,6 +555,6 @@ let self = rec {
       maintainers = with maintainers; [ minijackson ];
     };
 
-    extraBuildInputs = [ libarchive lzma bzip2 zlib lz4 lzo openssl ];
+    extraBuildInputs = [ libarchive xz bzip2 zlib lz4 lzo openssl ];
   };
 }; in self
