@@ -1,12 +1,12 @@
 { lib, stdenv, fetchurl, makeWrapper,
   pkg-config, systemd, gmp, unbound, bison, flex, pam, libevent, libcap_ng, curl, nspr,
-  bash, iproute, iptables, procps, coreutils, gnused, gawk, nss, which, python,
+  bash, iproute2, iptables, procps, coreutils, gnused, gawk, nss, which, python,
   docs ? false, xmlto, libselinux, ldns
   }:
 
 let
   binPath = lib.makeBinPath [
-    bash iproute iptables procps coreutils gnused gawk nss.tools which python
+    bash iproute2 iptables procps coreutils gnused gawk nss.tools which python
   ];
 in
 
@@ -36,7 +36,7 @@ stdenv.mkDerivation rec {
   ];
 
   nativeBuildInputs = [ makeWrapper pkg-config ];
-  buildInputs = [ bash iproute iptables systemd coreutils gnused gawk gmp unbound bison flex pam libevent
+  buildInputs = [ bash iproute2 iptables systemd coreutils gnused gawk gmp unbound bison flex pam libevent
                   libcap_ng curl nspr nss python ldns ]
                 ++ lib.optional docs xmlto
                 ++ lib.optional stdenv.isLinux libselinux;

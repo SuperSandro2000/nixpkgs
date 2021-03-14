@@ -3,7 +3,7 @@
 , makeWrapper
 , socat
 , iptables
-, iproute
+, iproute2
 , bridge-utils
 , conntrack-tools
 , buildGoPackage
@@ -233,7 +233,7 @@ stdenv.mkDerivation rec {
     kmod
     socat
     iptables
-    iproute
+    iproute2
     bridge-utils
     ethtool
     util-linux
