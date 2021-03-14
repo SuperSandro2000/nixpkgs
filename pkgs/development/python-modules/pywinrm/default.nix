@@ -2,7 +2,7 @@
 , buildPythonPackage
 , fetchPypi
 , isPy38
-, kerberos
+, libkrb5
 , mock
 , pytest
 , requests
@@ -22,7 +22,7 @@ buildPythonPackage rec {
   };
 
   checkInputs = [ mock pytest ];
-  propagatedBuildInputs = [ requests requests_ntlm six kerberos xmltodict ];
+  propagatedBuildInputs = [ requests requests_ntlm six libkrb5 xmltodict ];
 
   meta = with lib; {
     description = "Python library for Windows Remote Management";

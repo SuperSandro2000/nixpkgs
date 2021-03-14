@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, pam, kerberos }:
+{ lib, stdenv, fetchurl, pam, libkrb5 }:
 
 stdenv.mkDerivation rec {
   name = "pam-krb5-4.9";
@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
     sha256 = "0kzz6mjkzw571pkv684vyczhl874f6p7lih3dj7s764gxdxnv4y5";
   };
 
-  buildInputs = [ pam kerberos ];
+  buildInputs = [ pam libkrb5 ];
 
   meta = with lib; {
     homepage = "https://www.eyrie.org/~eagle/software/pam-krb5/";

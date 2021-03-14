@@ -1,5 +1,4 @@
 { lib, stdenv
-, pkgs
 , fetchurl
 , fetchpatch
 , zlib
@@ -12,7 +11,7 @@
 , hpnSupport ? false
 , withKerberos ? true
 , withGssapiPatches ? false
-, kerberos
+, libkrb5
 , libfido2
 , withFIDO ? stdenv.hostPlatform.isUnix && !stdenv.hostPlatform.isMusl
 , linkOpenssl ? true
@@ -69,10 +68,10 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ pkg-config ]
     ++ optional (hpnSupport || withGssapiPatches) autoreconfHook
-    ++ optional withKerberos pkgs.kerberos.dev;
+    ++ optional withKerberos libkrb5.dev;
   buildInputs = [ zlib openssl libedit pam ]
     ++ optional withFIDO libfido2
-    ++ optional withKerberos kerberos;
+    ++ optional withKerberos libkrb5;
 
   preConfigure = ''
     # Setting LD causes `configure' and `make' to disagree about which linker
@@ -89,7 +88,7 @@ stdenv.mkDerivation rec {
   # Kerberos can be found either by krb5-config or by fall-back shell
   # code in openssh's configure.ac. Neither of them support static
   # build, but patching code for krb5-config is simpler, so to get it
-  # into PATH, kerberos.dev is added into buildInputs.
+  # into PATH, libkrb5.dev is added into buildInputs.
   + optionalString stdenv.hostPlatform.isStatic ''
     sed -i "s,PKGCONFIG --libs,PKGCONFIG --libs --static,g" configure
     sed -i 's#KRB5CONF --libs`#KRB5CONF --libs` -lkrb5support -lkeyutils#g' configure
@@ -108,7 +107,7 @@ stdenv.mkDerivation rec {
     (if pam != null then "--with-pam" else "--without-pam")
   ] ++ optional (etcDir != null) "--sysconfdir=${etcDir}"
     ++ optional withFIDO "--with-security-key-builtin=yes"
-    ++ optional withKerberos (assert kerberos != null; "--with-kerberos5=${kerberos}")
+    ++ optional withKerberos (assert libkrb5 != null; "--with-kerberos5=${libkrb5}")
     ++ optional stdenv.isDarwin "--disable-libutil"
     ++ optional (!linkOpenssl) "--without-openssl";
 
