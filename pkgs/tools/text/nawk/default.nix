@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, yacc }:
+{ lib, stdenv, fetchFromGitHub, bison }:
 
 stdenv.mkDerivation rec {
   pname = "nawk";
@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
     sha256 = "0qcsxhcwg6g3c0zxmbipqa8d8d5n8zxrq0hymb8yavsaz103fcl6";
   };
 
-  nativeBuildInputs = [ yacc ];
+  nativeBuildInputs = [ bison ];
 
   patchPhase = ''
     substituteInPlace ./makefile \

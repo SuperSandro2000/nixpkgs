@@ -1,6 +1,6 @@
 { stdenv, lib, fetchFromGitHub,
   pkg-config, autoreconfHook,
-  flex, yacc, zlib, libxml2 }:
+  flex, bison, zlib, libxml2 }:
 
 stdenv.mkDerivation rec {
   pname = "igraph";
@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ pkg-config autoreconfHook ];
-  buildInputs = [ flex yacc zlib libxml2 ];
+  buildInputs = [ flex bison zlib libxml2 ];
 
   # Normally, igraph wants us to call bootstrap.sh, which will call
   # tools/getversion.sh. Instead, we're going to put the version directly

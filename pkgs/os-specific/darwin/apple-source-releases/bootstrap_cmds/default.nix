@@ -1,7 +1,7 @@
-{ lib, appleDerivation, yacc, flex }:
+{ lib, appleDerivation, bison, flex }:
 
 appleDerivation {
-  nativeBuildInputs = [ yacc flex ];
+  nativeBuildInputs = [ bison flex ];
 
   buildPhase = ''
     cd migcom.tproj

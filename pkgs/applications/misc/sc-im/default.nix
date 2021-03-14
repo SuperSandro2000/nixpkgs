@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, yacc, ncurses, libxml2, libzip, libxls, pkg-config }:
+{ lib, stdenv, fetchFromGitHub, bison, ncurses, libxml2, libzip, libxls, pkg-config }:
 
 stdenv.mkDerivation rec {
   version = "0.7.0";
@@ -12,7 +12,7 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ yacc ncurses libxml2 libzip libxls ];
+  buildInputs = [ bison ncurses libxml2 libzip libxls ];
 
   buildPhase = ''
     cd src
