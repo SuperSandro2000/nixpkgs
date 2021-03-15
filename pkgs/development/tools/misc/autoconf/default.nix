@@ -6,12 +6,24 @@
 # files.
 
 stdenv.mkDerivation rec {
-  name = "autoconf-2.70";
+  pname = "autoconf";
+  version = "2.70";
 
   src = fetchurl {
-    url = "mirror://gnu/autoconf/${name}.tar.xz";
+    url = "mirror://gnu/autoconf/${pname}-${version}.tar.xz";
     sha256 = "1ipckz0wr2mvhj9n3ys54fmf2aksin6bhqvzl304bn6rc1w257ps";
   };
+
+  patches = [
+    ./uutils-mkdirp.patch
+  ];
+
+  # workaround uutils-coreutils not interpreting escape sequences in tr
+  # https://github.com/uutils/coreutils/issues/1817
+  postPatch = ''
+    substituteInPlace lib/autoconf/status.m4 \
+      --replace 'if test "x$ac_cr" = x;' 'if test "x$ac_cr" = x || test "$ac_cr" = 0;'
+  '';
 
   nativeBuildInputs = [ m4 perl ];
   buildInputs = [ m4 ];
@@ -29,14 +41,13 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   # Make the Autotest test suite run in parallel.
-  preCheck =''
+  preCheck = ''
     export TESTSUITEFLAGS="-j$NIX_BUILD_CORES"
   '';
 
-  meta = {
+  meta = with lib; {
     homepage = "https://www.gnu.org/software/autoconf/";
     description = "Part of the GNU Build System";
-
     longDescription = ''
       GNU Autoconf is an extensible package of M4 macros that produce
       shell scripts to automatically configure software source code
@@ -46,9 +57,8 @@ stdenv.mkDerivation rec {
       file that lists the operating system features that the package
       can use, in the form of M4 macro calls.
     '';
-
-    license = lib.licenses.gpl3Plus;
-
-    platforms = lib.platforms.all;
+    license = licenses.gpl3Plus;
+    platforms = platforms.all;
+    maintainers = with maintainers; [ SuperSandro2000 ];
   };
 }
