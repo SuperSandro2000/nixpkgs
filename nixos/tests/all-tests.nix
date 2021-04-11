@@ -384,6 +384,7 @@ in {
   minio = handleTest ./minio.nix {};
   misc = handleTest ./misc.nix {};
   mjolnir = handleTest ./matrix/mjolnir.nix {};
+  mobilizon = handleTest ./mobilizon.nix {};
   mod_perl = handleTest ./mod_perl.nix {};
   molly-brown = handleTest ./molly-brown.nix {};
   mongodb = handleTest ./mongodb.nix {};

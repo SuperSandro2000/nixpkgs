@@ -1144,6 +1144,7 @@
   ./services/web-apps/powerdns-admin.nix
   ./services/web-apps/prosody-filer.nix
   ./services/web-apps/matomo.nix
+  ./services/web-apps/mobilizon.nix
   ./services/web-apps/openwebrx.nix
   ./services/web-apps/outline.nix
   ./services/web-apps/restya-board.nix
