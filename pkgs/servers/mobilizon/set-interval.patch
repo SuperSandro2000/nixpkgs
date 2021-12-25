@@ -1,0 +1,13 @@
+diff --git a/src/App.vue b/src/App.vue
+index 52134641..78dd85b4 100644
+--- a/src/App.vue
++++ b/src/App.vue
+@@ -156,7 +156,7 @@ export default class App extends Vue {
+       });
+     });
+ 
+-    this.interval = setInterval(async () => {
++    this.interval = window.setInterval(async () => {
+       const accessToken = localStorage.getItem(AUTH_ACCESS_TOKEN);
+       if (accessToken) {
+         const token = jwt_decode<JwtPayload>(accessToken);

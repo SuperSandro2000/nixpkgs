@@ -1,28 +1,16 @@
-{ stdenv, lib, yarn, mkYarnPackage, mobilizon, imagemagick }:
+{ lib, applyPatches, yarn, mkYarnPackage, mobilizon, imagemagick }:
 
 mkYarnPackage rec {
-  src = stdenv.mkDerivation {
+  src = applyPatches {
     name = "mobilizon-js-src";
-
     src = "${mobilizon.src}/js";
-
     patches = [
-      # Due to the unsupported "resolution" parameter of "package.json"
-      ./fix-yarn-lock.patch
-      # I'm not sure why this doesn't work, but this is just the Vue config
-      # setting a lower limit on memory usage, it should not affect the output
-      ./fix-vue-config.patch
+      ./set-interval.patch
     ];
-
-    installPhase = ''
-      runHook preInstall
-
-      mkdir $out
-      cp -a . $out/
-
-      runHook postInstall
-    '';
   };
+
+  # redundant?
+  yarnFlags = [ "--offline" ];
 
   packageJSON = ./package.json;
   yarnLock = "${src}/yarn.lock";
@@ -44,6 +32,6 @@ mkYarnPackage rec {
     description = "Frontend for the Mobilizon server";
     homepage = "https://joinmobilizon.org/";
     license = licenses.agpl3Plus;
-    maintainers = with maintainers; [ minijackson ];
+    maintainers = with maintainers; [ minijackson erictapen ];
   };
 }
