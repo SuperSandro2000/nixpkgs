@@ -84,7 +84,7 @@ in
                 "Mobilizon.Web.Endpoint" = {
                   url.host = mkOption {
                     type = elixirTypes.str;
-                    defaultText = literalExample ''
+                    defaultText = literalExpression ''
                       ''${settings.":mobilizon".":instance".hostname}
                     '';
                     description = ''
@@ -126,7 +126,7 @@ in
 
                   email_from = mkOption {
                     type = elixirTypes.str;
-                    defaultText = literalExample ''
+                    defaultText = literalExpression ''
                       noreply@''${settings.":mobilizon".":instance".hostname}
                     '';
                     description = ''
@@ -136,7 +136,7 @@ in
 
                   email_reply_to = mkOption {
                     type = elixirTypes.str;
-                    defaultText = literalExample ''
+                    defaultText = literalExpression ''
                       ''${email_from}
                     '';
                     description = ''
