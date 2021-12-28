@@ -230,6 +230,15 @@ in
 
       wantedBy = [ "multi-user.target" ];
 
+      path = with pkgs; [
+        gawk
+        imagemagick
+        libwebp
+
+        # Optional:
+        # gifsicle jpegoptim optipng pngquant
+      ];
+
       serviceConfig = {
         ExecStartPre = "${launchers}/bin/mobilizon_ctl migrate";
         ExecStart = "${launchers}/bin/mobilizon start";
