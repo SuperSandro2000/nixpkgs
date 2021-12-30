@@ -337,6 +337,11 @@ in
       serviceConfig.Type = "oneshot";
     };
 
+    systemd.tmpfiles.rules = [
+      "d /var/lib/mobilizon/uploads/exports/csv 700 mobilizon mobilizon - -"
+      "Z /var/lib/mobilizon 700 mobilizon mobilizon - -"
+    ];
+
     services.postgresql = mkIf isLocalPostgres {
       enable = true;
       ensureDatabases = [ repoSettings.database ];
