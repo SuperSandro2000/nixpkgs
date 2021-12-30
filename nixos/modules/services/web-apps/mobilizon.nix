@@ -8,6 +8,8 @@ let
   user = "mobilizon";
   group = "mobilizon";
 
+  package = pkgs.mobilizon;
+
   settingsFormat = pkgs.formats.elixirConf { };
 
   configFile = settingsFormat.generate "mobilizon-config.exs" cfg.settings;
@@ -16,10 +18,10 @@ let
   # setting it with systemd services, so that the user can also use them without
   # troubles
   launchers = pkgs.stdenv.mkDerivation rec {
-    pname = "${cfg.package.pname}-launchers";
-    inherit (cfg.package) version;
+    pname = "${package.pname}-launchers";
+    inherit (package) version;
 
-    src = cfg.package;
+    src = package;
 
     nativeBuildInputs = with pkgs; [ makeWrapper ];
 
@@ -61,14 +63,6 @@ in
     services.mobilizon = {
       enable = mkEnableOption
         "Mobilizon federated organization and mobilization platform";
-
-      package = mkOption {
-        type = types.package;
-        default = pkgs.mobilizon;
-        description = ''
-          Which Mobilizon package to use.
-        '';
-      };
 
       settings = mkOption {
         type =
