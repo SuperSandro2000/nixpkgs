@@ -234,6 +234,7 @@ in
         gawk
         imagemagick
         libwebp
+        file
 
         # Optional:
         # gifsicle jpegoptim optipng pngquant
