@@ -64,6 +64,15 @@ in
       enable = mkEnableOption
         "Mobilizon federated organization and mobilization platform";
 
+      nginx.enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          Whether an <literal>nginx</literal> virtual host should be
+          set up to serve Mobilizon.
+        '';
+      };
+
       settings = mkOption {
         type =
           let
@@ -86,12 +95,21 @@ in
                     '';
                   };
 
-                  http.port = mkOption {
-                    type = elixirTypes.port;
-                    default = 4000;
-                    description = ''
-                      The port to run the server
-                    '';
+                  http = {
+                    port = mkOption {
+                      type = elixirTypes.port;
+                      default = 4000;
+                      description = ''
+                        The port to run the server
+                      '';
+                    };
+                    ip = mkOption {
+                      type = elixirTypes.tuple;
+                      default = settingsFormat.lib.mkTuple [ 0 0 0 0 0 0 0 1 ];
+                      description = ''
+                        The IP address to listen on. Defaults to [::1] notated as a byte tuple.
+                      '';
+                    };
                   };
 
                   has_reverse_proxy = mkOption {
@@ -188,6 +206,14 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    assertions = [
+      {
+        assertion = cfg.nginx.enable -> (cfg.settings.":mobilizon"."Mobilizon.Web.Endpoint".http.ip == settingsFormat.lib.mkTuple [ 0 0 0 0 0 0 0 1 ]);
+        message = "Setting the IP mobilizon listens on is only possible when the nginx config is not used, as it is hardcoded there.";
+      }
+    ];
+
     services.mobilizon.settings = {
       ":mobilizon" = {
         "Mobilizon.Web.Endpoint" = {
@@ -349,6 +375,49 @@ in
       ];
       extraPlugins = with postgresql.pkgs; [ postgis ];
     };
+
+    # Nginx config taken from support/nginx/mobilizon-release.conf
+    services.nginx =
+      let
+        inherit (cfg.settings.":mobilizon".":instance") hostname;
+        proxyPass = "http://[::1]:"
+          + toString cfg.settings.":mobilizon"."Mobilizon.Web.Endpoint".http.port;
+      in
+      lib.mkIf cfg.nginx.enable {
+        enable = true;
+        virtualHosts."${hostname}" = {
+          enableACME = lib.mkDefault true;
+          forceSSL = lib.mkDefault true;
+          extraConfig = ''
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+          '';
+          locations."/" = {
+            inherit proxyPass;
+          };
+          locations."~ ^/(js|css)" = {
+            root = "${package}/lib/mobilizon-${package.version}/priv/static";
+            extraConfig = ''
+              etag off;
+              access_log off;
+              add_header Cache-Control "public, max-age=31536000, immutable";
+            '';
+          };
+          locations."~ ^/(media|proxy)" = {
+            inherit proxyPass;
+            extraConfig = ''
+              etag off;
+              access_log off;
+              add_header Cache-Control "public, max-age=31536000, immutable";
+            '';
+          };
+        };
+      };
 
     users.users.${user} = {
       description = "Mobilizon daemon user";

@@ -1,24 +1,44 @@
-import ./make-test-python.nix ({ lib, ...}:
+import ./make-test-python.nix ({ lib, ... }:
+  let
+    certs = import ./common/acme/server/snakeoil-certs.nix;
+    mobilizonDomain = certs.domain;
+    port = 41395;
+  in
 
-{
-  name = "mobilizon";
-  meta.maintainers = with lib.maintainers; [ minijackson erictapen ];
+  {
+    name = "mobilizon";
+    meta.maintainers = with lib.maintainers; [ minijackson erictapen ];
 
-  machine =
-    { ... }:
-    {
-      services.mobilizon = {
-        enable = true;
-        settings.":mobilizon".":instance" = {
-          name = "Test Mobilizon";
-          hostname = "localhost";
+    machine =
+      { ... }:
+      {
+        services.mobilizon = {
+          enable = true;
+          settings = {
+            ":mobilizon" = {
+              ":instance" = {
+                name = "Test Mobilizon";
+                hostname = mobilizonDomain;
+              };
+              "Mobilizon.Web.Endpoint".http.port = port;
+            };
+          };
         };
-      };
-    };
 
-  testScript = ''
-    machine.wait_for_unit("mobilizon.service")
-    machine.wait_for_open_port(4000)
-    machine.succeed("curl --fail http://localhost:4000/")
-  '';
-})
+        security.pki.certificateFiles = [ certs.ca.cert ];
+
+        services.nginx.virtualHosts."${mobilizonDomain}" = {
+          enableACME = lib.mkForce false;
+          sslCertificate = certs.${mobilizonDomain}.cert;
+          sslCertificateKey = certs.${mobilizonDomain}.key;
+        };
+
+        networking.hosts."::1" = [ mobilizonDomain ];
+      };
+
+    testScript = ''
+      machine.wait_for_unit("mobilizon.service")
+      machine.wait_for_open_port(${toString port})
+      machine.succeed("curl --fail https://${mobilizonDomain}/")
+    '';
+  })
