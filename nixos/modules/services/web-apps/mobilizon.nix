@@ -365,5 +365,5 @@ in
     environment.systemPackages = [ launchers ];
   };
 
-  meta.maintainers = with lib.maintainers; [ minijackson ];
+  meta.maintainers = with lib.maintainers; [ minijackson erictapen ];
 }
