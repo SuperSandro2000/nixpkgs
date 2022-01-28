@@ -328,7 +328,12 @@ in rec {
         mv $NIX_BUILD_TOP/temp "$PWD/deps/${pname}"
         cd $PWD
 
-        ln -s ${deps}/deps/${pname}/node_modules "deps/${pname}/node_modules"
+        # TODO: Use
+        #   ln -s ${deps}/deps/${pname}/node_modules "deps/${pname}/node_modules"
+        # as soon as Mobilizon doesn't use Babel < 7.7.0 anymore.
+        # https://github.com/babel/babel/commit/487f10f84d03a2019c7aa8da254577478bb28e3b
+        cp -r "${deps}/deps/${pname}/node_modules" "deps/${pname}/node_modules"
+        chmod -R +w "deps/${pname}/node_modules"
 
         cp -r $node_modules node_modules
         chmod -R +w node_modules
