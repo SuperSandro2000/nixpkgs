@@ -1,9 +1,9 @@
-{ lib, applyPatches, yarn, mkYarnPackage, mobilizon, imagemagick }:
+{ lib, applyPatches, yarn, mkYarnPackage, imagemagick, mobilizon-src }:
 
 mkYarnPackage rec {
   src = applyPatches {
     name = "mobilizon-js-src";
-    src = "${mobilizon.src}/js";
+    src = "${mobilizon-src}/js";
     patches = [
       ./set-interval.patch
     ];

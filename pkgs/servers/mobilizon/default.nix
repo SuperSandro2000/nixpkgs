@@ -7,17 +7,17 @@
 , git
 , cmake
 , nixosTests
+, srcOverride ? null
 }:
 
 let
   inherit (beamPackages) mixRelease buildMix fetchHex;
-  js = callPackage ./js.nix { };
 in
 mixRelease rec {
   pname = "mobilizon";
   version = "2.0.2";
 
-  src = fetchFromGitLab {
+  src = if srcOverride != null then srcOverride else fetchFromGitLab {
     domain = "framagit.org";
     owner = "framasoft";
     repo = pname;
@@ -113,7 +113,9 @@ mixRelease rec {
   };
 
   # Install the compiled js part
-  preBuild = ''
+  preBuild = let
+    js = callPackage ./js.nix { mobilizon-src = src; };
+  in ''
     cp -a "${js}/libexec/mobilizon/deps/priv/static" ./priv
   '';
 
