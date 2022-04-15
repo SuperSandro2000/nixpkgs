@@ -9,7 +9,7 @@ import ./make-test-python.nix ({ lib, ... }:
     name = "mobilizon";
     meta.maintainers = with lib.maintainers; [ minijackson erictapen ];
 
-    machine =
+    nodes.server =
       { ... }:
       {
         services.mobilizon = {
@@ -37,8 +37,8 @@ import ./make-test-python.nix ({ lib, ... }:
       };
 
     testScript = ''
-      machine.wait_for_unit("mobilizon.service")
-      machine.wait_for_open_port(${toString port})
-      machine.succeed("curl --fail https://${mobilizonDomain}/")
+      server.wait_for_unit("mobilizon.service")
+      server.wait_for_open_port(${toString port})
+      server.succeed("curl --fail https://${mobilizonDomain}/")
     '';
   })
