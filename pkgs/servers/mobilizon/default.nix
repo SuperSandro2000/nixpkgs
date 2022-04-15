@@ -1,6 +1,9 @@
 { lib
 , beamPackages
 , callPackage
+, writeShellScriptBin
+, yarn2nix
+, mix2nix
 , fetchFromGitLab
 , fetchFromGitHub
 , fetchgit
@@ -119,8 +122,14 @@ mixRelease rec {
     cp -a "${js}/libexec/mobilizon/deps/priv/static" ./priv
   '';
 
-  passthru.tests = {
-    smoke-test = nixosTests.mobilizon;
+  passthru = {
+    tests.smoke-test = nixosTests.mobilizon;
+    updateScript = writeShellScriptBin "update.sh" ''
+      SRC=$(nix path-info .#mobilizon.src)
+      ${yarn2nix}/bin/yarn2nix --lockfile="$SRC/js/yarn.lock" > pkgs/servers/mobilizon/yarn.nix
+      ${mix2nix}/bin/mix2nix $SRC/mix.lock > pkgs/servers/mobilizon/mix.nix
+      cat $SRC/js/package.json > pkgs/servers/mobilizon/package.json
+    '';
   };
 
   meta = with lib; {
