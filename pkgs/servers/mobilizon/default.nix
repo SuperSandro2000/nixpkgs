@@ -2,6 +2,7 @@
 , beamPackages
 , callPackage
 , writeShellScriptBin
+, writeText
 , yarn2nix
 , mix2nix
 , fetchFromGitLab
@@ -18,15 +19,20 @@ let
 in
 mixRelease rec {
   pname = "mobilizon";
-  version = "2.0.2";
+  version = "2.1.0-rc.3";
 
   src = if srcOverride != null then srcOverride else fetchFromGitLab {
     domain = "framagit.org";
     owner = "framasoft";
     repo = pname;
     rev = version;
-    sha256 = "sha256-tEnnT4FnUrHU+05nBqGnPXR7CgAsbg5/rj9ur9+acEE=";
+    sha256 = "sha256-WYxS1iNW9HW5JPJx0Ex4W15Tav1xfGbncD9XmHaCvAw=";
   };
+
+  patches = [
+    # TODO I have no idea what this does exactly, but it works. Maybe ask upstream about it?
+    ./mime.patch
+  ];
 
   nativeBuildInputs = [ git cmake ];
 
@@ -43,8 +49,8 @@ mixRelease rec {
         src = fetchFromGitHub {
           owner = "elixir-cldr";
           repo = "cldr";
-          rev = "v2.24.2";
-          sha256 = "sha256-7EukiuukF/ZfzlTg16BGvMvl1L8kSphaGPg1YqjL0EE=";
+          rev = "v2.27.1";
+          sha256 = "sha256-XFgRIm0FiP42Af5YsHpGJDoSkDrcQ360+oK8SBix8pI=";
         };
         postInstall = ''
           cp $src/priv/cldr/locales/* $out/lib/erlang/lib/ex_cldr-${old.version}/priv/cldr/locales/
