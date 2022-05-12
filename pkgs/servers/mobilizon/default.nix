@@ -19,14 +19,14 @@ let
 in
 mixRelease rec {
   pname = "mobilizon";
-  version = "2.1.0-rc.3";
+  version = "2.1.0-rc.6";
 
   src = if srcOverride != null then srcOverride else fetchFromGitLab {
     domain = "framagit.org";
     owner = "framasoft";
     repo = pname;
     rev = version;
-    sha256 = "sha256-WYxS1iNW9HW5JPJx0Ex4W15Tav1xfGbncD9XmHaCvAw=";
+    sha256 = "sha256-neMgjEBB4T+x7UTn5pia/xbZEOnFIXnDA+k8OhIqvdQ=";
   };
 
   patches = [
@@ -65,12 +65,26 @@ mixRelease rec {
       ex_cldr_dates_times = prev.ex_cldr_dates_times.override {
         preBuild = "touch config/prod.exs";
       };
+      ex_cldr_plugs = prev.ex_cldr_plugs.override {
+        preBuild = "touch config/prod.exs";
+      };
       # Upstream issue: https://github.com/bryanjos/geo_postgis/pull/87
       geo_postgis = prev.geo_postgis.overrideAttrs (old: {
         propagatedBuildInputs = old.propagatedBuildInputs ++ [ final.ecto ];
       });
 
       # The remainder are Git dependencies (and their deps) that are not supported by mix2nix currently.
+      web_push_encryption = buildMix rec {
+        name = "web_push_encryption";
+        version = "0.3.1";
+        src = fetchFromGitHub {
+          owner = "danhper";
+          repo = "elixir-web-push-encryption";
+          rev = "70f00d06cbd88c9ac382e0ad2539e54448e9d8da";
+          sha256 = "sha256-b4ZMrt/8n2sPUFtCDRTwXS1qWm5VlYdbx8qC0R0boOA=";
+        };
+        beamDeps = with final; [ httpoison jose ];
+      };
       icalendar = buildMix rec {
         name = "icalendar";
         version = "unstable-2021-01-15";
