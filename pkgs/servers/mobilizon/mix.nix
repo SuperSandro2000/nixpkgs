@@ -294,6 +294,19 @@ let
       beamDeps = [ erlex ];
     };
 
+    digital_token = buildMix rec {
+      name = "digital_token";
+      version = "0.3.0";
+
+      src = fetchHex {
+        pkg = "${name}";
+        version = "${version}";
+        sha256 = "0d38czyni5x7nrh4hjriswdvjzp1vh7saxf8vln3kalhphb5v6g5";
+      };
+
+      beamDeps = [ cldr_utils jason ];
+    };
+
     doctor = buildMix rec {
       name = "doctor";
       version = "0.18.0";
@@ -335,12 +348,12 @@ let
 
     ecto = buildMix rec {
       name = "ecto";
-      version = "3.8.2";
+      version = "3.8.3";
 
       src = fetchHex {
         pkg = "${name}";
         version = "${version}";
-        sha256 = "1cwrcmni3g24cs9wm5yx55q443sfslqq65bc8slacq9zq8n93qmg";
+        sha256 = "01fi0g3znkhlhiflfyhw5d1nacdjqcqwzb5a1pmclywn2mwdv4mg";
       };
 
       beamDeps = [ decimal jason telemetry ];
@@ -530,15 +543,15 @@ let
 
     ex_cldr_numbers = buildMix rec {
       name = "ex_cldr_numbers";
-      version = "2.26.0";
+      version = "2.27.0";
 
       src = fetchHex {
         pkg = "${name}";
         version = "${version}";
-        sha256 = "06z1203ra0ldz2d47zi6kxgv66a44mfp097g65zrw547djywgc9m";
+        sha256 = "184va9v0qa5vjsdv965di7cgsk514qb413m10n717nz3sh85ijqy";
       };
 
-      beamDeps = [ decimal ex_cldr ex_cldr_currencies jason ];
+      beamDeps = [ decimal digital_token ex_cldr ex_cldr_currencies jason ];
     };
 
     ex_cldr_plugs = buildMix rec {
@@ -621,12 +634,12 @@ let
 
     excoveralls = buildMix rec {
       name = "excoveralls";
-      version = "0.14.4";
+      version = "0.14.5";
 
       src = fetchHex {
         pkg = "${name}";
         version = "${version}";
-        sha256 = "1h9ig4hijdhp73isl830hip7s7g78ykz19i8jx8pl72cvzr05az3";
+        sha256 = "0khzdvr391zdcg1nrhbsy4059c51p2s177hmjj5y99p922zskd79";
       };
 
       beamDeps = [ hackney jason ];
