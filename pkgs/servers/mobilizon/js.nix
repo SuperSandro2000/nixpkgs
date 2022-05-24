@@ -1,4 +1,4 @@
-{ lib, applyPatches, yarn, mkYarnPackage, imagemagick, mobilizon-src }:
+{ lib, applyPatches, yarn, mkYarnPackage, yarn2nix-moretea, imagemagick, mobilizon-src }:
 
 mkYarnPackage rec {
   src = applyPatches {
@@ -9,12 +9,10 @@ mkYarnPackage rec {
     ];
   };
 
-  # redundant?
-  yarnFlags = [ "--offline" ];
-
   packageJSON = ./package.json;
   yarnLock = "${src}/yarn.lock";
   yarnNix = ./yarn.nix;
+  yarnFlags = yarn2nix-moretea.defaultYarnFlags ++ [ "--production" ];
 
   buildPhase = ''
     runHook preBuild
