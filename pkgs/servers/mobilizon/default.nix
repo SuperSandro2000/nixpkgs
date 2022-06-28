@@ -29,16 +29,27 @@ mixRelease rec {
     sha256 = "sha256-8i+KKC+ycnfBmVJ1snXtK+57xjBETQzTRw7uzJv8PKY=";
   };
 
-  patches = [
-    # TODO I have no idea what this does exactly, but it works. Maybe ask upstream about it?
-    ./mime.patch
-  ];
-
   nativeBuildInputs = [ git cmake ];
 
   mixNixDeps = import ./mix.nix {
     inherit beamPackages lib;
     overrides = (final: prev: {
+      mime = prev.mime.override {
+        patchPhase = let
+          cfgFile = writeText "config.exs" ''
+            use Mix.Config
+            config :mime, :types, %{
+              "application/activity+json" => ["activity-json"],
+              "application/ld+json" => ["activity-json"],
+              "application/jrd+json" => ["jrd-json"],
+              "application/xrd+xml" => ["xrd-xml"]
+            }
+          '';
+        in ''
+          mkdir config
+          cp ${cfgFile} config/config.exs
+        '';
+      };
       fast_html = prev.fast_html.override {
         nativeBuildInputs = [ cmake ];
       };
