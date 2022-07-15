@@ -44,7 +44,7 @@ if ($len == 0) {
         print STDERR <<EOF;
 The program '$program' is not in your PATH. You can make it available in an
 ephemeral shell by typing:
-  nix-shell -p $package
+  nix shell nixpkgs\#$package
 EOF
     }
 } else {
@@ -70,7 +70,7 @@ EOF
 The program '$program' is not in your PATH. It is provided by several packages.
 You can make it available in an ephemeral shell by typing one of the following:
 EOF
-        print STDERR "  nix-shell -p $_->{package}\n" foreach @$res;
+        print STDERR "  nix shell nixpkgs#$_->{package}\n" foreach @$res;
     }
 }
 
