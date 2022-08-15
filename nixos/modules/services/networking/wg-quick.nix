@@ -272,7 +272,10 @@ let
         requires = [ "network-online.target" ];
         after = [ "network.target" "network-online.target" ];
         wantedBy = optional values.autostart "multi-user.target";
-        environment.DEVICE = name;
+        environment = {
+          CONFIG_FILE = configDir;
+          DEVICE = name;
+        };
         path = [
           pkgs.wireguard-tools
           config.networking.firewall.package   # iptables or nftables
@@ -331,7 +334,12 @@ in {
 
   config = mkIf (cfg.interfaces != {}) {
     boot.extraModulePackages = optional (versionOlder kernel.kernel.version "5.6") kernel.wireguard;
-    environment.systemPackages = [ pkgs.wireguard-tools ];
+    environment = {
+      systemPackages = [ pkgs.wireguard-tools ];
+      etc = mapAttrs' (name: values: nameValuePair ("wireguard/${name}.conf") {
+        source = config.systemd.services."wg-quick-${name}".environment.CONFIG_FILE + "/${name}.conf";
+      }) cfg.interfaces;
+    };
     systemd.services = mapAttrs' generateUnit cfg.interfaces;
 
     # Prevent networkd from clearing the rules set by wg-quick when restarted (e.g. when waking up from suspend).
