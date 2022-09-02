@@ -257,7 +257,7 @@ in
         file
 
         # Optional:
-        # gifsicle jpegoptim optipng pngquant
+        gifsicle jpegoptim optipng pngquant
       ];
 
       serviceConfig = {
