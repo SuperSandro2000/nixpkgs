@@ -9,9 +9,6 @@ mkYarnPackage rec {
     ];
   };
 
-  # redundant?
-  yarnFlags = [ "--offline" ];
-
   packageJSON = ./package.json;
   yarnLock = "${src}/yarn.lock";
   yarnNix = ./yarn.nix;
