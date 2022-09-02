@@ -340,21 +340,22 @@ in
       before = [ "mobilizon.service" "mobilizon-setup-secrets.service" ];
       wantedBy = [ "mobilizon.service" ];
 
+      path = [ postgresql ];
+
       # Taken from here:
       # https://framagit.org/framasoft/mobilizon/-/blob/1.1.0/priv/templates/setup_db.eex
       script =
-        let
-          pgSu = "${pkgs.util-linux}/bin/runuser -u ${config.services.postgresql.superUser}";
-          psql = "${pgSu} -- ${postgresql}/bin/psql";
-        in
         ''
-          ${psql} "${repoSettings.database}" -c "\
+          psql "${repoSettings.database}" -c "\
             CREATE EXTENSION IF NOT EXISTS postgis; \
             CREATE EXTENSION IF NOT EXISTS pg_trgm; \
             CREATE EXTENSION IF NOT EXISTS unaccent;"
         '';
 
-      serviceConfig.Type = "oneshot";
+      serviceConfig = {
+        Type = "oneshot";
+        User = config.services.postgresql.superUser;
+      };
     };
 
     systemd.tmpfiles.rules = [
