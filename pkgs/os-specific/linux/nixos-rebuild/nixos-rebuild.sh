@@ -14,6 +14,10 @@ showSyntax() {
     exit 1
 }
 
+nom=nix
+if type -p nom &>/dev/null; then
+    nom=nom
+fi
 
 # Parse the command line.
 origArgs=("$@")
@@ -284,7 +288,7 @@ nixBuild() {
     logVerbose "Building in legacy (non-flake) mode."
     if [ -z "$buildHost" ]; then
         logVerbose "No --build-host given, running nix-build locally"
-        runCmd nix-build "$@"
+        runCmd $nom-build "$@"
     else
         logVerbose "buildHost set to \"$buildHost\", running nix-build remotely"
         local instArgs=()
@@ -336,10 +340,10 @@ nixFlakeBuild() {
     logVerbose "Building in flake mode."
     if [[ -z "$buildHost" && -z "$targetHost" && "$action" != switch && "$action" != boot && "$action" != test && "$action" != dry-activate ]]
     then
-        runCmd nix "${flakeFlags[@]}" build "$@"
+        runCmd $nom build "${flakeFlags[@]}" "$@"
         readlink -f ./result
     elif [ -z "$buildHost" ]; then
-        runCmd nix "${flakeFlags[@]}" build "$@" --out-link "${tmpDir}/result"
+        runCmd $nom build "${flakeFlags[@]}" "$@" --out-link "${tmpDir}/result"
         readlink -f "${tmpDir}/result"
     else
         local attr="$1"
@@ -486,14 +490,14 @@ fi
 # Re-execute nixos-rebuild from the Nixpkgs tree.
 if [[ -z $_NIXOS_REBUILD_REEXEC && -n $canRun && -z $fast ]]; then
     if [[ -z $buildingAttribute ]]; then
-        p=$(runCmd nix-build --no-out-link $buildFile -A "${attr:+$attr.}config.system.build.nixos-rebuild" "${extraBuildFlags[@]}")
+        p=$(runCmd $nix-build --no-out-link $buildFile -A "${attr:+$attr.}config.system.build.nixos-rebuild" "${extraBuildFlags[@]}")
         SHOULD_REEXEC=1
     elif [[ -z $flake ]]; then
-        if p=$(runCmd nix-build --no-out-link --expr 'with import <nixpkgs/nixos> {}; config.system.build.nixos-rebuild' "${extraBuildFlags[@]}"); then
+        if p=$(runCmd $nix-build --no-out-link --expr 'with import <nixpkgs/nixos> {}; config.system.build.nixos-rebuild' "${extraBuildFlags[@]}"); then
             SHOULD_REEXEC=1
         fi
     else
-        runCmd nix "${flakeFlags[@]}" build --out-link "${tmpDir}/nixos-rebuild" "$flake#$flakeAttr.config.system.build.nixos-rebuild" "${extraBuildFlags[@]}" "${lockFlags[@]}"
+        runCmd $nom build "${flakeFlags[@]}" --out-link "${tmpDir}/nixos-rebuild" "$flake#$flakeAttr.config.system.build.nixos-rebuild" "${extraBuildFlags[@]}" "${lockFlags[@]}"
         if p=$(readlink -e "${tmpDir}/nixos-rebuild"); then
             SHOULD_REEXEC=1
         fi
