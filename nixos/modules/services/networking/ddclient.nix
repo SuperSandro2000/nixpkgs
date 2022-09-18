@@ -204,6 +204,8 @@ with lib;
   ###### implementation
 
   config = mkIf config.services.ddclient.enable {
+    environment.etc."ddclient/ddclient.conf".source = configFile;
+
     systemd.services.ddclient = {
       description = "Dynamic DNS Client";
       wantedBy = [ "multi-user.target" ];
