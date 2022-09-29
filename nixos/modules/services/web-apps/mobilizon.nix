@@ -370,7 +370,7 @@ in
         {
           name = dbUser;
           ensurePermissions = {
-            "DATABASE ${repoSettings.database}" = "ALL PRIVILEGES";
+            "DATABASE \"${repoSettings.database}\"" = "ALL PRIVILEGES";
           };
         }
       ];
