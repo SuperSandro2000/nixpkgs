@@ -94,13 +94,13 @@ let
     REDIRECT_STATUS   = "200";
   };
 
-  recommendedProxyConfig = pkgs.writeText "nginx-recommended-proxy-headers.conf" ''
-    proxy_set_header        Host $host;
-    proxy_set_header        X-Real-IP $remote_addr;
-    proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header        X-Forwarded-Proto $scheme;
-    proxy_set_header        X-Forwarded-Host $host;
-    proxy_set_header        X-Forwarded-Server $host;
+  recommendedProxyConfig = ''
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Server $host;
   '';
 
   proxyCachePathConfig = concatStringsSep "\n" (mapAttrsToList (name: proxyCachePath: ''
@@ -238,8 +238,7 @@ let
         # don't let clients close the keep-alive connection to upstream. See the nginx blog for details:
         # https://www.nginx.com/blog/avoiding-top-10-nginx-configuration-mistakes/#no-keepalives
         proxy_set_header        "Connection" "";
-        include ${recommendedProxyConfig};
-      ''}
+      '' + recommendedProxyConfig}
 
       ${optionalString (cfg.mapHashBucketSize != null) ''
         map_hash_bucket_size ${toString cfg.mapHashBucketSize};
@@ -467,7 +466,7 @@ let
       ${optionalString (config.alias != null) "alias ${config.alias};"}
       ${optionalString (config.return != null) "return ${toString config.return};"}
       ${config.extraConfig}
-      ${optionalString (config.proxyPass != null && config.recommendedProxySettings) "include ${recommendedProxyConfig};"}
+      ${optionalString (config.proxyPass != null && config.recommendedProxySettings) recommendedProxyConfig}
       ${mkBasicAuth "sublocation" config}
     }
   '') (sortProperties (mapAttrsToList (k: v: v // { location = k; }) locations)));
