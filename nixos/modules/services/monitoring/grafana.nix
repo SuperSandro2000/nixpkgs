@@ -734,7 +734,6 @@ in
                 to work around that. Look at the documentation for details:
                 <https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#file-provider>
               '';
-              default = "admin";
               type = types.str;
             };
 
@@ -752,7 +751,6 @@ in
                 to work around that. Look at the documentation for details:
                 <https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#file-provider>
               '';
-              default = "SW2YcwTIb9zpOOhoPsMm";
               type = types.str;
             };
 
