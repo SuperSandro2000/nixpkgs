@@ -2083,6 +2083,8 @@ with pkgs;
 
   git-open = callPackage ../applications/version-management/git-open { };
 
+  git-power-rs = callPackage ../applications/version-management/git-power-rs { };
+
   git-privacy = callPackage ../applications/version-management/git-privacy { };
 
   git-ps-rs = callPackage ../development/tools/git-ps-rs {
