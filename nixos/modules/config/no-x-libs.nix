@@ -46,6 +46,14 @@ with lib;
       pinentry = super.pinentry.override { enabledFlavors = [ "curses" "tty" "emacs" ]; withLibsecret = false; };
       qemu = super.qemu.override { gtkSupport = false; spiceSupport = false; sdlSupport = false; };
       zbar = super.zbar.override { enableVideo = false; withXorg = false; };
+      stoken = super.stoken.override { withGTK3 = false; };
+      # translateManpages -> perlPackages.po4a -> texlive-combined-basic -> texlive-core-big -> libX11
+      util-linux = super.util-linux.override { translateManpages = false; };
+      # dep of graphviz, libXpm is optional for Xpm support
+      gd = super.gd.override { libXpm = null; };
+      graphviz = super.graphviz-nox;
+      libdevil = super.libdevil-nox;
+      pango = super.pango.override { x11Support = false; };
     }));
   };
 }
