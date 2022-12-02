@@ -11,6 +11,15 @@ let
   py = python3.override {
     packageOverrides = self: super: {
       django = super.django_4;
+      graphene-django = super.graphene-django.overrideAttrs (_: rec {
+        version = "2.15.0";
+        src = fetchFromGitHub {
+          owner = "graphql-python";
+          repo = "graphene-django";
+          rev = "v${version}";
+          hash = "sha256-KTZ5jcoeHYXnlaF47t8jIi6+7NyMyA4hDPv+il3bt+U=";
+        };
+      });
     };
   };
 
