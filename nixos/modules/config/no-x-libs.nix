@@ -30,11 +30,15 @@ with lib;
       beam = super.beam_nox;
       cairo = super.cairo.override { x11Support = false; };
       dbus = super.dbus.override { x11Support = false; };
-      ffmpeg_4 = super.ffmpeg_4-headless;
-      ffmpeg_5 = super.ffmpeg_5-headless;
+      ffmpeg_4 = super.ffmpeg_4.override { sdlSupport = false; vdpauSupport = false; };
+      ffmpeg_5 = super.ffmpeg_5.override { sdlSupport = false; vdpauSupport = false; };
+      # dep of graphviz, libXpm is optional for Xpm support
+      gd = super.gd.override { libXpm = null; };
       gobject-introspection = super.gobject-introspection.override { x11Support = false; };
+      graphviz = super.graphviz-nox;
       imagemagick = super.imagemagick.override { libX11Support = false; libXtSupport = false; };
       imagemagickBig = super.imagemagickBig.override { libX11Support = false; libXtSupport = false; };
+      libdevil = super.libdevil-nox;
       libva = super.libva-minimal;
       networkmanager-fortisslvpn = super.networkmanager-fortisslvpn.override { withGnome = false; };
       networkmanager-iodine = super.networkmanager-iodine.override { withGnome = false; };
@@ -43,6 +47,7 @@ with lib;
       networkmanager-openvpn = super.networkmanager-openvpn.override { withGnome = false; };
       networkmanager-sstp = super.networkmanager-vpnc.override { withGnome = false; };
       networkmanager-vpnc = super.networkmanager-vpnc.override { withGnome = false; };
+      pango = super.pango.override { x11Support = false; };
       pinentry = super.pinentry.override { enabledFlavors = [ "curses" "tty" "emacs" ]; withLibsecret = false; };
       qrencode = super.qrencode.overrideAttrs (_: { doCheck = false; });
       qemu = super.qemu.override { gtkSupport = false; spiceSupport = false; sdlSupport = false; };
@@ -50,11 +55,6 @@ with lib;
       stoken = super.stoken.override { withGTK3 = false; };
       # translateManpages -> perlPackages.po4a -> texlive-combined-basic -> texlive-core-big -> libX11
       util-linux = super.util-linux.override { translateManpages = false; };
-      # dep of graphviz, libXpm is optional for Xpm support
-      gd = super.gd.override { libXpm = null; };
-      graphviz = super.graphviz-nox;
-      libdevil = super.libdevil-nox;
-      pango = super.pango.override { x11Support = false; };
     }));
   };
 }
