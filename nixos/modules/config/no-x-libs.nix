@@ -39,6 +39,7 @@ with lib;
       imagemagick = super.imagemagick.override { libX11Support = false; libXtSupport = false; };
       imagemagickBig = super.imagemagickBig.override { libX11Support = false; libXtSupport = false; };
       libdevil = super.libdevil-nox;
+      libextractor = super.libextractor.override { gstreamerSupport = false; gtkSupport = false; };
       libva = super.libva-minimal;
       msmtp = super.msmtp.override { withKeyring = false; };
       networkmanager-fortisslvpn = super.networkmanager-fortisslvpn.override { withGnome = false; };
