@@ -40,6 +40,7 @@ let
     TRUSTED_PROXY_IP = cfg.trustedProxy;
   }
   // lib.optionalAttrs (cfg.redis.createLocally && cfg.redis.enableUnixSocket) { REDIS_URL = "unix://${config.services.redis.servers.mastodon.unixSocket}"; }
+  // lib.optionalAttrs (cfg.redis.nameSpace != null) { REDIS_NAMESPACE = cfg.redis.nameSpace; }
   // lib.optionalAttrs (cfg.database.host != "/run/postgresql" && cfg.database.port != null) { DB_PORT = toString cfg.database.port; }
   // lib.optionalAttrs cfg.smtp.authenticate { SMTP_LOGIN  = cfg.smtp.user; }
   // cfg.extraConfig;
@@ -315,6 +316,16 @@ in {
           description = lib.mdDoc "Use Unix socket";
           type = lib.types.bool;
           default = true;
+        };
+
+        nameSpace = lib.mkOption {
+          description = lib.mdDoc ''
+            If provided, namespaces all Redis keys. This allows sharing the same Redis database between
+            different projects or Mastodon servers.
+          '';
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "my_mastodon";
         };
       };
 
