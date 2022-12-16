@@ -4,7 +4,8 @@ let
   cfg = config.services.mastodon;
   opt = options.services.mastodon;
 
-  # We only want to create a database if we're actually going to connect to it.
+  # We only want to create a Redis and PostgreSQL databases if we're actually going to connect to it local.
+  redisActuallyCreateLocally = cfg.redis.createLocally && (cfg.redis.host == "127.0.0.1" || cfg.redis.enableUnixSocket);
   databaseActuallyCreateLocally = cfg.database.createLocally && cfg.database.host == "/run/postgresql";
 
   env = {
@@ -38,6 +39,7 @@ let
 
     TRUSTED_PROXY_IP = cfg.trustedProxy;
   }
+  // lib.optionalAttrs (cfg.redis.createLocally && cfg.redis.enableUnixSocket) { REDIS_URL = "unix://${config.services.redis.servers.mastodon.unixSocket}"; }
   // lib.optionalAttrs (cfg.database.host != "/run/postgresql" && cfg.database.port != null) { DB_PORT = toString cfg.database.port; }
   // lib.optionalAttrs cfg.smtp.authenticate { SMTP_LOGIN  = cfg.smtp.user; }
   // cfg.extraConfig;
@@ -300,6 +302,12 @@ in {
           description = lib.mdDoc "Redis port.";
           type = lib.types.port;
           default = 31637;
+        };
+
+        enableUnixSocket = lib.mkOption {
+          description = lib.mdDoc "Use Unix socket";
+          type = lib.types.bool;
+          default = true;
         };
       };
 
@@ -729,11 +737,14 @@ in {
       enable = true;
       hostname = lib.mkDefault "${cfg.localDomain}";
     };
-    services.redis.servers.mastodon = lib.mkIf (cfg.redis.createLocally && cfg.redis.host == "127.0.0.1") {
-      enable = true;
-      port = cfg.redis.port;
-      bind = "127.0.0.1";
-    };
+    services.redis.servers.mastodon = lib.mkIf redisActuallyCreateLocally (lib.mkMerge [
+      {
+        enable = true;
+      }
+      (lib.mkIf (!cfg.redis.enableUnixSocket) {
+        port = cfg.redis.port;
+      })
+    ]);
     services.postgresql = lib.mkIf databaseActuallyCreateLocally {
       enable = true;
       ensureUsers = [
@@ -754,6 +765,7 @@ in {
         };
       })
       (lib.attrsets.setAttrByPath [ cfg.user "packages" ] [ cfg.package pkgs.imagemagick ])
+      (lib.mkIf (cfg.redis.createLocally && cfg.redis.enableUnixSocket) {${config.services.mastodon.user}.extraGroups = [ "redis-mastodon" ];})
     ];
 
     users.groups.${cfg.group}.members = lib.optional cfg.configureNginx config.services.nginx.user;
