@@ -304,6 +304,13 @@ in {
           default = 31637;
         };
 
+        passwordFile = lib.mkOption {
+          description = lib.mdDoc "A file containing the password for Redis database.";
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          example = "/run/keys/mastodon-redis-password";
+        };
+
         enableUnixSocket = lib.mkOption {
           description = lib.mdDoc "Use Unix socket";
           type = lib.types.bool;
@@ -493,6 +500,13 @@ in {
   config = lib.mkIf cfg.enable {
     assertions = [
       {
+        assertion = redisActuallyCreateLocally -> (!cfg.redis.enableUnixSocket || cfg.redis.passwordFile == null);
+        message = ''
+          <option>services.mastodon.redis.enableUnixSocket</option> needs to be disable if
+            <option>services.mastodon.redis.passwordFile</option> enabled.
+        '';
+      }
+      {
         assertion = databaseActuallyCreateLocally -> (cfg.user == cfg.database.user);
         message = ''
           For local automatic database provisioning (services.mastodon.database.createLocally == true) with peer
@@ -549,6 +563,8 @@ in {
         OTP_SECRET="$(cat ${cfg.otpSecretFile})"
         VAPID_PRIVATE_KEY="$(cat ${cfg.vapidPrivateKeyFile})"
         VAPID_PUBLIC_KEY="$(cat ${cfg.vapidPublicKeyFile})"
+      '' + lib.optionalString (cfg.redis.passwordFile != null)''
+        REDIS_PASSWORD="$(cat ${cfg.redis.passwordFile})"
       '' + lib.optionalString (cfg.database.passwordFile != null) ''
         DB_PASS="$(cat ${cfg.database.passwordFile})"
       '' + lib.optionalString cfg.smtp.authenticate ''
