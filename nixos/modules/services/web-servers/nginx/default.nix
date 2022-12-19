@@ -256,6 +256,18 @@ let
 
       server_tokens ${if cfg.serverTokens then "on" else "off"};
 
+      ${let
+        # TODO: can luaEnv.pkgs.libLua.genLuaPathAbsStr be used when lib paths are added to luaPathList?
+        genLuaPath = drv: lib.concatMapStringsSep ";" (x: "${drv}/${x}") [
+          "lib/lua/${luaEnv.luaversion}/?.lua"
+          "lib/lua/?.lua" # for openresty
+        ];
+        luaEnv = pkgs.luajit_openresty.withPackages (p: with p; [ lua-resty-core ] ++ cfg.lua-module.extraLuaPackages p);
+      in optionalString cfg.lua-module.enable ''
+        lua_package_path '${genLuaPath luaEnv};';
+        lua_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
+      ''}
+
       ${cfg.commonHttpConfig}
 
       ${proxyCachePathConfig}
@@ -948,6 +960,23 @@ in
         '';
       };
 
+      lua-module = mkOption {
+        type = types.submodule {
+          options = {
+            enable = mkEnableOption (lib.mdDoc "Enable the lua module");
+
+            extraLuaPackages = mkOption {
+              type = with types; functionTo (listOf package);
+              default = p: [ ];
+              example = p: with p; [ lua-resty-http lua-resty-jwt lua-resty-openidc lua-resty-openssl lua-resty-session ];
+              description = lib.mdDoc "Extra lua packages to add to lua_package_path";
+            };
+          };
+        };
+        description = lib.mdDoc "Configure nginx lua module.";
+        default = {};
+      };
+
       resolver = mkOption {
         type = types.submodule {
           options = {
@@ -1172,7 +1201,8 @@ in
     }) dependentCertNames;
 
     services.nginx.additionalModules = optional cfg.recommendedBrotliSettings pkgs.nginxModules.brotli
-      ++ lib.optional cfg.recommendedZstdSettings pkgs.nginxModules.zstd;
+      ++ lib.optional cfg.recommendedZstdSettings pkgs.nginxModules.zstd
+      ++ lib.optional cfg.lua-module.enable (pkgs.nginxModules.override { luajit = pkgs.luajit_openresty; }).lua;
 
     systemd.services.nginx = {
       description = "Nginx Web Server";
