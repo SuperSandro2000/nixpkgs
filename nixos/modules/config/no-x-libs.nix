@@ -36,10 +36,13 @@ with lib;
       gd = super.gd.override { libXpm = null; };
       gobject-introspection = super.gobject-introspection.override { x11Support = false; };
       graphviz = super.graphviz-nox;
+      gst_all_1 = super.gst_all_1 // {
+        gst-plugins-base = super.gst_all_1.gst-plugins-base.override { enableX11 = false; };
+      };
       imagemagick = super.imagemagick.override { libX11Support = false; libXtSupport = false; };
       imagemagickBig = super.imagemagickBig.override { libX11Support = false; libXtSupport = false; };
       libdevil = super.libdevil-nox;
-      libextractor = super.libextractor.override { gstreamerSupport = false; gtkSupport = false; };
+      libextractor = super.libextractor.override { gtkSupport = false; };
       libva = super.libva-minimal;
       msmtp = super.msmtp.override { withKeyring = false; };
       networkmanager-fortisslvpn = super.networkmanager-fortisslvpn.override { withGnome = false; };
