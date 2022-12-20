@@ -3,7 +3,7 @@
 
 let
   inherit (builtins) head tail length;
-  inherit (lib.trivial) flip id mergeAttrs pipe;
+  inherit (lib.trivial) flip id pipe;
   inherit (lib.strings) concatStringsSep concatMapStringsSep escapeNixIdentifier sanitizeDerivationName;
   inherit (lib.lists) foldr foldl' concatMap concatLists elemAt all partition groupBy take foldl;
 in
@@ -123,7 +123,7 @@ rec {
          { x = "a"; y = "b"; }
        => { x = "a"; xa = "a"; y = "b"; yb = "b"; }
   */
-  concatMapAttrs = f: flip pipe [ (mapAttrs f) attrValues (foldl' mergeAttrs { }) ];
+  concatMapAttrs = f: flip pipe [ (mapAttrs f) attrValues (foldl' recursiveUpdate { }) ];
 
 
   /* Update or set specific paths of an attribute set.
