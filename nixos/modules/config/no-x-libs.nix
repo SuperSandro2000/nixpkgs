@@ -26,7 +26,7 @@ with lib;
 
     fonts.fontconfig.enable = false;
 
-    nixpkgs.overlays = singleton (const (super: {
+    nixpkgs.overlays = singleton (const (super: rec {
       beam = super.beam_nox;
       cairo = super.cairo.override { x11Support = false; };
       dbus = super.dbus.override { x11Support = false; };
@@ -57,8 +57,12 @@ with lib;
       networkmanager-vpnc = super.networkmanager-vpnc.override { withGnome = false; };
       pango = super.pango.override { x11Support = false; };
       pinentry = super.pinentry.override { enabledFlavors = [ "curses" "tty" "emacs" ]; withLibsecret = false; };
-      qrencode = super.qrencode.overrideAttrs (_: { doCheck = false; });
       qemu = super.qemu.override { gtkSupport = false; spiceSupport = false; sdlSupport = false; };
+      qrencode = super.qrencode.overrideAttrs (_: { doCheck = false; });
+      qt5 = super.qt5.overrideScope' (_: super: {
+        qtbase = super.qtbase.override { withGtk3 = false; };
+      });
+      # libsForQt5 = super.libsForQt5.override { qt5 = qt5; };
       zbar = super.zbar.override { enableVideo = false; withXorg = false; };
       stoken = super.stoken.override { withGTK3 = false; };
       # translateManpages -> perlPackages.po4a -> texlive-combined-basic -> texlive-core-big -> libX11
