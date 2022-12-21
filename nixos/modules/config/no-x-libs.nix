@@ -35,6 +35,7 @@ with lib;
       # dep of graphviz, libXpm is optional for Xpm support
       gd = super.gd.override { libXpm = null; };
       gobject-introspection = super.gobject-introspection.override { x11Support = false; };
+      gpsd = super.gpsd.override { guiSupport = false; };
       graphviz = super.graphviz-nox;
       gst_all_1 = super.gst_all_1 // {
         gst-plugins-base = super.gst_all_1.gst-plugins-base.override { enableX11 = false; };
@@ -44,6 +45,7 @@ with lib;
       libdevil = super.libdevil-nox;
       libextractor = super.libextractor.override { gtkSupport = false; };
       libva = super.libva-minimal;
+      limesuite = super.limesuite.override { withGui = false; };
       mpv-unwrapped = super.mpv-unwrapped.override { sdl2Support = false; x11Support = false; };
       msmtp = super.msmtp.override { withKeyring = false; };
       networkmanager-fortisslvpn = super.networkmanager-fortisslvpn.override { withGnome = false; };
