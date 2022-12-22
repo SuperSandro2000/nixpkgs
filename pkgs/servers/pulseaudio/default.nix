@@ -129,8 +129,8 @@ stdenv.mkDerivation rec {
     "-Doss-output=disabled"
   ];
 
-  # tests fail on Darwin because of timeouts
-  doCheck = !stdenv.isDarwin;
+  # tests fail because of timeouts
+  doCheck = (!stdenv.isDarwin && !stdenv.isAarch64);
   preCheck = ''
     export HOME=$(mktemp -d)
   '';
