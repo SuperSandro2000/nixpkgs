@@ -1,4 +1,5 @@
 { lib
+, stdenv
 , buildPythonPackage
 , fetchFromGitHub
 , attrs
@@ -49,6 +50,14 @@ buildPythonPackage rec {
 
   pytestFlagsArray = [
     "tests/cover"
+  ];
+
+  # tests crash
+  # :-1: running the test CRASHED with signal 0
+  # https://hydra.hq.c3d2.de/build/62701/nixlog/1
+  disabledTests = lib.optionals stdenv.isAarch64 [
+    "test_cache_is_threadsafe_issue_2433_regression"
+    "test_can_run_with_database_in_thread"
   ];
 
   pythonImportsCheck = [
