@@ -59,9 +59,6 @@ in {
         rtl8761b-firmware
         rtw88-firmware
         zd1211fw
-        alsa-firmware
-        sof-firmware
-        libreelec-dvb-firmware
       ] ++ optional pkgs.stdenv.hostPlatform.isAarch raspberrypiWirelessFirmware
         ++ optionals (versionOlder config.boot.kernelPackages.kernel.version "4.13") [
         rtl8723bs-firmware
