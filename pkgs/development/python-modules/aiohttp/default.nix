@@ -31,6 +31,8 @@
 buildPythonPackage rec {
   pname = "aiohttp";
   version = "3.8.3";
+  format = "pyproject";
+
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
@@ -48,6 +50,9 @@ buildPythonPackage rec {
 
   postPatch = ''
     sed -i '/--cov/d' setup.cfg
+
+    substituteInPlace setup.cfg \
+      --replace "charset-normalizer >=2.0, < 3.0" "charset-normalizer >=2.0, < 4.0"
   '';
 
   propagatedBuildInputs = [
