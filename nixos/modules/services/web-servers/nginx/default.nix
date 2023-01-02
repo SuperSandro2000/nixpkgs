@@ -295,8 +295,8 @@ let
           if vhost.listen != [] then vhost.listen
           else
             let addrs = if vhost.listenAddresses != [] then vhost.listenAddresses else cfg.defaultListenAddresses;
-            in optionals (hasSSL || vhost.rejectSSL) (map (addr: { inherit addr; port = cfg.defaultSSLListenPort; ssl = true; }) addrs)
-              ++ optionals (!onlySSL) (map (addr: { inherit addr; port = cfg.defaultHTTPListenPort; ssl = false; }) addrs);
+            in optionals (hasSSL || vhost.rejectSSL) (map (addr: { inherit addr; port = cfg.defaultSSLListenPort; ssl = true; extraParameters = cfg.defaultExtraParameters; }) addrs)
+              ++ optionals (!onlySSL) (map (addr: { inherit addr; port = cfg.defaultHTTPListenPort; ssl = false; extraParameters = cfg.defaultExtraParameters; }) addrs);
 
         hostListen =
           if vhost.forceSSL
@@ -506,6 +506,15 @@ in
         example = literalExpression ''[ "10.0.0.12" "[2002:a00:1::]" ]'';
         description = lib.mdDoc ''
           If vhosts do not specify listenAddresses, use these addresses by default.
+        '';
+      };
+
+      defaultExtraParameters = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        example = literalExpression ''[ "proxy_protocol" ]'';
+        description = lib.mdDoc ''
+          Parameters to add to all listen directives.
         '';
       };
 
