@@ -411,6 +411,7 @@ let
             http3_hq ${if vhost.http3_hq then "on" else "off"};
           ''}
           ${acmeLocation}
+          ${cfg.commonServerConfig}
           ${optionalString (vhost.root != null) "root ${vhost.root};"}
           ${optionalString (vhost.globalRedirect != null) ''
             location / {
@@ -745,6 +746,15 @@ in
           they are used, e.g. log_format, resolver, etc. inside of server
           or location contexts. Use this attribute to set these definitions
           at the appropriate location.
+        '';
+      };
+
+      commonServerConfig = mkOption {
+        type = types.lines;
+        default = "";
+        description = lib.mdDoc ''
+          Use this setting to add a common configuration snippet to every server block
+          defined in nix options.
         '';
       };
 
