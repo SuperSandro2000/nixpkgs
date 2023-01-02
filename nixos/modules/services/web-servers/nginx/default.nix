@@ -357,6 +357,7 @@ let
           ${concatMapStringsSep "\n" listenString hostListen}
           server_name ${vhost.serverName} ${concatStringsSep " " vhost.serverAliases};
           ${acmeLocation}
+          ${cfg.commonServerConfig}
           ${optionalString (vhost.root != null) "root ${vhost.root};"}
           ${optionalString (vhost.globalRedirect != null) ''
             return 301 http${optionalString hasSSL "s"}://${vhost.globalRedirect}$request_uri;
@@ -619,6 +620,15 @@ in
           they are used, e.g. log_format, resolver, etc. inside of server
           or location contexts. Use this attribute to set these definitions
           at the appropriate location.
+        '';
+      };
+
+      commonServerConfig = mkOption {
+        type = types.lines;
+        default = "";
+        description = lib.mdDoc ''
+          Use this setting to add a common configuration snippet to every server block
+          defined in nix options.
         '';
       };
 
