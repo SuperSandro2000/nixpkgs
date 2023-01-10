@@ -36,8 +36,7 @@ let
   separator = "|";
 
   # isDev :: String -> Boolean
-  isDev = version:
-    lib.hasInfix "dev" version;
+  isDev = version: lib.hasInfix "dev" version;
 
   # getLatestVersion :: String -> String
   getLatestVersion = currentVersion:
@@ -50,39 +49,33 @@ let
     lib.removePrefix "vm-" json.tag_name;
 
   # getArchString :: String -> String
-  getArchString = nixArchString:
-    {
-      "aarch64-linux" = "linux-aarch64";
-      "aarch64-darwin" = "darwin-aarch64";
-      "x86_64-linux" = "linux-amd64";
-      "x86_64-darwin" = "darwin-amd64";
-    }.${nixArchString};
-
+  getArchString = nixArchString: {
+    "aarch64-linux" = "linux-aarch64";
+    "aarch64-darwin" = "darwin-aarch64";
+    "x86_64-linux" = "linux-amd64";
+    "x86_64-darwin" = "darwin-amd64";
+  }.${nixArchString};
 
   # getProductSuffix :: String -> String
-  getProductSuffix = productName:
-    {
-      "graalvm-ce" = ".tar.gz";
-      "native-image-installable-svm" = ".jar";
-      "ruby-installable-svm" = ".jar";
-      "wasm-installable-svm" = ".jar";
-      "python-installable-svm" = ".jar";
-    }.${productName};
+  getProductSuffix = productName: {
+    "graalvm-ce" = ".tar.gz";
+  }.${productName} or ".jar";
 
   # getProductSuffix :: String -> String
-  getProductBaseUrl = productName:
-    {
-      "graalvm-ce" = "https://github.com/graalvm/graalvm-ce-builds/releases/download";
-      "native-image-installable-svm" = "https://github.com/graalvm/graalvm-ce-builds/releases/download";
-      "ruby-installable-svm" = "https://github.com/oracle/truffleruby/releases/download";
-      "wasm-installable-svm" = "https://github.com/graalvm/graalvm-ce-builds/releases/download";
-      "python-installable-svm" = "https://github.com/graalvm/graalpython/releases/download";
-    }.${productName};
+  getProductBaseUrl = productName: {
+    "graalvm-ce" = "https://github.com/graalvm/graalvm-ce-builds/releases/download";
+    "native-image-installable-svm" = "https://github.com/graalvm/graalvm-ce-builds/releases/download";
+    "llvm-installable-svm" = "https://github.com/graalvm/graalvm-ce-builds/releases/download";
+    "llvm-toolchain-installable" = "https://github.com/graalvm/graalvm-ce-builds/releases/download";
+    "ruby-installable-svm" = "https://github.com/oracle/truffleruby/releases/download";
+    "wasm-installable-svm" = "https://github.com/graalvm/graalvm-ce-builds/releases/download";
+    "python-installable-svm" = "https://github.com/graalvm/graalpython/releases/download";
+  }.${productName};
 
   # getDevUrl :: String
   getDevUrl = { arch, graalVersion, product, javaVersion }:
     let
-      baseUrl = https://github.com/graalvm/graalvm-ce-dev-builds/releases/download;
+      baseUrl = "https://github.com/graalvm/graalvm-ce-dev-builds/releases/download";
     in
     "${baseUrl}/${graalVersion}/${product}-${javaVersion}-${arch}-dev${getProductSuffix product}";
 
@@ -99,8 +92,7 @@ let
     else getReleaseUrl args;
 
   # computeSha256 :: String -> String
-  computeSha256 = url:
-    builtins.hashFile "sha256" (builtins.fetchurl url);
+  computeSha256 = url: builtins.hashFile "sha256" (builtins.fetchurl url);
 
   # downloadSha256 :: String -> String
   downloadSha256 = url:
@@ -147,10 +139,8 @@ let
       sha256 = getSha256 productJavaVersionGraalVersion.graalVersion url;
     in
     {
-      ${arch} = {
-        ${product_javaVersion_graalVersion} = {
-          inherit sha256 url;
-        };
+      ${arch}.${product_javaVersion_graalVersion} = {
+        inherit sha256 url;
       };
     };
 
@@ -177,12 +167,11 @@ let
     builtins.toFile "sources.json" (builtins.toJSON sourcesAttr);
 
   # isNew :: String -> String -> Boolean
-  isNew = newVersion: currentVersion:
-    {
-      "-1" = false;
-      "0" = false;
-      "1" = true;
-    }.${builtins.toString (builtins.compareVersions newVersion currentVersion)};
+  isNew = newVersion: currentVersion: {
+    "-1" = false;
+    "0" = false;
+    "1" = true;
+  }.${builtins.toString (builtins.compareVersions newVersion currentVersion)};
 
   newVersion = getLatestVersion graalVersion;
   sourcesJson = genSources javaVersion defaultVersion config;
@@ -200,7 +189,6 @@ let
     because update-source-version does not work srcs.
   */
   updateScriptText = newVersion: currentVersion:
-
     if (forceUpdate || (isNew newVersion currentVersion))
     then
       let

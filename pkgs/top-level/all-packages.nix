@@ -14791,12 +14791,12 @@ with pkgs;
   openjdk = jdk;
   openjdk_headless = jdk_headless;
 
-  graalvmCEPackages =
-    recurseIntoAttrs (callPackage ../development/compilers/graalvm/community-edition {
-      inherit (darwin.apple_sdk.frameworks) Foundation;
-    });
-  graalvm11-ce = graalvmCEPackages.graalvm11-ce;
-  graalvm17-ce = graalvmCEPackages.graalvm17-ce;
+  graalvmCEPackages = recurseIntoAttrs (callPackage ../development/compilers/graalvm/community-edition {
+    inherit (darwin.apple_sdk.frameworks) Foundation;
+  });
+  graalvm11-ce = graalvmCEPackages.graalvm11;
+  graalvm17-ce = graalvmCEPackages.graalvm17;
+  truffleruby17-ce = graalvmCEPackages.truffleruby17;
   buildGraalvmNativeImage = callPackage ../build-support/build-graalvm-native-image {
     graalvm = graalvm11-ce;
   };
