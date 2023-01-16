@@ -39,6 +39,13 @@ let
         aws-sdk-cpp = aws-sdk-cpp-nix;
       };
 
+  # https://github.com/NixOS/nix/pull/7585
+  patch-monitorfdhup = fetchpatch2 {
+    name = "nix-7585-monitor-fd-hup.patch";
+    url = "https://github.com/NixOS/nix/commit/1df3d62c769dc68c279e89f68fdd3723ed3bcb5a.patch";
+    sha256 = "sha256-f+F0fUO+bqyPXjt+IXJtISVr589hdc3y+Cdrxznb+Nk=";
+  };
+
   # https://github.com/NixOS/nix/pull/7473
   patch-sqlite-exception = fetchpatch2 {
     name = "nix-7473-sqlite-exception-add-message.patch";
@@ -53,6 +60,9 @@ in lib.makeExtensible (self: {
       url = "https://nixos.org/releases/nix/nix-${version}/nix-${version}.tar.xz";
       sha256 = "sha256-fuaBtp8FtSVJLSAsO+3Nne4ZYLuBj2JpD2xEk7fCqrw=";
     };
+    patches = [
+      patch-monitorfdhup
+    ];
   }).override { boehmgc = boehmgc-nix_2_3; };
 
   nix_2_4 = throw "nixVersions.nix_2_4 has been removed";
@@ -112,6 +122,7 @@ in lib.makeExtensible (self: {
         url = "https://github.com/NixOS/nix/commit/3ade5f5d6026b825a80bdcc221058c4f14e10a27.patch";
         sha256 = "sha256-s1ybRFCjQaSGj7LKu0Z5g7UiHqdJGeD+iPoQL0vaiS0=";
       })
+      patch-monitorfdhup
       patch-sqlite-exception
     ];
   };
@@ -127,6 +138,7 @@ in lib.makeExtensible (self: {
         url = "https://github.com/NixOS/nix/commit/3ade5f5d6026b825a80bdcc221058c4f14e10a27.patch";
         sha256 = "sha256-s1ybRFCjQaSGj7LKu0Z5g7UiHqdJGeD+iPoQL0vaiS0=";
       })
+      patch-monitorfdhup
       patch-sqlite-exception
     ];
   };
@@ -136,6 +148,7 @@ in lib.makeExtensible (self: {
     sha256 = "sha256-GmHKhq0uFtdOiJnuBwj2YwlZjvh6YTkfQZgeu4e0dLU=";
     patches = [
       ./patches/flaky-tests.patch
+      patch-monitorfdhup
       patch-sqlite-exception
     ];
   };
