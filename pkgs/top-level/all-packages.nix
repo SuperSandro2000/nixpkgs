@@ -6073,6 +6073,8 @@ with pkgs;
 
   drone-runner-docker = callPackage ../development/tools/continuous-integration/drone-runner-docker { };
 
+  drone-runner-ssh = callPackage ../development/tools/continuous-integration/drone-runner-ssh { };
+
   dropbear = callPackage ../tools/networking/dropbear { };
 
   dsview = libsForQt5.callPackage ../applications/science/electronics/dsview { };
