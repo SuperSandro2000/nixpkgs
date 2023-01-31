@@ -592,4 +592,33 @@ in
       sha256 = "sha256-x4ry5ljPeJQY+7Mp04/xYIGf22d6Nee7CSqHezdK4gQ=";
     };
   };
+
+  zstd = rec {
+    name = "zstd";
+    src = fetchFromGitHub {
+      name = "zstd";
+      owner = "tokers";
+      repo = "zstd-nginx-module";
+      rev = "1e0fa0bfb995e72f8f7e4c0153025c3306f1a5cc";
+      sha256 = "sha256-dVRK5lG6WSCWE6uMofJxz7Ih87FJJ+x1oyVZkY7iZ6c=";
+    };
+
+    preConfigure = let
+      # dont send zstd when gzip is in accept-encoding header
+      # https://github.com/tokers/zstd-nginx-module/pull/15
+      patch-accept-encoding = pkgs.fetchpatch {
+        url = "https://github.com/tokers/zstd-nginx-module/commit/e287d7f64c03ace081a85e1e059ee9e8eb1a25f0.patch";
+        sha256 = "sha256-wjLw1EFH95IFKY6DzXN4DU5toZ+vvxt4Qui6RMlLhIY=";
+      };
+    in ''
+      zstd_src=$TMPDIR/zstd
+      cp -r "${src}/" "$zstd_src"
+      chmod -R +w "$zstd_src"
+      patch -p1 -d $zstd_src -i ${patch-accept-encoding}
+      export configureFlags="''${configureFlags//"${src}"/"$zstd_src"}"
+      unset zstd_src
+    '';
+
+    inputs = with pkgs; [ zstd ];
+  };
 }
