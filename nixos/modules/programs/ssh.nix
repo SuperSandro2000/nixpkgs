@@ -52,12 +52,14 @@ in
       };
 
       forwardX11 = mkOption {
-        type = types.bool;
+        type = with lib.types; nullOr bool;
         default = false;
         description = lib.mdDoc ''
           Whether to request X11 forwarding on outgoing connections by default.
+          When set to null the option is not set at all.
           This is useful for running graphical programs on the remote machine and have them display to your local X11 server.
           Historically, this value has depended on the value used by the local sshd daemon, but there really isn't a relation between the two.
+
           Note: there are some security risks to forwarding an X11 connection.
           NixOS's X server is built with the SECURITY extension, which prevents some obvious attacks.
           To enable or disable forwarding on a per-connection basis, see the -X and -x options to ssh.
@@ -280,14 +282,12 @@ in
 
   config = {
 
-    programs.ssh.setXAuthLocation =
-      mkDefault (config.services.xserver.enable || config.programs.ssh.forwardX11 || config.services.openssh.settings.X11Forwarding);
+    programs.ssh.setXAuthLocation = mkDefault (config.services.xserver.enable ||
+      (let forwardX11 = config.programs.ssh.forwardX11; in (forwardX11 != null && forwardX11)) ||
+      config.services.openssh.settings.X11Forwarding);
 
     assertions =
-      [ { assertion = cfg.forwardX11 -> cfg.setXAuthLocation;
-          message = "cannot enable X11 forwarding without setting XAuth location";
-        }
-      ] ++ flip mapAttrsToList cfg.knownHosts (name: data: {
+      flip mapAttrsToList cfg.knownHosts (name: data: {
         assertion = (data.publicKey == null && data.publicKeyFile != null) ||
                     (data.publicKey != null && data.publicKeyFile == null);
         message = "knownHost ${name} must contain either a publicKey or publicKeyFile";
@@ -305,11 +305,8 @@ in
         AddressFamily ${if config.networking.enableIPv6 then "any" else "inet"}
         GlobalKnownHostsFile ${concatStringsSep " " knownHostsFiles}
 
-        ${optionalString cfg.setXAuthLocation ''
-          XAuthLocation ${pkgs.xorg.xauth}/bin/xauth
-        ''}
-
-        ForwardX11 ${if cfg.forwardX11 then "yes" else "no"}
+        ${optionalString cfg.setXAuthLocation "XAuthLocation ${pkgs.xorg.xauth}/bin/xauth"}
+        ${lib.optionalString (cfg.forwardX11 != null) "ForwardX11 ${if cfg.forwardX11 then "yes" else "no"}"}
 
         ${optionalString (cfg.pubkeyAcceptedKeyTypes != []) "PubkeyAcceptedKeyTypes ${concatStringsSep "," cfg.pubkeyAcceptedKeyTypes}"}
         ${optionalString (cfg.hostKeyAlgorithms != []) "HostKeyAlgorithms ${concatStringsSep "," cfg.hostKeyAlgorithms}"}
