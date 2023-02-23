@@ -250,6 +250,12 @@ in {
           '';
         };
 
+        experimental_cors_msc3886 = mkOption {
+          type = types.bool;
+          default = false;
+          description = "see https://github.com/matrix-org/synapse/blob/develop/synapse/config/server.py#L941";
+        };
+
         path = mkOption {
           type = types.nullOr types.path;
           default = null;
