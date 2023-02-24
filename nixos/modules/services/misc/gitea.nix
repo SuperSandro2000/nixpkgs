@@ -27,6 +27,17 @@ let
 
     ${optionalString (cfg.extraConfig != null) cfg.extraConfig}
   '';
+
+  nginxCommonHeaders =
+    ''
+      add_header Cache-Control 'public, max-age=2419200, must-revalidate';
+    ''
+    + lib.optionalString config.services.nginx.virtualHosts.${cfg.settings.server.DOMAIN}.forceSSL ''
+      add_header Strict-Transport-Security 'max-age=63072000; includeSubDomains';
+    ''
+    + lib.optionalString config.services.nginx.virtualHosts.${cfg.settings.server.DOMAIN}.http3 ''
+      add_header Alt-Svc 'h3=":$server_port"; ma=86400';
+    '';
 in
 
 {
@@ -431,7 +442,8 @@ in
                   "http+unix"
                   "fcgi+unix"
                 ];
-                default = "http";
+                default = if cfg.configureNginx then "http+unix" else "http";
+                defaultText = literalExpression ''if cfg.configureNginx then "http+unix" else "http"'';
                 description = ''Listen protocol. `+unix` means "over unix", not "in addition to."'';
               };
 
@@ -464,8 +476,8 @@ in
 
               STATIC_ROOT_PATH = mkOption {
                 type = types.either types.str types.path;
-                default = cfg.package.data;
-                defaultText = literalExpression "config.${opt.package}.data";
+                default = if cfg.configureNginx then cfg.package.data-compressed else cfg.package.data;
+                defaultText = literalExpression ''if cfg.configureNginx then config.${opt.package}.data-compressed else config.${opt.package}.data'';
                 example = "/var/lib/gitea/data";
                 description = "Upper level of template and static files path.";
               };
@@ -514,6 +526,12 @@ in
             };
           };
         };
+      };
+
+      configureNginx = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Configure nginx as a reverse proxy for gitea.";
       };
 
       extraConfig = mkOption {
@@ -604,10 +622,15 @@ in
           ROOT = cfg.repositoryRoot;
         };
 
-        server = mkIf cfg.lfs.enable {
-          LFS_START_SERVER = true;
-          LFS_JWT_SECRET = "#lfsjwtsecret#";
-        };
+        server = mkMerge [
+          (mkIf cfg.configureNginx {
+            STATIC_URL_PREFIX = lib.mkDefault "/static";
+          })
+          (mkIf cfg.lfs.enable {
+            LFS_START_SERVER = true;
+            LFS_JWT_SECRET = "#lfsjwtsecret#";
+          })
+        ];
 
         camo = mkIf (cfg.camoHmacKeyFile != null) {
           HMAC_KEY = "#hmackey#";
@@ -615,6 +638,13 @@ in
 
         session = {
           COOKIE_NAME = lib.mkDefault "session";
+        };
+
+        picture = mkIf cfg.configureNginx {
+          AVATAR_STORAGE_TYPE = lib.mkDefault "local";
+          AVATAR_UPLOAD_PATH = lib.mkDefault "data/avatars";
+          REPOSITORY_AVATAR_STORAGE_TYPE = lib.mkDefault "local";
+          REPOSITORY_AVATAR_UPLOAD_PATH = lib.mkDefault "data/repo-avatars";
         };
 
         security = {
@@ -685,6 +715,59 @@ in
           };
         }
       ];
+    };
+
+    services.nginx = lib.mkIf cfg.configureNginx {
+      enable = true;
+      virtualHosts."${cfg.settings.server.DOMAIN}" = {
+        root = "/var/empty";
+
+        locations."/" = {
+          proxyPass =
+            if (cfg.settings.server.PROTOCOL == "http+unix") then
+              "http://unix:${cfg.settings.server.HTTP_ADDR}"
+            else
+              "http://127.0.0.1:${toString cfg.httpPort}";
+          recommendedProxySettings = true;
+        };
+
+        locations."^~ /avatars/" = lib.mkIf (cfg.settings.picture.AVATAR_STORAGE_TYPE == "local") {
+          alias = "${cfg.stateDir}/${cfg.settings.picture.AVATAR_UPLOAD_PATH}/";
+          tryFiles = "$uri =404";
+
+          extraConfig =
+            ''
+              default_type "image";
+            ''
+            + nginxCommonHeaders;
+        };
+
+        locations."^~ /repo-avatars/" =
+          lib.mkIf (cfg.settings.picture.REPOSITORY_AVATAR_STORAGE_TYPE == "local")
+            {
+              alias = "${cfg.stateDir}/${cfg.settings.picture.REPOSITORY_AVATAR_UPLOAD_PATH}/";
+              tryFiles = "$uri =404";
+
+              extraConfig =
+                ''
+                  default_type "image";
+                ''
+                + nginxCommonHeaders;
+            };
+
+        locations."^~ ${cfg.settings.server.STATIC_URL_PREFIX}/assets/" = {
+          alias = "${cfg.package.data-compressed}/public/";
+          tryFiles = "$uri =404";
+
+          extraConfig = nginxCommonHeaders;
+        };
+
+        extraConfig =
+          lib.optionalString config.services.nginx.virtualHosts.${cfg.settings.server.DOMAIN}.forceSSL
+            ''
+              add_header Strict-Transport-Security 'max-age=63072000; includeSubDomains';
+            '';
+      };
     };
 
     systemd.tmpfiles.rules =
@@ -899,7 +982,9 @@ in
     };
 
     users.groups = mkIf (cfg.group == "gitea") {
-      gitea = { };
+      gitea = {
+        members = lib.optional cfg.configureNginx config.services.nginx.user;
+      };
     };
 
     warnings =
