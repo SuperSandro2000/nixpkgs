@@ -2,6 +2,7 @@
 , buildPythonPackage
 , fetchFromGitHub
 , pythonOlder
+, pythonRelaxDepsHook
 , cairo
 , click
 , click-default-group
@@ -82,7 +83,9 @@ in buildPythonPackage rec {
 
   nativeBuildInputs = [
     poetry-core
+    pythonRelaxDepsHook
   ];
+  pythonRelaxDeps = [ "networkx" ];
 
   postPatch = ''
     substituteInPlace pyproject.toml \
