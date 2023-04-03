@@ -59,6 +59,7 @@ with lib;
       networkmanager-openvpn = super.networkmanager-openvpn.override { withGnome = false; };
       networkmanager-sstp = super.networkmanager-vpnc.override { withGnome = false; };
       networkmanager-vpnc = super.networkmanager-vpnc.override { withGnome = false; };
+      nginx = super.nginx.override { withImageFilter = false; };
       pango = super.pango.override { x11Support = false; };
       pinentry = super.pinentry.override { enabledFlavors = [ "curses" "tty" "emacs" ]; withLibsecret = false; };
       pipewire = super.pipewire.override { x11Support = false; };
