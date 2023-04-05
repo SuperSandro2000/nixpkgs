@@ -35,7 +35,9 @@ let
   #   ...
   # } ];
   usedPlatforms = config:
-    if isAttrs config then
+    if isDerivation config then
+      [ ]
+    else if isAttrs config then
       optional (config ? platform) config.platform
       ++ concatMap usedPlatforms (attrValues config)
     else if isList config then
