@@ -3935,6 +3935,8 @@ self: super: with self; {
 
   git-sweep = callPackage ../development/python-modules/git-sweep { };
 
+  git-dummy = callPackage ../development/python-modules/git-dummy { };
+
   gitdb = callPackage ../development/python-modules/gitdb { };
 
   github-to-sqlite = callPackage ../development/python-modules/github-to-sqlite { };
