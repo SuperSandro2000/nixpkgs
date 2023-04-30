@@ -58,6 +58,7 @@ with lib;
       nginx = super.nginx.override { withImageFilter = false; };
       pango = super.pango.override { x11Support = false; };
       pinentry = super.pinentry.override { enabledFlavors = [ "curses" "tty" "emacs" ]; withLibsecret = false; };
+      pipewire = super.pipewire.override { x11Support = false; };
       qemu = super.qemu.override { gtkSupport = false; spiceSupport = false; sdlSupport = false; };
       qrencode = super.qrencode.overrideAttrs (_: { doCheck = false; });
       qt5 = super.qt5.overrideScope' (_: super: {
