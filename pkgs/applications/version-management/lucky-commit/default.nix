@@ -22,6 +22,12 @@ rustPlatform.buildRustPackage rec {
   useFetchCargoVendor = true;
   cargoHash = "sha256-8Z/bfSDjSrvGbPOVpvIYzOz5wxjkMsuwOWASnOA8ziM=";
 
+  postPatch = ''
+    substituteInPlace Cargo.toml \
+      --replace-fail '[profile.release]' '[profile.release]
+    panic = "abort"'
+  '';
+
   buildInputs = lib.optional withOpenCL (if stdenv.hostPlatform.isDarwin then OpenCL else ocl-icd);
 
   buildNoDefaultFeatures = !withOpenCL;
