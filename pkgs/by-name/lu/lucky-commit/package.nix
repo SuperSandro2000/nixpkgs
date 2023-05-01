@@ -18,6 +18,12 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-57eOhlOkRU1sz0y/sfEyEFXQJx165qehBTP8iWiEGx8=";
   };
 
+  postPatch = ''
+    substituteInPlace Cargo.toml \
+      --replace-fail '[profile.release]' '[profile.release]
+    panic = "abort"'
+  '';
+
   useFetchCargoVendor = true;
   cargoHash = "sha256-8Z/bfSDjSrvGbPOVpvIYzOz5wxjkMsuwOWASnOA8ziM=";
 
