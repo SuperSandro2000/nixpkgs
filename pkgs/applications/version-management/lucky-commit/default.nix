@@ -18,6 +18,12 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-jxcsTtQcSuL+2vwdxIVxqTpKh8Bfvna+hkGt+Rx21FE=";
   };
 
+  postPatch = ''
+    substituteInPlace Cargo.toml \
+      --replace-fail '[profile.release]' '[profile.release]
+    panic = "abort"'
+  '';
+
   cargoHash = "sha256-8JkodGtMdYP/IIBqRcJFD5syiZi+VakDyX7VcvR0HLo=";
 
   buildInputs = lib.optional withOpenCL (if stdenv.isDarwin then OpenCL else ocl-icd);
