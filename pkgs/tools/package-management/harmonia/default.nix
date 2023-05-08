@@ -4,12 +4,12 @@
 , libsodium
 , nix
 , pkg-config
-, rustPlatform
+, rustPackages_1_66
 , nix-update-script
 , nixosTests
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPackages_1_66.rustPlatform.buildRustPackage rec {
   pname = "harmonia";
   version = "0.6.3";
 
