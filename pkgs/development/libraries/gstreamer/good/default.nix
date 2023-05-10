@@ -152,6 +152,11 @@ stdenv.mkDerivation rec {
   postPatch = ''
     patchShebangs \
       scripts/extract-release-date-from-doap-file.py
+  ''
+  # gstreamer-gl-* detection is broken due to an upstream meson issue
+  + lib.optionalString (!gst-plugins-base.glEnabled) ''
+    substituteInPlace meson.build \
+      --replace 'if have_gstgl' 'if false'
   '';
 
   NIX_LDFLAGS = [
