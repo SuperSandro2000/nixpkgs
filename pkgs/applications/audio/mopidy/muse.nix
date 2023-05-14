@@ -10,6 +10,11 @@ pythonPackages.buildPythonApplication rec {
     sha256 = "0jx9dkgxr07avzz9zskzhqy98zsxkdrf7iid2ax5vygwf8qsx8ks";
   };
 
+  postPatch = ''
+    substituteInPlace mopidy_muse/static/global.css \
+      --replace "prefers-color-scheme: dark" "false"
+  '';
+
   propagatedBuildInputs = [
     mopidy
     pythonPackages.pykka
