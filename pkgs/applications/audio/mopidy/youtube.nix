@@ -6,14 +6,14 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "mopidy-youtube";
-  version = "3.6";
+  version = "unstable-2023-05-08";
   format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "natumbri";
     repo = pname;
-    rev = "refs/tags/v${version}";
-    hash = "sha256-Mp8eCVNGokJRwmYiZYCYRwV1QVDV02Uqfh6fGcPgJss=";
+    rev = "baf841850fe083214ba92c760bd45adfe2774666";
+    hash = "sha256-Kz8GykFfegTTCe/XXd+oixc7T3b8pss53dtoAIOOE+I=";
   };
 
   propagatedBuildInputs = with python3.pkgs; [
