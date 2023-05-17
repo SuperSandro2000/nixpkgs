@@ -383,6 +383,7 @@ in
       system.userActivationScripts.plasmaSetup = activationScript;
 
       nixpkgs.config.firefox.enablePlasmaBrowserIntegration = true;
+      programs.chromium.enablePlasmaBrowserIntegration = true;
     })
 
     (mkIf (cfg.kwinrc != {}) {
