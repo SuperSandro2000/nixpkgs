@@ -96,14 +96,14 @@ buildPythonPackage rec {
     let
       tcl_tk_cache = ''"${tk}/lib", "${tcl}/lib", "${lib.strings.substring 0 3 tk.version}"'';
     in
-    lib.optionalString enableTk ''
+    lib.optionalString enableTk (''
       sed -i '/self.tcl_tk_cache = None/s|None|${tcl_tk_cache}|' setupext.py
     '' + lib.optionalString (stdenv.isLinux && interactive) ''
       # fix paths to libraries in dlopen calls (headless detection)
       substituteInPlace src/_c_internal_utils.c \
         --replace libX11.so.6 ${libX11}/lib/libX11.so.6 \
         --replace libwayland-client.so.0 ${wayland}/lib/libwayland-client.so.0
-    '' +
+    '') +
     # bring our own system libraries
     # https://github.com/matplotlib/matplotlib/blob/main/doc/devel/dependencies.rst#c-libraries
     ''
