@@ -23,9 +23,10 @@ let
       rev = "v${version}";
       hash = "sha256-BhNAApgZ/w/92XjpoDY6ZEIhSTwgJ4D3/EfNvPmNM2o=";
     } else if llvmMajor == "11" then {
-      version = "unstable-2022-05-04";
-      rev = "4ef524240833abfeee1c5b9fff6b1bd53f4806b3"; # 267 commits ahead of v11.0.0
-      hash = "sha256-NoIoa20+2sH41rEnr8lsMhtfesrtdPINiXtUnxYVm8s=";
+      # https://github.com/KhronosGroup/SPIRV-LLVM-Translator/commits/llvm_release_110
+      version = "unstable-2023-02-20";
+      rev = "b23efa4f0400f8ee10f1db0cc9ff2e081b581ca1";
+      hash = "sha256-TOPn2FWaRpa00fNnm1s/BY28tk5Wj3EUXRSc5/KUbPc=";
     } else throw "Incompatible LLVM version.";
 in
 stdenv.mkDerivation {
