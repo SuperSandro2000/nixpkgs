@@ -8,6 +8,8 @@ let
   py = python3.override {
     packageOverrides = final: prev: {
       django = prev.django_4;
+      # TODO: remove when https://github.com/NixOS/nixpkgs/pull/233451 is merged
+      matplotlib = prev.matplotlib.override { enableTk = false; };
     };
   };
 in
