@@ -197,6 +197,8 @@ buildPythonPackage rec {
     # don't depend on mypy for tests
     "test_version"
     "test_package_version"
+    # timing sensitive
+    "test_ctrl_c_handler"
   ];
 
   disabledTestPaths = [
