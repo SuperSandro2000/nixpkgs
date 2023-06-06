@@ -585,7 +585,13 @@ rec {
             X-Restart-Triggers = "${pkgs.writeText "X-Restart-Triggers-${name}" (
               pipe config.restartTriggers [
                 flatten
-                (map (x: if isPath x then "${x}" else x))
+                (map (
+                  x:
+                  if isPath x then
+                    "${builtins.unsafeDiscardStringContext x}"
+                  else
+                    builtins.unsafeDiscardStringContext x
+                ))
                 toString
               ]
             )}";
@@ -594,7 +600,13 @@ rec {
             X-Reload-Triggers = "${pkgs.writeText "X-Reload-Triggers-${name}" (
               pipe config.reloadTriggers [
                 flatten
-                (map (x: if isPath x then "${x}" else x))
+                (map (
+                  x:
+                  if isPath x then
+                    "${builtins.unsafeDiscardStringContext x}"
+                  else
+                    builtins.unsafeDiscardStringContext x
+                ))
                 toString
               ]
             )}";
