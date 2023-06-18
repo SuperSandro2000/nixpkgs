@@ -10,113 +10,163 @@ let
     dir = "bin";
     isExecutable = true;
   });
-
-  nixos-build-vms = makeProg {
-    name = "nixos-build-vms";
-    src = ./nixos-build-vms/nixos-build-vms.sh;
-    inherit (pkgs) runtimeShell;
-  };
-
-  nixos-install = makeProg {
-    name = "nixos-install";
-    src = ./nixos-install.sh;
-    inherit (pkgs) runtimeShell;
-    nix = config.nix.package.out;
-    path = makeBinPath [
-      pkgs.jq
-      nixos-enter
-      pkgs.util-linuxMinimal
-    ];
-  };
-
-  nixos-rebuild = pkgs.nixos-rebuild.override { nix = config.nix.package.out; };
-
-  nixos-generate-config = makeProg {
-    name = "nixos-generate-config";
-    src = ./nixos-generate-config.pl;
-    perl = "${pkgs.perl.withPackages (p: [ p.FileSlurp ])}/bin/perl";
-    hostPlatformSystem = pkgs.stdenv.hostPlatform.system;
-    detectvirt = "${config.systemd.package}/bin/systemd-detect-virt";
-    btrfs = "${pkgs.btrfs-progs}/bin/btrfs";
-    inherit (config.system.nixos-generate-config) configuration desktopConfiguration;
-    xserverEnabled = config.services.xserver.enable;
-  };
-
-  nixos-option =
-    if lib.versionAtLeast (lib.getVersion config.nix.package) "2.4pre"
-    then null
-    else pkgs.nixos-option;
-
-  nixos-version = makeProg {
-    name = "nixos-version";
-    src = ./nixos-version.sh;
-    inherit (pkgs) runtimeShell;
-    path = [
-      pkgs.jq
-    ];
-  };
-
-  nixos-enter = makeProg {
-    name = "nixos-enter";
-    src = ./nixos-enter.sh;
-    inherit (pkgs) runtimeShell;
-    path = makeBinPath [
-      pkgs.util-linuxMinimal
-    ];
-  };
-
 in
 
 {
+  options = {
+    system.nixos-generate-config = {
+      configuration = mkOption {
+        internal = true;
+        type = types.str;
+        description = lib.mdDoc ''
+          The NixOS module that `nixos-generate-config`
+          saves to `/etc/nixos/configuration.nix`.
 
-  options.system.nixos-generate-config = {
-    configuration = mkOption {
+          This is an internal option. No backward compatibility is guaranteed.
+          Use at your own risk!
+
+          Note that this string gets spliced into a Perl script. The perl
+          variable `$bootLoaderConfig` can be used to
+          splice in the boot loader configuration.
+        '';
+      };
+
+      desktopConfiguration = mkOption {
+        internal = true;
+        type = types.listOf types.lines;
+        default = [];
+        description = lib.mdDoc ''
+          Text to preseed the desktop configuration that `nixos-generate-config`
+          saves to `/etc/nixos/configuration.nix`.
+
+          This is an internal option. No backward compatibility is guaranteed.
+          Use at your own risk!
+
+          Note that this string gets spliced into a Perl script. The perl
+          variable `$bootLoaderConfig` can be used to
+          splice in the boot loader configuration.
+        '';
+      };
+    };
+
+    system.disableInstallerTools = mkOption {
       internal = true;
-      type = types.str;
+      type = types.bool;
+      default = false;
       description = lib.mdDoc ''
-        The NixOS module that `nixos-generate-config`
-        saves to `/etc/nixos/configuration.nix`.
-
-        This is an internal option. No backward compatibility is guaranteed.
-        Use at your own risk!
-
-        Note that this string gets spliced into a Perl script. The perl
-        variable `$bootLoaderConfig` can be used to
-        splice in the boot loader configuration.
+        Disable nixos-rebuild, nixos-generate-config, nixos-installer
+        and other NixOS tools. This is useful to shrink embedded,
+        read-only systems which are not expected to be rebuild or
+        reconfigure themselves. Use at your own risk!
       '';
     };
 
-    desktopConfiguration = mkOption {
+    system.installerTools = lib.mkOption {
       internal = true;
-      type = types.listOf types.lines;
-      default = [];
-      description = lib.mdDoc ''
-        Text to preseed the desktop configuration that `nixos-generate-config`
-        saves to `/etc/nixos/configuration.nix`.
+      type = lib.types.attrsOf (lib.types.submodule ({ name, config, lib, ...}: {
+        options = {
+          name = lib.mkOption {
+            type = lib.types.str;
+            description = lib.mdDoc ''
+              the name of the package
+            '';
+          };
 
-        This is an internal option. No backward compatibility is guaranteed.
-        Use at your own risk!
+          enable = lib.mkEnableOption (lib.mdDoc "the package as part of the installer tools.");
 
-        Note that this string gets spliced into a Perl script. The perl
-        variable `$bootLoaderConfig` can be used to
-        splice in the boot loader configuration.
-      '';
+          package = lib.mkOption {
+            type = lib.types.package;
+            description = lib.mdDoc ''
+              the derivation providing the package
+            '';
+          };
+        };
+        config = {
+          name = lib.mkDefault name;
+        };
+      }));
     };
   };
 
-  options.system.disableInstallerTools = mkOption {
-    internal = true;
-    type = types.bool;
-    default = false;
-    description = lib.mdDoc ''
-      Disable nixos-rebuild, nixos-generate-config, nixos-installer
-      and other NixOS tools. This is useful to shrink embedded,
-      read-only systems which are not expected to be rebuild or
-      reconfigure themselves. Use at your own risk!
-    '';
-  };
+  config =
+  let
+    installerTools = lib.filterAttrs (_: tool: tool.enable) config.system.installerTools;
+  in
+  lib.mkIf (config.nix.enable && !config.system.disableInstallerTools) {
 
-  config = lib.mkIf (config.nix.enable && !config.system.disableInstallerTools) {
+    system.installerTools = {
+      nixos-build-vms = {
+        enable = true;
+        package = makeProg {
+          name = "nixos-build-vms";
+          src = ./nixos-build-vms/nixos-build-vms.sh;
+          inherit (pkgs) runtimeShell;
+        };
+      };
+
+      nixos-enter = {
+        enable = true;
+        package = makeProg {
+          name = "nixos-enter";
+          src = ./nixos-enter.sh;
+          inherit (pkgs) runtimeShell;
+          path = makeBinPath [
+            pkgs.util-linuxMinimal
+          ];
+        };
+      };
+
+      nixos-generate-config = {
+        enable = true;
+        package = makeProg {
+          name = "nixos-generate-config";
+          src = ./nixos-generate-config.pl;
+          perl = "${pkgs.perl.withPackages (p: [ p.FileSlurp ])}/bin/perl";
+          hostPlatformSystem = pkgs.stdenv.hostPlatform.system;
+          detectvirt = "${config.systemd.package}/bin/systemd-detect-virt";
+          btrfs = "${pkgs.btrfs-progs}/bin/btrfs";
+          inherit (config.system.nixos-generate-config) configuration desktopConfiguration;
+          xserverEnabled = config.services.xserver.enable;
+        };
+      };
+
+      nixos-install = {
+        enable = true;
+        package = makeProg {
+          name = "nixos-install";
+          src = ./nixos-install.sh;
+          inherit (pkgs) runtimeShell;
+          nix = config.nix.package.out;
+          path = makeBinPath [
+            pkgs.jq
+            config.system.installerTools.nixos-enter.package
+            pkgs.util-linuxMinimal
+          ];
+        };
+      };
+
+      nixos-option = {
+        enable = lib.versionOlder (lib.getVersion config.nix.package) "2.4pre";
+        package = pkgs.nixos-option;
+      };
+
+      nixos-rebuild = {
+        enable = true;
+        package = pkgs.nixos-rebuild.override { nix = config.nix.package.out; };
+      };
+
+      nixos-version = {
+        enable = true;
+        package = makeProg {
+          name = "nixos-version";
+          src = ./nixos-version.sh;
+          inherit (pkgs) runtimeShell;
+          path = [
+            pkgs.jq
+          ];
+        };
+      };
+    };
 
     system.nixos-generate-config.configuration = mkDefault ''
       # Edit this configuration file to define what should be installed on
@@ -222,19 +272,12 @@ in
     '';
 
     environment.systemPackages =
-      [ nixos-build-vms
-        nixos-install
-        nixos-rebuild
-        nixos-generate-config
-        nixos-version
-        nixos-enter
-      ] ++ lib.optional (nixos-option != null) nixos-option;
+      lib.attrValues (lib.mapAttrs (_: tool: tool.package) installerTools);
 
-    documentation.man.man-db.skipPackages = [ nixos-version ];
+    documentation.man.man-db.skipPackages =
+      lib.mkIf (installerTools ? nixos-version) [ config.system.installerTools.nixos-version.package ];
 
-    system.build = {
-      inherit nixos-install nixos-generate-config nixos-option nixos-rebuild nixos-enter;
-    };
+    system.build = lib.mapAttrs (_: drv: drv.package) installerTools;
 
   };
 
