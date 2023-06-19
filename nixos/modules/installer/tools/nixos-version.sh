@@ -7,25 +7,25 @@ case "$1" in
     exit 1
     ;;
   --hash|--revision)
-    if ! [[ @revision@ =~ ^[0-9a-f]+$ ]]; then
+    revision="$(jq --raw-output '.nixpkgsRevision // "null"' < /run/current-system/nixos-version.json)"
+    if [ "$revision" == "null" ]; then
       echo "$0: Nixpkgs commit hash is unknown" >&2
       exit 1
     fi
-    echo "@revision@"
+    echo "$revision"
     ;;
   --configuration-revision)
-    if [[ "@configurationRevision@" =~ "@" ]]; then
+    revision="$(jq --raw-output '.configurationRevision // "null"' < /run/current-system/nixos-version.json)"
+    if [ "$revision" == "null" ]; then
       echo "$0: configuration revision is unknown" >&2
       exit 1
     fi
-    echo "@configurationRevision@"
+    echo "$revision"
     ;;
   --json)
-    cat <<EOF
-@json@
-EOF
+    cat /run/current-system/nixos-version.json
     ;;
   *)
-    echo "@version@ (@codeName@)"
+    jq --raw-output '.nixosVersion + " (" + .nixosCodeName + ")"' < /run/current-system/nixos-version.json
     ;;
 esac

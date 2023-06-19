@@ -9,6 +9,17 @@ let
         "${config.system.boot.loader.kernelFile}";
       initrdPath = "${config.system.build.initialRamdisk}/" +
         "${config.system.boot.loader.initrdFile}";
+
+      nixosVersionJson = (pkgs.formats.json {}).generate "nixos-version.json" ({
+        nixosVersion = config.system.nixos.version;
+      } // optionalAttrs (config.system.nixos.codeName != null) {
+        nixosCodeName = config.system.nixos.codeName;
+      } // optionalAttrs (config.system.nixos.revision != null) {
+        nixpkgsRevision = config.system.nixos.revision;
+      } // optionalAttrs (config.system.configurationRevision != null) {
+        configurationRevision = config.system.configurationRevision;
+      });
+
     in ''
       mkdir $out
 
@@ -61,6 +72,7 @@ let
 
       echo -n "systemd ${toString config.systemd.package.interfaceVersion}" > $out/init-interface-version
       echo -n "$nixosLabel" > $out/nixos-version
+      ln -s "${nixosVersionJson}" $out/nixos-version.json
       echo -n "${config.boot.kernelPackages.stdenv.hostPlatform.system}" > $out/system
 
       mkdir $out/bin
