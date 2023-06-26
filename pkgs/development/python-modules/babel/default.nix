@@ -31,7 +31,11 @@ buildPythonPackage rec {
 
   nativeBuildInputs = [ setuptools ];
 
-  propagatedBuildInputs = lib.optionals (pythonOlder "3.9") [ pytz ];
+  propagatedBuildInputs = lib.optionals (pythonOlder "3.9") [
+    pytz
+  ] ++ lib.optionals isPyPy [
+    tzdata
+  ];
 
   # including backports.zoneinfo for python<3.9 yields infinite recursion
   doCheck = pythonAtLeast "3.9";
