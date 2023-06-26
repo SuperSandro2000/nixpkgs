@@ -1,8 +1,10 @@
 { lib
 , buildPythonPackage
 , fetchPypi
+, isPyPy
 , pythonAtLeast
 , pythonOlder
+, tzdata
 
 # tests
 , freezegun
@@ -25,16 +27,17 @@ buildPythonPackage rec {
 
   propagatedBuildInputs = lib.optionals (pythonOlder "3.9") [
     pytz
+  ] ++ lib.optionals isPyPy [
+    tzdata
   ];
 
   # including backports.zoneinfo for python<3.9 yields infinite recursion
   doCheck = pythonAtLeast "3.9";
 
   nativeCheckInputs = [
-    # via setup.py
     freezegun
     pytestCheckHook
-    # via tox.ini
+    # https://github.com/python-babel/babel/issues/988#issuecomment-1521765563
     pytz
   ];
 
