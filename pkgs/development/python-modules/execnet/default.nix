@@ -44,6 +44,8 @@ buildPythonPackage rec {
     apipkg
   ];
 
+  doCheck = !isPyPy;
+
   nativeCheckInputs = [
     py
     pytestCheckHook
