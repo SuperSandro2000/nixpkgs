@@ -7,11 +7,10 @@ diff --git a/lib-python/3/sysconfig.py b/lib-python/3/sysconfig.py
      'posix_prefix': {
 -        'stdlib': '{installed_base}/{platlibdir}/{implementation_lower}{py_version_short}',
 -        'platstdlib': '{platbase}/{platlibdir}/{implementation_lower}{py_version_short}',
--        'purelib': '{base}/lib/{implementation_lower}{py_version_short}/site-packages',
--        'platlib': '{platbase}/{platlibdir}/{implementation_lower}{py_version_short}/site-packages',
 +        'stdlib': '{installed_base}',
 +        'platstdlib': '{platbase}',
-+        'purelib': '{base}/site-packages',
+         'purelib': '{base}/lib/{implementation_lower}{py_version_short}/site-packages',
+-        'platlib': '{platbase}/{platlibdir}/{implementation_lower}{py_version_short}/site-packages',
 +        'platlib': '{platbase}',
          'include':
              '{installed_base}/include/{implementation_lower}{py_version_short}{abiflags}',
