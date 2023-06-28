@@ -94,6 +94,8 @@ in with passthru; stdenv.mkDerivation rec {
   ] ++ lib.optionals isPy3k [
     # fix sitepackages detection adding prefix twice
     ./site-prefix.patch
+    # add missing LDCXXSHARED to sysconfig.get_config_vars() to prevent type errors when compiling eg. Pillow
+    ./sysconfig-config-vars.patch
     # fix paths to our site-packages and similar
     ./sysconfig-paths.patch
   ];
