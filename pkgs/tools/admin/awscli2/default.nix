@@ -29,8 +29,8 @@ with py.pkgs; buildPythonApplication rec {
   };
 
   postPatch = ''
-    substituteInPlace requirements/bootstrap.txt \
-      --replace "pip>=22.0.0,<23.0.0" "pip>=22.0.0,<24.0.0"
+    substituteInPlace pyproject.toml \
+      --replace "ruamel.yaml>=0.15.0,<=0.17.21" "ruamel.yaml>=0.15.0,<=0.17.32"
   '';
 
   nativeBuildInputs = [
