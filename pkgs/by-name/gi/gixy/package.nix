@@ -25,23 +25,23 @@ let
 in
 python.pkgs.buildPythonApplication rec {
   pname = "gixy";
-  version = "0.1.21";
+  version = "0.1.24";
   pyproject = true;
 
   # fetching from GitHub because the PyPi source is missing the tests
   src = fetchFromGitHub {
-    owner = "yandex";
+    owner = "dvershinin";
     repo = "gixy";
     rev = "v${version}";
-    sha256 = "sha256-Ak2UTP0gDKoac/rR2h1XCUKld1b41O466ogZNQ1yQN0=";
+    hash = "sha256-YDpOqqBCNHV33j/8VuysVKJ/EcDb48nDJIxPcCDAc7o=";
   };
 
   patches = [
     # Migrate tests to pytest
-    # https://github.com/yandex/gixy/pull/146
+    # https://github.com/dvershinin/gixy/pull/9
     (fetchpatch2 {
-      url = "https://github.com/yandex/gixy/compare/6f68624a7540ee51316651bda656894dc14c9a3e...b1c6899b3733b619c244368f0121a01be028e8c2.patch";
-      hash = "sha256-6VUF2eQ2Haat/yk8I5qIXhHdG9zLQgEXJMLfe25OKEo=";
+      url = "https://github.com/dvershinin/gixy/pull/9.diff";
+      hash = "sha256-vfYryFoay360k5v2nxAVW4Fy1tbVZFfCmlJtyQ4NxO4=";
     })
     ./python3.13-compat.patch
   ];
