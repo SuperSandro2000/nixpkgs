@@ -20,18 +20,14 @@ let
 in
 python.pkgs.buildPythonApplication rec {
   pname = "gixy";
-  version = "0.1.20";
+  version = "0.1.22";
   format = "setuptools";
 
-  # package is only compatible with python 2.7 and 3.5+
-  disabled = with python.pkgs; !(pythonAtLeast "3.5" || isPy27);
-
-  # fetching from GitHub because the PyPi source is missing the tests
   src = fetchFromGitHub {
-    owner = "yandex";
+    owner = "dvershinin";
     repo = "gixy";
     rev = "v${version}";
-    sha256 = "14arz3fjidb8z37m08xcpih1391varj8s0v3gri79z3qb4zq5k6b";
+    hash = "sha256-Eb89rbfwOTsP6I9UXuB3+PrKh3efIOwGCnbsBH1rR3o=";
   };
 
   postPatch = ''
