@@ -320,6 +320,7 @@ in
               .services.CoAuthoring.token.enable.browser = true |
               .services.CoAuthoring.token.enable.request.inbox = true |
               .services.CoAuthoring.token.enable.request.outbox = true |
+              .services.CoAuthoring.secret.browser.string = "'"$(cat ${cfg.jwtSecretFile})"'" |
               .services.CoAuthoring.secret.inbox.string = "'"$(cat ${cfg.jwtSecretFile})"'" |
               .services.CoAuthoring.secret.outbox.string = "'"$(cat ${cfg.jwtSecretFile})"'" |
               .services.CoAuthoring.secret.session.string = "'"$(cat ${cfg.jwtSecretFile})"'" |
