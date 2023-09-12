@@ -48,6 +48,8 @@
             runHook postInstall
           '';
 
+          preferLocalBuild = true;
+
           meta = {
             platforms = lib.platforms.all;
           }
