@@ -79,6 +79,10 @@ buildPythonPackage rec {
     # https://github.com/agronholm/anyio/issues/550
     "TestTLSStream"
     "TestTLSListener"
+    # timing sensitive
+    # assert threading.active_count() == initial_count + 1
+    # assert 4 == (4 + 1)
+    "test_run_sync_from_thread_pooling"
   ];
 
   disabledTestPaths = [
