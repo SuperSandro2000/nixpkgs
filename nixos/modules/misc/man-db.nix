@@ -62,7 +62,7 @@ in
     environment.systemPackages = [ cfg.package ];
     environment.etc."man_db.conf".text =
       let
-        manualCache = pkgs.runCommand "man-cache" {
+        manualCache = pkgs.runCommandLocal "man-cache" {
           nativeBuildInputs = [ cfg.package ];
         } ''
           echo "MANDB_MAP ${cfg.manualPages}/share/man $out" > man.conf
