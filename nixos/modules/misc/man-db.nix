@@ -70,7 +70,7 @@ in
     environment.etc."man_db.conf".text =
       let
         manualCache =
-          pkgs.runCommand "man-cache"
+          pkgs.runCommandLocal "man-cache"
             {
               nativeBuildInputs = [ cfg.package ];
             }
