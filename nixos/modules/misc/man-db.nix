@@ -79,7 +79,7 @@ in
             pkgs.buildPackages.man-db;
 
         manualCache =
-          pkgs.runCommand "man-cache"
+          pkgs.runCommandLocal "man-cache"
             {
               nativeBuildInputs = [ buildPackage ];
               preferLocalBuild = true;
