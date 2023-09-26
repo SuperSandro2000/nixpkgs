@@ -379,7 +379,7 @@ in
           };
         }
       ];
-      extraPlugins = with postgresql.pkgs; [ postgis ];
+      extraPlugins = ps: with ps; [ postgis ];
     };
 
     # Nginx config taken from support/nginx/mobilizon-release.conf

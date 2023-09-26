@@ -7,7 +7,7 @@
 #   # are built for the correct postgresql version.
 #   postgresqlPackages = config.services.postgresql.package.pkgs;
 # in {
-#   extraPlugins = with postgresqlPackages; [ timescaledb ];
+#   extraPlugins = ps: with ps; [ timescaledb ];
 #   settings.shared_preload_libraries = "timescaledb";
 # }
 
