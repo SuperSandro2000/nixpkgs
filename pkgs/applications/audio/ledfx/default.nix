@@ -5,18 +5,19 @@
 
 python3.pkgs.buildPythonPackage rec {
   pname = "ledfx";
-  version = "2.0.69";
+  version = "2.0.71";
   format = "setuptools";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-gkO6XYiPMkU/zRLvc0yd3jJXVcAgAkR1W1ELTSN461o=";
+    hash = "sha256-qY/BWt6DqNIeV0IvuymWqh0ChBk2X/ijRd29QtFBRDY=";
   };
 
   postPatch = ''
     substituteInPlace setup.py \
       --replace "'rpi-ws281x>=4.3.0; platform_system == \"Linux\"'," "" \
       --replace '"sentry-sdk==1.14.0",' "" \
+      --replace '"python-mbedtls~=2.7.1",' "" \
       --replace "~=" ">="
   '';
 
@@ -36,6 +37,7 @@ python3.pkgs.buildPythonPackage rec {
     psutil
     pyserial
     pystray
+    python-mbedtls
     python-rtmidi
     # rpi-ws281x # not packaged
     requests
