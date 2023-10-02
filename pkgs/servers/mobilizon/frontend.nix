@@ -14,6 +14,8 @@ buildNpmPackage {
     cp -r priv/static $out/static
   '';
 
+  dontStrip = true; # fixupPhase completed in 4 minutes 24 seconds
+
   meta = with lib; {
     description = "Frontend for the Mobilizon server";
     homepage = "https://joinmobilizon.org/";

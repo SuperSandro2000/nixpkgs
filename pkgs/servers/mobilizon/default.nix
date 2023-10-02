@@ -18,6 +18,10 @@ in
 mixRelease rec {
   inherit (common) pname version src;
 
+  # See https://github.com/whitfin/cachex/issues/205
+  # This circumvents a startup error for now
+  stripDebug = false;
+
   nativeBuildInputs = [ git cmake ];
 
   mixNixDeps = import ./mix.nix {
