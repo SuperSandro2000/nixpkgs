@@ -14,6 +14,8 @@
     patches = [
       # See https://framagit.org/framasoft/mobilizon/-/merge_requests/1452
       ./cacerts_get.patch
+
+      ./allow-ldap-login-with-username.diff
     ];
   };
 }
