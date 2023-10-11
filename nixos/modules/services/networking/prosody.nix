@@ -200,6 +200,12 @@ let
       description = lib.mdDoc "Enable BOSH clients, aka 'Jabber over HTTP'";
     };
 
+    turn_external = mkOption {
+      type = types.bool;
+      default = false;
+      description = lib.mdDoc "Enable TURN and STUN support";
+    };
+
     websocket = mkOption {
       type = types.bool;
       default = false;
