@@ -86,6 +86,12 @@ let
       description = lib.mdDoc "Implements the CSI protocol that allows clients to report their active/inactive state to the server";
     };
 
+    csi_simple = mkOption {
+      type = types.bool;
+      default = false;
+      description = lib.mdDoc "Implements simple traffic optimisation for clients that have reported themselves as inactive to mod_csi";
+    };
+
     cloud_notify = mkOption {
       type = types.bool;
       default = true;
@@ -201,6 +207,24 @@ let
       type = types.bool;
       default = false;
       description = lib.mdDoc "Enable BOSH clients, aka 'Jabber over HTTP'";
+    };
+
+    http_altconnect = mkOption {
+      type = types.bool;
+      default = false;
+      description = lib.mdDoc "Enable BOSH and WebSocket connection endpoints discoverable via the HTTP method described in XEP-0156";
+    };
+
+    s2s_bidi = mkOption {
+      type = types.bool;
+      default = false;
+      description = lib.mdDoc "Enable Bidirectional Server-to-Server support";
+    };
+
+    turn_external = mkOption {
+      type = types.bool;
+      default = false;
+      description = lib.mdDoc "Enable TURN and STUN support";
     };
 
     websocket = mkOption {
