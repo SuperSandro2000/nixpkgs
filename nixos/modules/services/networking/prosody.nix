@@ -200,6 +200,12 @@ let
       description = lib.mdDoc "Enable BOSH clients, aka 'Jabber over HTTP'";
     };
 
+    http_altconnect = mkOption {
+      type = types.bool;
+      default = false;
+      description = lib.mdDoc "Enable BOSH and WebSocket connection endpoints discoverable via the HTTP method described in XEP-0156";
+    };
+
     turn_external = mkOption {
       type = types.bool;
       default = false;
