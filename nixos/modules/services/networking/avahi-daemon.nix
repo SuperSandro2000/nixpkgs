@@ -286,7 +286,9 @@ in
 
     environment.systemPackages = [ cfg.package ];
 
-    environment.etc = (lib.mapAttrs'
+    environment.etc = {
+      "avahi/avahi-daemon.conf".source = avahiDaemonConf;
+    } // (lib.mapAttrs'
       (n: v: lib.nameValuePair
         "avahi/services/${n}.service"
         { ${if lib.types.path.check v then "source" else "text"} = v; }
@@ -322,7 +324,7 @@ in
         NotifyAccess = "main";
         BusName = "org.freedesktop.Avahi";
         Type = "dbus";
-        ExecStart = "${cfg.package}/sbin/avahi-daemon --syslog -f ${avahiDaemonConf}";
+        ExecStart = "${cfg.package}/sbin/avahi-daemon --syslog -f /etc/avahi/avahi-daemon.conf";
         ConfigurationDirectory = "avahi/services";
 
         # Hardening
