@@ -349,14 +349,15 @@ in
 
     environment.systemPackages = [ cfg.package ];
 
-    environment.etc = (
-      lib.mapAttrs' (
-        n: v:
-        lib.nameValuePair "avahi/services/${n}.service" {
-          ${if lib.types.path.check v then "source" else "text"} = v;
-        }
-      ) cfg.extraServiceFiles
-    );
+    environment.etc = {
+      "avahi/avahi-daemon.conf".source = avahiDaemonConf;
+    }
+    // (lib.mapAttrs' (
+      n: v:
+      lib.nameValuePair "avahi/services/${n}.service" {
+        ${if lib.types.path.check v then "source" else "text"} = v;
+      }
+    ) cfg.extraServiceFiles);
 
     systemd.sockets.avahi-daemon = {
       description = "Avahi mDNS/DNS-SD Stack Activation Socket";
@@ -395,7 +396,7 @@ in
         NotifyAccess = "main";
         BusName = "org.freedesktop.Avahi";
         Type = "dbus";
-        ExecStart = "${cfg.package}/sbin/avahi-daemon --syslog -f ${avahiDaemonConf} ${lib.optionalString cfg.debug "--debug"}";
+        ExecStart = "${cfg.package}/sbin/avahi-daemon --syslog -f /etc/avahi/avahi-daemon.conf ${lib.optionalString cfg.debug "--debug"}";
         ConfigurationDirectory = "avahi/services";
 
         # Hardening
