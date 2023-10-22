@@ -661,6 +661,7 @@ in
       wantedBy = [ "multi-user.target" ];
       wants = [ "network-online.target" ];
       after = [ "network-online.target" ];
+      restartTriggers = [ configFile ];
       serviceConfig = {
         Type = "notify";
         NotifyAccess = "main";
@@ -669,7 +670,7 @@ in
         RuntimeDirectory = "mosquitto";
         WorkingDirectory = cfg.dataDir;
         Restart = "on-failure";
-        ExecStart = "${cfg.package}/bin/mosquitto -c ${configFile}";
+        ExecStart = "${cfg.package}/bin/mosquitto -c /etc/mosquitto/mosquitto.conf";
         ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
 
         # Credentials
@@ -767,24 +768,28 @@ in
       );
     };
 
-    environment.etc = lib.listToAttrs (
-      lib.imap0 (idx: listener: {
-        name = "mosquitto/acl-${toString idx}.conf";
-        value = {
-          user = config.users.users.mosquitto.name;
-          group = config.users.users.mosquitto.group;
-          mode = "0400";
-          text = (
-            lib.concatStringsSep "\n" (
-              lib.flatten [
-                listener.acl
-                (lib.mapAttrsToList (n: u: [ "user ${n}" ] ++ map (t: "topic ${t}") u.acl) listener.users)
-              ]
-            )
-          );
-        };
-      }) cfg.listeners
-    );
+    environment.etc =
+      {
+        "mosquitto/mosquitto.conf".source = configFile;
+      }
+      // lib.listToAttrs (
+        lib.imap0 (idx: listener: {
+          name = "mosquitto/acl-${toString idx}.conf";
+          value = {
+            user = config.users.users.mosquitto.name;
+            group = config.users.users.mosquitto.group;
+            mode = "0400";
+            text = (
+              lib.concatStringsSep "\n" (
+                lib.flatten [
+                  listener.acl
+                  (lib.mapAttrsToList (n: u: [ "user ${n}" ] ++ map (t: "topic ${t}") u.acl) listener.users)
+                ]
+              )
+            );
+          };
+        }) cfg.listeners
+      );
 
     users.users.mosquitto = {
       description = "Mosquitto MQTT Broker Daemon owner";
