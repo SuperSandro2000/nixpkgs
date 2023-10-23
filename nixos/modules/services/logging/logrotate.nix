@@ -241,6 +241,8 @@ in
   };
 
   config = mkIf cfg.enable {
+    environment.etc."logrotate.conf".source = cfg.configFile;
+
     systemd.services.logrotate = {
       description = "Logrotate Service";
       startAt = "hourly";
@@ -248,7 +250,7 @@ in
       serviceConfig = {
         Restart = "no";
         User = "root";
-        ExecStart = "${pkgs.logrotate}/sbin/logrotate ${utils.escapeSystemdExecArgs cfg.extraArgs} ${mailOption} ${cfg.configFile}";
+        ExecStart = "${pkgs.logrotate}/sbin/logrotate ${utils.escapeSystemdExecArgs cfg.extraArgs} ${mailOption} /etc/logrotate.conf";
       };
     };
     systemd.services.logrotate-checkconf = {
@@ -257,7 +259,7 @@ in
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
-        ExecStart = "${pkgs.logrotate}/sbin/logrotate ${utils.escapeSystemdExecArgs cfg.extraArgs} --debug ${cfg.configFile}";
+        ExecStart = "${pkgs.logrotate}/sbin/logrotate ${utils.escapeSystemdExecArgs cfg.extraArgs} --debug /etc/logrotate.conf";
       };
     };
   };
