@@ -306,6 +306,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    environment.etc."logrotate.conf".source = cfg.configFile;
+
     systemd.services.logrotate = {
       description = "Logrotate Service";
       documentation = [
@@ -317,7 +319,7 @@ in
       serviceConfig =
         {
           Type = "oneshot";
-          ExecStart = "${lib.getExe pkgs.logrotate} ${utils.escapeSystemdExecArgs cfg.extraArgs} ${mailOption} ${cfg.configFile}";
+          ExecStart = "${lib.getExe pkgs.logrotate} ${utils.escapeSystemdExecArgs cfg.extraArgs} ${mailOption} /etc/logrotate.conf";
 
           # performance
           Nice = 19;
@@ -371,7 +373,7 @@ in
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
-        ExecStart = "${pkgs.logrotate}/sbin/logrotate ${utils.escapeSystemdExecArgs cfg.extraArgs} --debug ${cfg.configFile}";
+        ExecStart = "${pkgs.logrotate}/sbin/logrotate ${utils.escapeSystemdExecArgs cfg.extraArgs} --debug /etc/logrotate.conf";
       };
     };
   };
