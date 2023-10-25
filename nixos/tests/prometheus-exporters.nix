@@ -376,8 +376,8 @@ let
     };
 
     kea = let
-      controlSocketPathV4 = "/run/kea/dhcp4.sock";
-      controlSocketPathV6 = "/run/kea/dhcp6.sock";
+      controlSocketPathV4 = "/run/kea-dhcp4/dhcp4.sock";
+      controlSocketPathV6 = "/run/kea-dhcp6/dhcp6.sock";
     in
     {
       exporterConfig = {
