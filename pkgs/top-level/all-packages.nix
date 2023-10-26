@@ -12646,9 +12646,7 @@ with pkgs;
     wlroots = wlroots_0_18;
   };
 
-  calf = callPackage ../applications/audio/calf {
-      inherit (gnome2) libglade;
-  };
+  calf = callPackage ../applications/audio/calf { };
 
   calcmysky = qt6Packages.callPackage ../applications/science/astronomy/calcmysky { };
 
