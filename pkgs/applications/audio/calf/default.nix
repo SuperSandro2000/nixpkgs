@@ -1,5 +1,5 @@
-{ lib, stdenv, fetchurl, cairo, expat, fftwSinglePrec, fluidsynth, glib
-, gtk2, libjack2, ladspaH , libglade, lv2, pkg-config }:
+{ lib, stdenv, fetchurl, expat, fftwSinglePrec, fluidsynth, glib
+, libjack2, ladspaH , lv2, pkg-config }:
 
 stdenv.mkDerivation rec {
   pname = "calf";
@@ -16,9 +16,11 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [
-    cairo expat fftwSinglePrec fluidsynth glib gtk2 libjack2 ladspaH
-    libglade lv2
+    expat fftwSinglePrec fluidsynth glib libjack2 ladspaH
+    lv2
   ];
+
+  configureFlags = [ "--without-gui" ];
 
   meta = with lib; {
     homepage = "https://calf-studio-gear.org";
