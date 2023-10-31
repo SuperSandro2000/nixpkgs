@@ -206,6 +206,12 @@ let
       description = lib.mdDoc "Enable BOSH and WebSocket connection endpoints discoverable via the HTTP method described in XEP-0156";
     };
 
+    s2s_bidi = mkOption {
+      type = types.bool;
+      default = false;
+      description = lib.mdDoc "Enable Bidirectional Server-to-Server support";
+    };
+
     turn_external = mkOption {
       type = types.bool;
       default = false;
