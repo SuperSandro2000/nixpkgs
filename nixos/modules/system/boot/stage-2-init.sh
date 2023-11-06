@@ -137,10 +137,6 @@ echo "running activation script..."
 $systemConfig/activate
 
 
-# Record the boot configuration.
-ln -sfn "$systemConfig" /run/booted-system
-
-
 # Run any user-specified commands.
 @shell@ @postBootCommands@
 
