@@ -144,6 +144,7 @@ let
             libPath
             pkgsLibPath
           ];
+          __contentAddressed = true;
         }
         ''
           export NIX_STORE_DIR=$TMPDIR/store
