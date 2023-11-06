@@ -126,6 +126,7 @@ let
             + concatMapStringsSep " " (p: ''"${removePrefix "${modulesPath}/" (toString p)}"'') docModules.lazy
             + " ]";
           passAsFile = [ "modules" ];
+          __contentAddressed = true;
         }
         ''
           export NIX_STORE_DIR=$TMPDIR/store
