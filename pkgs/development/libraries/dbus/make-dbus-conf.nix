@@ -27,6 +27,8 @@ runCommand "dbus-1"
     buildInputs = [
       dbus.out
     ];
+
+    __contentAddressed = true;
   }
   ''
     mkdir -p $out
