@@ -40,8 +40,8 @@ stdenv.mkDerivation rec {
   # version.
   communityModules = fetchhg {
     url = "https://hg.prosody.im/prosody-modules";
-    rev = "7c105277a9ca";
-    sha256 = "eiObn5Kw7dS+oxdQiJ8NhSC4P7EvILIOEnMoxCWIFro=";
+    rev = "6696075e26e2";
+    hash = "sha256-ZL2uDAcsK+CXOqYeER8vdK65wNHs4j7nJGJYjaoOhi4=";
   };
 
   nativeBuildInputs = [ makeWrapper ];
