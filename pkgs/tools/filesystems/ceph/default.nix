@@ -3,6 +3,8 @@
 , runCommand
 , fetchurl
 , fetchFromGitHub
+, applyPatches
+, fetchpatch
 
 # Build time
 , cmake
@@ -143,7 +145,7 @@ let
     pname = "ceph-common";
     inherit src version;
 
-    sourceRoot = "ceph-${version}/src/python-common";
+    sourceRoot = "${src.name}/src/python-common";
 
     propagatedBuildInputs = [
       pyyaml
@@ -228,9 +230,22 @@ let
   sitePackages = ceph-python-env.python.sitePackages;
 
   version = "17.2.5";
-  src = fetchurl {
-    url = "http://download.ceph.com/tarballs/ceph-${version}.tar.gz";
-    hash = "sha256-NiJpwUeROvh0siSaRoRrDm+C0s61CvRiIrbd7JmRspo=";
+  src = applyPatches {
+    src = fetchurl {
+      url = "http://download.ceph.com/tarballs/ceph-${version}.tar.gz";
+      hash = "sha256-NiJpwUeROvh0siSaRoRrDm+C0s61CvRiIrbd7JmRspo=";
+    };
+    patches = [
+      # fix cmake race conditions
+      (fetchpatch {
+        url = "https://github.com/ceph/ceph/commit/3b3da64d741960e2ecb217c1990142f4a88f2fa3.patch";
+        hash = "sha256-jgAHvEa2rkkTqp5ecdN1UGYzu7ZBXB45n9pZwjWtqWg=";
+      })
+      (fetchpatch {
+        url = "https://tracker.ceph.com/attachments/download/6692/0035-src-CMakeLists.txt.patch";
+        hash = "sha256-a56Bqs1aYIhsjMefz6SwEJ+TBNRhDK9ddEm7FDBRS1I=";
+      })
+    ];
   };
 in rec {
   ceph = stdenv.mkDerivation {
