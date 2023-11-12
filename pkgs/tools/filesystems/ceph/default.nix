@@ -305,6 +305,13 @@ in rec {
       patchShebangs src/
     '';
 
+    preBuild = ''
+      # https://tracker.ceph.com/issues/55256#note-1
+      cd ..
+      cmake --build build --config Release --target legacy-option-headers
+      cd -
+    '';
+
     cmakeFlags = [
       "-DCMAKE_INSTALL_DATADIR=${placeholder "lib"}/lib"
 
