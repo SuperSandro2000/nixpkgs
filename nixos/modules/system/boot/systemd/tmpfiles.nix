@@ -186,20 +186,23 @@ in
     };
 
     environment.etc = {
-      "tmpfiles.d".source = (pkgs.symlinkJoin {
-        name = "tmpfiles.d";
+      # NOTE: cp is used instead of symlinkJoin to cut down rebuilds if the content of file didn't change
+      "tmpfiles.d".source = (pkgs.runCommandLocal "tmpfiles.d" {
         paths = map (p: p + "/lib/tmpfiles.d") cfg.packages;
-        postBuild = ''
-          for i in $(cat $pathsPath); do
-            (test -d "$i" && test $(ls "$i"/*.conf | wc -l) -ge 1) || (
-              echo "ERROR: The path '$i' from systemd.tmpfiles.packages contains no *.conf files."
-              exit 1
-            )
-          done
-        '' + concatMapStrings (name: optionalString (hasPrefix "tmpfiles.d/" name) ''
-          rm -f $out/${removePrefix "tmpfiles.d/" name}
-        '') config.system.build.etc.passthru.targets;
-      }) + "/*";
+        __contentAddressed = true;
+      } ''
+        mkdir -p $out
+
+        for path in ''${paths[@]}; do
+          (test -d "$path" && test $(ls "$path"/*.conf | wc -l) -ge 1) || (
+            echo "ERROR: The path '$path' from systemd.tmpfiles.packages contains no *.conf files."
+            exit 1
+          )
+          cp $path/*.conf $out/
+        done
+      '' + concatMapStrings (name: optionalString (hasPrefix "tmpfiles.d/" name) ''
+        rm -f $out/${removePrefix "tmpfiles.d/" name}
+      '') config.system.build.etc.passthru.targets) + "/*";
     };
 
     systemd.tmpfiles.packages = [
