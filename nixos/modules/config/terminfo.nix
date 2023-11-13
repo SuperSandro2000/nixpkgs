@@ -62,7 +62,7 @@
     ];
 
     environment.etc.terminfo = {
-      source = "${config.system.path}/share/terminfo";
+      source = "/run/current-system/sw/share/terminfo";
     };
 
     boot.initrd.systemd.contents = lib.listToAttrs (
