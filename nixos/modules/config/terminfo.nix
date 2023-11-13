@@ -52,7 +52,7 @@ with lib;
     ];
 
     environment.etc.terminfo = {
-      source = "${config.system.path}/share/terminfo";
+      source = "/run/current-system/sw/share/terminfo";
     };
 
     environment.profileRelativeSessionVariables = {
