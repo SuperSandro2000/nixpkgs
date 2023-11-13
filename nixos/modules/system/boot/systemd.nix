@@ -603,24 +603,23 @@ in
     environment.etc =
       let
         # generate contents for /etc/systemd/${dir} from attrset of links and packages
+        # NOTE: cp is used instead of ln -s to cut down rebuilds if the content of file didn't change
         hooks =
           dir: links:
           pkgs.runCommand "${dir}"
             {
               preferLocalBuild = true;
-              packages = cfg.packages;
+              inherit (cfg) packages;
             }
             ''
               set -e
               mkdir -p $out
-              for package in $packages
-              do
-                for hook in $package/lib/systemd/${dir}/*
-                do
-                  ln -s $hook $out/
+              for package in $packages; do
+                for hook in $package/lib/systemd/${dir}/*; do
+                  cp $hook $out/
                 done
               done
-              ${concatStrings (mapAttrsToList (exec: target: "ln -s ${target} $out/${exec};\n") links)}
+              ${concatStrings (mapAttrsToList (exec: target: "cp ${target} $out/${exec};\n") links)}
             '';
 
         enabledUpstreamSystemUnits = filter (n: !elem n cfg.suppressedSystemUnits) upstreamSystemUnits;
