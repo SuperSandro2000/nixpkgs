@@ -2771,10 +2771,10 @@
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "0iv7vgqyrpymiwvc3ca24sl4lda8m627p657p0v4xzdpzincrnbr";
+      sha256 = "0w9a1cwv86c9zb3hj1m42gbjk6r7rgs5ismalr9c9nx365yyj90i";
       type = "gem";
     };
-    version = "6.5.9";
+    version = "6.5.10";
   };
   sidekiq-bulk = {
     dependencies = ["sidekiq"];

@@ -72,10 +72,6 @@ in
             proxyPass = "http://192.168.2.201:55001";
             proxyWebsockets = true;
           };
-          locations."/api/v1/streaming/" = {
-            proxyPass = "http://192.168.2.201:55002";
-            proxyWebsockets = true;
-          };
         };
       };
     };
@@ -106,6 +102,7 @@ in
         configureNginx = false;
         localDomain = "mastodon.local";
         enableUnixSocket = false;
+        streamingProcesses = 2;
         database = {
           createLocally = false;
           host = "192.168.2.102";
