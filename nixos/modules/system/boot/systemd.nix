@@ -504,20 +504,20 @@ in
 
     environment.etc = let
       # generate contents for /etc/systemd/system-${type} from attrset of links and packages
+      # NOTE: cp is used instead of ln -s to cut down rebuilds if the content of file didn't change
       hooks = type: links: pkgs.runCommand "system-${type}" {
-          preferLocalBuild = true;
-          packages = cfg.packages;
+        preferLocalBuild = true;
+        inherit (cfg) packages;
+        __contentAddressed = true;
       } ''
         set -e
         mkdir -p $out
-        for package in $packages
-        do
-          for hook in $package/lib/systemd/system-${type}/*
-          do
-            ln -s $hook $out/
+        for package in $packages; do
+          for hook in $package/lib/systemd/system-${type}/*; do
+            cp $hook $out/
           done
         done
-        ${concatStrings (mapAttrsToList (exec: target: "ln -s ${target} $out/${exec};\n") links)}
+        ${concatStrings (mapAttrsToList (exec: target: "cp ${target} $out/${exec};\n") links)}
       '';
 
       enabledUpstreamSystemUnits = filter (n: ! elem n cfg.suppressedSystemUnits) upstreamSystemUnits;
