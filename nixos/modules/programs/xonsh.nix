@@ -86,7 +86,7 @@ in
           _ls_alias = aliases.pop('ls', None)
 
           # Source the NixOS environment config.
-          source-bash "${config.system.build.setEnvironment}"
+          source-bash "/etc/set-environment"
 
           # Restore xonsh's ls alias, overriding that from Bash (if any).
           if _ls_alias is not None:
