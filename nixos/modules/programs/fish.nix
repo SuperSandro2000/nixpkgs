@@ -204,7 +204,7 @@ in
 
               # source the NixOS environment config
               if [ -z "$__NIXOS_SET_ENVIRONMENT_DONE" ]
-                fenv source ${config.system.build.setEnvironment}
+                fenv source /etc/set-environment
               end
 
               # clear fish_function_path so that it will be correctly set when we return to $__fish_datadir/config.fish
