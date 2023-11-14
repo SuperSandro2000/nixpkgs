@@ -72,7 +72,7 @@ in
 
         serviceConfig = {
           Type = "notify";
-          ExecStart = "${pkgs.runtimeShell} -c 'source ${config.system.build.setEnvironment}; exec ${cfg.package}/bin/emacs --fg-daemon'";
+          ExecStart = "${pkgs.runtimeShell} -c 'source /etc/set-environment; exec ${cfg.package}/bin/emacs --fg-daemon'";
           ExecStop = "${cfg.package}/bin/emacsclient --eval (kill-emacs)";
           Restart = "always";
         };
