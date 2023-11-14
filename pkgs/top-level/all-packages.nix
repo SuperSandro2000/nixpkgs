@@ -8621,7 +8621,9 @@ with pkgs;
 
   git-latexdiff = callPackage ../tools/typesetting/git-latexdiff { };
 
-  gitea = callPackage ../applications/version-management/gitea { };
+  gitea = callPackage ../applications/version-management/gitea {
+    buildGoModule = buildGo121Module;
+  };
 
   gitea-actions-runner = callPackage ../development/tools/continuous-integration/gitea-actions-runner { };
 
