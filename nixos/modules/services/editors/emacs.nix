@@ -71,7 +71,7 @@ in
 
       serviceConfig = {
         Type = "notify";
-        ExecStart = "${pkgs.runtimeShell} -c 'source ${config.system.build.setEnvironment}; exec ${cfg.package}/bin/emacs --fg-daemon'";
+        ExecStart = "${pkgs.runtimeShell} -c 'source /etc/set-environment; exec ${cfg.package}/bin/emacs --fg-daemon'";
         # Emacs exits with exit code 15 (SIGTERM), when stopped by systemd.
         SuccessExitStatus = 15;
         Restart = "always";

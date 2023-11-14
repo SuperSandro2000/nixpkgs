@@ -194,7 +194,7 @@ in
       __ETC_ZSHENV_SOURCED=1
 
       if [ -z "''${__NIXOS_SET_ENVIRONMENT_DONE-}" ]; then
-          . ${config.system.build.setEnvironment}
+          . /etc/set-environment
       fi
 
       HELPDIR="${cfg.package}/share/zsh/$ZSH_VERSION/help"
