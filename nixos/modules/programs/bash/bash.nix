@@ -132,7 +132,7 @@ in
 
       shellInit = ''
         if [ -z "$__NIXOS_SET_ENVIRONMENT_DONE" ]; then
-            . ${config.system.build.setEnvironment}
+            . /etc/set-environment
         fi
 
         ${cfge.shellInit}
