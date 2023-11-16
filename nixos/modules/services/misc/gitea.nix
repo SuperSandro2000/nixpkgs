@@ -639,7 +639,7 @@ in
         };
 
         locations."^~ ${cfg.settings.server.STATIC_URL_PREFIX}/assets/" = {
-          alias = "${cfg.package.data-compressed}/public/";
+          alias = "${pkgs.compressDrvWeb cfg.package.data { }}/public/assets/";
           tryFiles = "$uri =404";
 
           extraConfig = nginxCommonHeaders;
