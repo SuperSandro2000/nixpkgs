@@ -5,12 +5,12 @@
 
 python3.pkgs.buildPythonPackage rec {
   pname = "ledfx";
-  version = "2.0.71";
+  version = "2.0.78";
   format = "setuptools";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-qY/BWt6DqNIeV0IvuymWqh0ChBk2X/ijRd29QtFBRDY=";
+    hash = "sha256-IalfA/nfQrnE90ycOnPEZ4A/L8rwi08ECNA/8YxeAgQ=";
   };
 
   postPatch = ''
@@ -38,6 +38,7 @@ python3.pkgs.buildPythonPackage rec {
     pyserial
     pystray
     python-mbedtls
+    python-osc
     python-rtmidi
     # rpi-ws281x # not packaged
     requests
