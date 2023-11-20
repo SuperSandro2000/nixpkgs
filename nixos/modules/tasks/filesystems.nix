@@ -250,11 +250,15 @@ let
   # `systemMount` should be defined in the sourcing script.
   makeSpecialMounts =
     mounts:
-    pkgs.writeText "mounts.sh" (
-      concatMapStringsSep "\n" (mount: ''
+    (pkgs.writeTextFile {
+      name = "mounts.sh";
+      text = concatMapStringsSep "\n" (mount: ''
         specialMount "${mount.device}" "${mount.mountPoint}" "${concatStringsSep "," mount.options}" "${mount.fsType}"
-      '') mounts
-    );
+      '') mounts;
+    }).overrideAttrs
+      {
+        __contentAddressed = true;
+      };
 
   makeFstabEntries =
     let
