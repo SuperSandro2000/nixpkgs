@@ -466,9 +466,9 @@ in
 
       picture = mkIf cfg.configureNginx {
         AVATAR_STORAGE_TYPE = lib.mkDefault "local";
-        AVATAR_UPLOAD_PATH = lib.mkDefault "data/avatars";
+        AVATAR_UPLOAD_PATH = lib.mkDefault "avatars";
         REPOSITORY_AVATAR_STORAGE_TYPE = lib.mkDefault "local";
-        REPOSITORY_AVATAR_UPLOAD_PATH = lib.mkDefault "data/repo-avatars";
+        REPOSITORY_AVATAR_UPLOAD_PATH = lib.mkDefault "repo-avatars";
       };
 
       security = {
@@ -530,7 +530,7 @@ in
         };
 
         locations."^~ /avatars/" = lib.mkIf (cfg.settings.picture.AVATAR_STORAGE_TYPE == "local") {
-          alias = "${cfg.stateDir}/${cfg.settings.picture.AVATAR_UPLOAD_PATH}/";
+          alias = "${cfg.stateDir}/data/${cfg.settings.picture.AVATAR_UPLOAD_PATH}/";
           tryFiles = "$uri =404";
 
           extraConfig = ''
@@ -539,7 +539,7 @@ in
         };
 
         locations."^~ /repo-avatars/" = lib.mkIf (cfg.settings.picture.REPOSITORY_AVATAR_STORAGE_TYPE == "local") {
-          alias = "${cfg.stateDir}/${cfg.settings.picture.REPOSITORY_AVATAR_UPLOAD_PATH}/";
+          alias = "${cfg.stateDir}/data/${cfg.settings.picture.REPOSITORY_AVATAR_UPLOAD_PATH}/";
           tryFiles = "$uri =404";
 
           extraConfig = ''
