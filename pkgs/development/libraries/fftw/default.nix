@@ -1,4 +1,5 @@
 { fetchurl
+, fetchpatch
 , stdenv
 , lib
 , gfortran
@@ -24,6 +25,15 @@ stdenv.mkDerivation (finalAttrs: {
     ];
     sha256 = "sha256-VskyVJhSzdz6/as4ILAgDHdCZ1vpIXnlnmIVs0DiZGc=";
   };
+
+  patches = [
+    # install missing cmake file when using autotools
+    (fetchpatch {
+      name = "remove_missing_FFTW3LibraryDepends.patch";
+      url = "https://github.com/FFTW/fftw3/pull/338/commits/ef180a2d1f188d7583a5719cfda8928fcee4a19e.patch";
+      hash = "sha256-w21TkcNznkG+aO1B/QVHL44uNLUv/fiG91g79pisac8=";
+    })
+  ];
 
   outputs = [ "out" "dev" "man" ]
     ++ lib.optional withDoc "info"; # it's dev-doc only
@@ -64,7 +74,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     description = "Fastest Fourier Transform in the West library";
-    homepage = "http://www.fftw.org/";
+    homepage = "https://www.fftw.org/";
     license = licenses.gpl2Plus;
     maintainers = [ ];
     pkgConfigModules = [
