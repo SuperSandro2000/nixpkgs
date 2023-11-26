@@ -893,7 +893,17 @@ in
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
-      restartTriggers = [ config.environment.etc."prosody/prosody.cfg.lua".source ];
+      restartTriggers = [
+        # placed here instead of before assigning environment.etc to make rebases easier
+        (pkgs.runCommandLocal "prosody.cfg.lua-checked" {
+          nativeBuildInputs = [ cfg.package ];
+        } ''
+          ln -s ${config.environment.etc."prosody/prosody.cfg.lua".source} $out
+          export NIX_REDIRECTS=/etc/prosody/prosody.cfg.lua=$out \
+            LD_PRELOAD=${pkgs.libredirect}/lib/libredirect.so
+          prosodyctl check config
+       '')
+      ];
       preStart = ''
         ${pkgs.envsubst}/bin/envsubst -i ${config.environment.etc."prosody/prosody.cfg.lua".source} -o /run/prosody/prosody.cfg.lua
       '';
