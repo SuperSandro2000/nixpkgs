@@ -43,7 +43,6 @@ in
       ];
       QTWEBKIT_PLUGIN_PATH = [ "/lib/mozilla/plugins/" ];
       GTK_PATH = [
-        "/lib/gtk-2.0"
         "/lib/gtk-3.0"
         "/lib/gtk-4.0"
       ];
@@ -53,7 +52,6 @@ in
     };
 
     environment.pathsToLink = [
-      "/lib/gtk-2.0"
       "/lib/gtk-3.0"
       "/lib/gtk-4.0"
     ];
