@@ -82,9 +82,11 @@ in
           pkgs.runCommandLocal "man-cache"
             {
               nativeBuildInputs = [ buildPackage ];
+              __contentAddressed = true;
             }
             ''
-              echo "MANDB_MAP ${cfg.manualPages}/share/man $out" > man.conf
+              cp -prL ${cfg.manualPages}/share/man man
+              echo "MANDB_MAP $PWD/man $out" > man.conf
               mandb -C man.conf -psc >/dev/null 2>&1
             '';
       in
