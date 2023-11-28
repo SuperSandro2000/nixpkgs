@@ -83,9 +83,11 @@ in
             {
               nativeBuildInputs = [ buildPackage ];
               preferLocalBuild = true;
+              __contentAddressed = true;
             }
             ''
-              echo "MANDB_MAP ${cfg.manualPages}/share/man $out" > man.conf
+              cp -prL ${cfg.manualPages}/share/man man
+              echo "MANDB_MAP $PWD/man $out" > man.conf
               mandb -C man.conf -pscq
             '';
       in
