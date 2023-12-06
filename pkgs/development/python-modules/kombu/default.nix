@@ -90,7 +90,7 @@ buildPythonPackage rec {
     case
     hypothesis
     pytestCheckHook
-  ] ++ lib.flatten (builtins.attrValues passthru.optional-dependencies);
+  ] ++ lib.flatten (with passthru.optional-dependencies; [ redis sqlalchemy sqs yaml ]); # avoid dependency on kazoo -> openjdk -> gtk2
 
   pythonImportsCheck = [
     "kombu"
@@ -99,6 +99,11 @@ buildPythonPackage rec {
   disabledTests = [
     # Disable pyro4 test
     "test_driver_version"
+  ];
+
+  disabledTestPaths = [
+    # disable azure because it no properly tests for the dependency
+    "t/unit/transport/test_azurestoragequeues.py"
   ];
 
   meta = with lib; {
