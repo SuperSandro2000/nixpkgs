@@ -27,9 +27,7 @@ stdenvNoCC.mkDerivation rec {
   # Firmware blobs do not need fixing and should not be modified
   dontFixup = true;
 
-  outputHashMode = "recursive";
-  outputHashAlgo = "sha256";
-  outputHash = source.outputHash;
+  __contentAddressed = true;
 
   meta = with lib; {
     description = "Binary firmware collection packaged by kernel.org";
