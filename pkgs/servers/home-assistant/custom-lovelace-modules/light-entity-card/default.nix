@@ -27,8 +27,6 @@ buildNpmPackage rec {
     runHook postInstall
   '';
 
-  passthru.entrypoint = "light-entity-card.js";
-
   meta = with lib; {
     description = "Control any light or switch entity";
     homepage = "https://github.com/ljmerza/light-entity-card";
