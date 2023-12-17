@@ -1,6 +1,5 @@
 { config, lib, pkgs, ... }:
 
-with lib;
 let
   cfg = config.services.oauth2-proxy;
 
@@ -71,35 +70,28 @@ let
   } // (getProviderOptions cfg cfg.provider) // cfg.extraConfig;
 
   mapConfig = key: attr:
-  optionalString (attr != null && attr != []) (
-    if isDerivation attr then mapConfig key (toString attr) else
-    if (builtins.typeOf attr) == "set" then concatStringsSep " "
-      (mapAttrsToList (name: value: mapConfig (key + "-" + name) value) attr) else
-    if (builtins.typeOf attr) == "list" then concatMapStringsSep " " (mapConfig key) attr else
-    if (builtins.typeOf attr) == "bool" then "--${key}=${boolToString attr}" else
+  lib.optionalString (attr != null && attr != []) (
+    if lib.isDerivation attr then mapConfig key (toString attr) else
+    if (builtins.typeOf attr) == "set" then lib.concatStringsSep " "
+      (lib.mapAttrsToList (name: value: mapConfig (key + "-" + name) value) attr) else
+    if (builtins.typeOf attr) == "list" then lib.concatMapStringsSep " " (mapConfig key) attr else
+    if (builtins.typeOf attr) == "bool" then "--${key}=${lib.boolToString attr}" else
     if (builtins.typeOf attr) == "string" then "--${key}='${attr}'" else
     "--${key}=${toString attr}");
 
-  configString = concatStringsSep " " (mapAttrsToList mapConfig allConfig);
+  configString = lib.concatStringsSep " " (lib.mapAttrsToList mapConfig allConfig);
 in
 {
   options.services.oauth2-proxy = {
-    enable = mkEnableOption "oauth2-proxy";
+    enable = lib.mkEnableOption "oauth2-proxy";
 
-    package = mkOption {
-      type = types.package;
-      default = pkgs.oauth2-proxy;
-      defaultText = literalExpression "pkgs.oauth2-proxy";
-      description = lib.mdDoc ''
-        The package that provides oauth2-proxy.
-      '';
-    };
+    package = lib.mkPackageOption pkgs "oauth2-proxy" { };
 
     ##############################################
     # PROVIDER configuration
     # Taken from: https://github.com/oauth2-proxy/oauth2-proxy/blob/master/providers/providers.go
-    provider = mkOption {
-      type = types.enum [
+    provider = lib.mkOption {
+      type = lib.types.enum [
         "adfs"
         "azure"
         "bitbucket"
@@ -121,24 +113,24 @@ in
       '';
     };
 
-    approvalPrompt = mkOption {
-      type = types.enum ["force" "auto"];
+    approvalPrompt = lib.mkOption {
+      type = lib.types.enum ["force" "auto"];
       default = "force";
       description = lib.mdDoc ''
         OAuth approval_prompt.
       '';
     };
 
-    clientID = mkOption {
-      type = types.nullOr types.str;
-      description = lib.mdDoc ''
+    clientID = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      description = ''
         The OAuth Client ID.
       '';
       example = "123456.apps.googleusercontent.com";
     };
 
-    oidcIssuerUrl = mkOption {
-      type = types.nullOr types.str;
+    oidcIssuerUrl = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = ''
         The OAuth issuer URL.
@@ -146,15 +138,15 @@ in
       example = "https://login.microsoftonline.com/{TENANT_ID}/v2.0";
     };
 
-    clientSecret = mkOption {
-      type = types.nullOr types.str;
-      description = lib.mdDoc ''
+    clientSecret = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      description = ''
         The OAuth Client Secret.
       '';
     };
 
-    skipAuthRegexes = mkOption {
-     type = types.listOf types.str;
+    skipAuthRegexes = lib.mkOption {
+     type = lib.types.listOf lib.types.str;
      default = [];
      description = lib.mdDoc ''
        Skip authentication for requests matching any of these regular
@@ -164,8 +156,8 @@ in
 
     # XXX: Not clear whether these two options are mutually exclusive or not.
     email = {
-      domains = mkOption {
-        type = types.listOf types.str;
+      domains = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
         default = [];
         description = lib.mdDoc ''
           Authenticate emails with the specified domains. Use
@@ -173,8 +165,8 @@ in
         '';
       };
 
-      addresses = mkOption {
-        type = types.nullOr types.lines;
+      addresses = lib.mkOption {
+        type = lib.types.nullOr lib.types.lines;
         default = null;
         description = lib.mdDoc ''
           Line-separated email addresses that are allowed to authenticate.
@@ -182,8 +174,8 @@ in
       };
     };
 
-    loginURL = mkOption {
-      type = types.nullOr types.str;
+    loginURL = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = lib.mdDoc ''
         Authentication endpoint.
@@ -195,8 +187,8 @@ in
       example = "https://provider.example.com/oauth/authorize";
     };
 
-    redeemURL = mkOption {
-      type = types.nullOr types.str;
+    redeemURL = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = lib.mdDoc ''
         Token redemption endpoint.
@@ -208,8 +200,8 @@ in
       example = "https://provider.example.com/oauth/token";
     };
 
-    validateURL = mkOption {
-      type = types.nullOr types.str;
+    validateURL = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = lib.mdDoc ''
         Access token validation endpoint.
@@ -221,10 +213,10 @@ in
       example = "https://provider.example.com/user/emails";
     };
 
-    redirectURL = mkOption {
+    redirectURL = lib.mkOption {
       # XXX: jml suspects this is always necessary, but the command-line
       # doesn't require it so making it optional.
-      type = types.nullOr types.str;
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = lib.mdDoc ''
         The OAuth2 redirect URL.
@@ -233,26 +225,26 @@ in
     };
 
     azure = {
-      tenant = mkOption {
-        type = types.str;
+      tenant = lib.mkOption {
+        type = lib.types.str;
         default = "common";
         description = lib.mdDoc ''
           Go to a tenant-specific or common (tenant-independent) endpoint.
         '';
       };
 
-      resource = mkOption {
-        type = types.str;
-        description = lib.mdDoc ''
+      resource = lib.mkOption {
+        type = lib.types.str;
+        description = ''
           The resource that is protected.
         '';
       };
     };
 
     google = {
-      adminEmail = mkOption {
-        type = types.str;
-        description = lib.mdDoc ''
+      adminEmail = lib.mkOption {
+        type = lib.types.str;
+        description = ''
           The Google Admin to impersonate for API calls.
 
           Only users with access to the Admin APIs can access the Admin SDK
@@ -263,33 +255,33 @@ in
         '';
       };
 
-      groups = mkOption {
-        type = types.listOf types.str;
+      groups = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
         default = [];
         description = lib.mdDoc ''
           Restrict logins to members of these Google groups.
         '';
       };
 
-      serviceAccountJSON = mkOption {
-        type = types.path;
-        description = lib.mdDoc ''
+      serviceAccountJSON = lib.mkOption {
+        type = lib.types.path;
+        description = ''
           The path to the service account JSON credentials.
         '';
       };
     };
 
     github = {
-      org = mkOption {
-        type = types.nullOr types.str;
+      org = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
         default = null;
         description = lib.mdDoc ''
           Restrict logins to members of this organisation.
         '';
       };
 
-      team = mkOption {
-        type = types.nullOr types.str;
+      team = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
         default = null;
         description = lib.mdDoc ''
           Restrict logins to members of this team.
@@ -300,8 +292,8 @@ in
 
     ####################################################
     # UPSTREAM Configuration
-    upstream = mkOption {
-      type = with types; coercedTo str (x: [x]) (listOf str);
+    upstream = lib.mkOption {
+      type = with lib.types; coercedTo str (x: [x]) (listOf str);
       default = [];
       description = lib.mdDoc ''
         The http url(s) of the upstream endpoint or `file://`
@@ -309,40 +301,40 @@ in
       '';
     };
 
-    passAccessToken = mkOption {
-      type = types.bool;
+    passAccessToken = lib.mkOption {
+      type = lib.types.bool;
       default = false;
       description = lib.mdDoc ''
         Pass OAuth access_token to upstream via X-Forwarded-Access-Token header.
       '';
     };
 
-    passBasicAuth = mkOption {
-      type = types.bool;
+    passBasicAuth = lib.mkOption {
+      type = lib.types.bool;
       default = true;
       description = lib.mdDoc ''
         Pass HTTP Basic Auth, X-Forwarded-User and X-Forwarded-Email information to upstream.
       '';
     };
 
-    basicAuthPassword = mkOption {
-      type = types.nullOr types.str;
+    basicAuthPassword = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = lib.mdDoc ''
         The password to set when passing the HTTP Basic Auth header.
       '';
     };
 
-    passHostHeader = mkOption {
-      type = types.bool;
+    passHostHeader = lib.mkOption {
+      type = lib.types.bool;
       default = true;
       description = lib.mdDoc ''
         Pass the request Host Header to upstream.
       '';
     };
 
-    signatureKey = mkOption {
-      type = types.nullOr types.str;
+    signatureKey = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = lib.mdDoc ''
         GAP-Signature request signature key.
@@ -351,8 +343,8 @@ in
     };
 
     cookie = {
-      domain = mkOption {
-        type = types.nullOr types.str;
+      domain = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
         default = null;
         description = lib.mdDoc ''
           Optional cookie domains to force cookies to (ie: `.yourcompany.com`).
@@ -362,33 +354,33 @@ in
         example = ".yourcompany.com";
       };
 
-      expire = mkOption {
-        type = types.str;
+      expire = lib.mkOption {
+        type = lib.types.str;
         default = "168h0m0s";
         description = lib.mdDoc ''
           Expire timeframe for cookie.
         '';
       };
 
-      httpOnly = mkOption {
-        type = types.bool;
+      httpOnly = lib.mkOption {
+        type = lib.types.bool;
         default = true;
         description = lib.mdDoc ''
           Set HttpOnly cookie flag.
         '';
       };
 
-      name = mkOption {
-        type = types.str;
+      name = lib.mkOption {
+        type = lib.types.str;
         default = "_oauth2_proxy";
         description = lib.mdDoc ''
           The name of the cookie that the oauth_proxy creates.
         '';
       };
 
-      refresh = mkOption {
+      refresh = lib.mkOption {
         # XXX: Unclear what the behavior is when this is not specified.
-        type = types.nullOr types.str;
+        type = lib.types.nullOr lib.types.str;
         default = null;
         description = lib.mdDoc ''
           Refresh the cookie after this duration; 0 to disable.
@@ -396,15 +388,15 @@ in
         example = "168h0m0s";
       };
 
-      secret = mkOption {
-        type = types.nullOr types.str;
-        description = lib.mdDoc ''
+      secret = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        description = ''
           The seed string for secure cookies.
         '';
       };
 
-      secure = mkOption {
-        type = types.bool;
+      secure = lib.mkOption {
+        type = lib.types.bool;
         default = true;
         description = lib.mdDoc ''
           Set secure (HTTPS) cookie flag.
@@ -415,8 +407,8 @@ in
     ####################################################
     # OAUTH2 PROXY configuration
 
-    httpAddress = mkOption {
-      type = types.str;
+    httpAddress = lib.mkOption {
+      type = lib.types.str;
       default = "http://127.0.0.1:4180";
       description = lib.mdDoc ''
         HTTPS listening address.  This module does not expose the port by
@@ -426,8 +418,8 @@ in
     };
 
     htpasswd = {
-      file = mkOption {
-        type = types.nullOr types.path;
+      file = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
         default = null;
         description = lib.mdDoc ''
           Additionally authenticate against a htpasswd file. Entries must be
@@ -435,8 +427,8 @@ in
         '';
       };
 
-      displayForm = mkOption {
-        type = types.bool;
+      displayForm = lib.mkOption {
+        type = lib.types.bool;
         default = true;
         description = lib.mdDoc ''
           Display username / password login form if an htpasswd file is provided.
@@ -444,16 +436,16 @@ in
       };
     };
 
-    customTemplatesDir = mkOption {
-      type = types.nullOr types.path;
+    customTemplatesDir = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
       default = null;
       description = lib.mdDoc ''
         Path to custom HTML templates.
       '';
     };
 
-    reverseProxy = mkOption {
-      type = types.bool;
+    reverseProxy = lib.mkOption {
+      type = lib.types.bool;
       default = false;
       description = lib.mdDoc ''
         In case when running behind a reverse proxy, controls whether headers
@@ -463,8 +455,8 @@ in
       '';
     };
 
-    proxyPrefix = mkOption {
-      type = types.str;
+    proxyPrefix = lib.mkOption {
+      type = lib.types.str;
       default = "/oauth2";
       description = lib.mdDoc ''
         The url root path that this proxy should be nested under.
@@ -472,30 +464,30 @@ in
     };
 
     tls = {
-      enable = mkOption {
-        type = types.bool;
+      enable = lib.mkOption {
+        type = lib.types.bool;
         default = false;
         description = lib.mdDoc ''
           Whether to serve over TLS.
         '';
       };
 
-      certificate = mkOption {
-        type = types.path;
-        description = lib.mdDoc ''
+      certificate = lib.mkOption {
+        type = lib.types.path;
+        description = ''
           Path to certificate file.
         '';
       };
 
-      key = mkOption {
-        type = types.path;
-        description = lib.mdDoc ''
+      key = lib.mkOption {
+        type = lib.types.path;
+        description = ''
           Path to private key file.
         '';
       };
 
-      httpsAddress = mkOption {
-        type = types.str;
+      httpsAddress = lib.mkOption {
+        type = lib.types.str;
         default = ":443";
         description = lib.mdDoc ''
           `addr:port` to listen on for HTTPS clients.
@@ -507,8 +499,8 @@ in
       };
     };
 
-    requestLogging = mkOption {
-      type = types.bool;
+    requestLogging = lib.mkOption {
+      type = lib.types.bool;
       default = true;
       description = lib.mdDoc ''
         Log requests to stdout.
@@ -519,42 +511,42 @@ in
     # UNKNOWN
 
     # XXX: Is this mandatory? Is it part of another group? Is it part of the provider specification?
-    scope = mkOption {
+    scope = lib.mkOption {
       # XXX: jml suspects this is always necessary, but the command-line
       # doesn't require it so making it optional.
-      type = types.nullOr types.str;
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = lib.mdDoc ''
         OAuth scope specification.
       '';
     };
 
-    profileURL = mkOption {
-      type = types.nullOr types.str;
+    profileURL = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
       default = null;
       description = lib.mdDoc ''
         Profile access endpoint.
       '';
     };
 
-    setXauthrequest = mkOption {
-      type = types.nullOr types.bool;
+    setXauthrequest = lib.mkOption {
+      type = lib.types.nullOr lib.types.bool;
       default = false;
       description = lib.mdDoc ''
         Set X-Auth-Request-User and X-Auth-Request-Email response headers (useful in Nginx auth_request mode). Setting this to 'null' means using the upstream default (false).
       '';
     };
 
-    extraConfig = mkOption {
+    extraConfig = lib.mkOption {
       default = {};
-      type = types.attrsOf types.anything;
-      description = lib.mdDoc ''
+      type = lib.types.attrsOf lib.types.anything;
+      description = ''
         Extra config to pass to oauth2-proxy.
       '';
     };
 
-    keyFile = mkOption {
-      type = types.nullOr types.path;
+    keyFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
       default = null;
       description = lib.mdDoc ''
         oauth2-proxy allows passing sensitive configuration via environment variables.
@@ -567,14 +559,14 @@ in
   };
 
   imports = [
-    (mkRenamedOptionModule [ "services" "oauth2_proxy" ] [ "services" "oauth2-proxy" ])
+    (lib.mkRenamedOptionModule [ "services" "oauth2_proxy" ] [ "services" "oauth2-proxy" ])
   ];
 
-  config = mkIf cfg.enable {
-    services.oauth2-proxy = mkIf (cfg.keyFile != null) {
-      clientID = mkDefault null;
-      clientSecret = mkDefault null;
-      cookie.secret = mkDefault null;
+  config = lib.mkIf cfg.enable {
+    services.oauth2-proxy = lib.mkIf (cfg.keyFile != null) {
+      clientID = lib.mkDefault null;
+      clientSecret = lib.mkDefault null;
+      cookie.secret = lib.mkDefault null;
     };
 
     users.users.oauth2-proxy = {
@@ -595,7 +587,7 @@ in
         User = "oauth2-proxy";
         Restart = "always";
         ExecStart = "${cfg.package}/bin/oauth2-proxy ${configString}";
-        EnvironmentFile = mkIf (cfg.keyFile != null) cfg.keyFile;
+        EnvironmentFile = lib.mkIf (cfg.keyFile != null) cfg.keyFile;
       };
     };
 
