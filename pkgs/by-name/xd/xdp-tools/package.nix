@@ -11,7 +11,6 @@
   llvmPackages,
   pkg-config,
   m4,
-  emacs-nox,
   wireshark-cli,
   nukeReferences,
 }:
@@ -38,9 +37,6 @@ stdenv.mkDerivation rec {
     zlib
   ];
 
-  depsBuildBuild = [
-    emacs-nox # to generate man pages from .org
-  ];
   nativeBuildInputs = [
     bpftools
     llvmPackages.llvm
@@ -61,7 +57,6 @@ stdenv.mkDerivation rec {
   PRODUCTION = 1;
   DYNAMIC_LIBXDP = 1;
   FORCE_SYSTEM_LIBBPF = 1;
-  FORCE_EMACS = 1;
 
   makeFlags = [
     "PREFIX=$(out)"
