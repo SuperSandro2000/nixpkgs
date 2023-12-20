@@ -137,7 +137,7 @@ let
         # System Call Filtering
         SystemCallFilter = [ ("~" + lib.concatStringsSep " " systemCallsList) "@chown" "pipe" "pipe2" ];
       } // cfgService;
-      path = with pkgs; [ file imagemagick ffmpeg ];
+      path = with pkgs; [ ffmpeg-headless file imagemagick ];
     })
   ) cfg.sidekiqProcesses;
 
@@ -774,7 +774,7 @@ in {
         # System Call Filtering
         SystemCallFilter = [ ("~" + lib.concatStringsSep " " systemCallsList) "@chown" "pipe" "pipe2" ];
       } // cfgService;
-      path = with pkgs; [ file imagemagick ffmpeg ];
+      path = with pkgs; [ ffmpeg-headless file imagemagick ];
     };
 
     systemd.services.mastodon-media-auto-remove = lib.mkIf cfg.mediaAutoRemove.enable {
