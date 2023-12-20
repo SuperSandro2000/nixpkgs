@@ -20,6 +20,8 @@
 
   frigate = callPackage ./frigate {};
 
+  govee = callPackage ./govee {};
+
   govee-lan = callPackage ./govee-lan {};
 
   gpio = callPackage ./gpio {};
