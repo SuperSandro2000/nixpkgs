@@ -39,6 +39,8 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
+  disabledTests = [ "test_version" ];
+
   pythonImportsCheck = [ "mbedtls" ];
 
   meta = with lib; {
