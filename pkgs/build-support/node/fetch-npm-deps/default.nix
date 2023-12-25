@@ -168,7 +168,7 @@
     stdenvNoCC.mkDerivation (args // {
       inherit name;
 
-      nativeBuildInputs = [ prefetch-npm-deps ];
+      nativeBuildInputs = args.nativeBuildInputs or [ ] ++ [ prefetch-npm-deps ];
 
       buildPhase = ''
         runHook preBuild
