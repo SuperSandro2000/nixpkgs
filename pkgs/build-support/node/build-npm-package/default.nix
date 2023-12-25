@@ -45,7 +45,7 @@
 , npmWorkspace ? null
 , nodejs ? topLevelArgs.nodejs
 , npmDeps ?  fetchNpmDeps {
-  inherit forceGitDeps forceEmptyCache src srcs sourceRoot prePatch patches postPatch;
+  inherit forceGitDeps forceEmptyCache src srcs sourceRoot prePatch patches postPatch nativeBuildInputs;
   name = "${name}-npm-deps";
   hash = npmDepsHash;
 }
