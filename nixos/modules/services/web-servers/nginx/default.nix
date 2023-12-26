@@ -333,9 +333,7 @@ let
         ${cfg.appendConfig}
       '';
 
-  configPath = if cfg.enableReload then "/etc/nginx/nginx.conf" else configFile;
-
-  execCommand = "${cfg.package}/bin/nginx -c '${configPath}'";
+  execCommand = "${cfg.package}/bin/nginx -c /etc/nginx/nginx.conf";
 
   vhosts = concatStringsSep "\n" (
     mapAttrsToList (
@@ -1621,9 +1619,7 @@ in
       };
     };
 
-    environment.etc."nginx/nginx.conf" = mkIf cfg.enableReload {
-      source = configFile;
-    };
+    environment.etc."nginx/nginx.conf".source = configFile;
 
     # This service waits for all certificates to be available
     # before reloading nginx configuration.
