@@ -33,6 +33,7 @@ rec {
       "fma"
     ];
     # x86_64 Intel
+    nocona = [ "sse3" ];
     nehalem = [
       "sse3"
       "ssse3"
@@ -386,7 +387,16 @@ rec {
 
       # x86_64 Intel
       # https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
-      nehalem = [ "x86-64-v2" ] ++ inferiors.x86-64-v2;
+      nocona = [ "x86-64-v2" ] ++ inferiors.x86-64;
+
+      nehalem = lib.unique (
+        [
+          "nocona"
+          "x86-64-v2"
+        ]
+        ++ inferiors.nocona
+        ++ inferiors.x86-64-v2
+      );
       westmere = [ "nehalem" ] ++ inferiors.nehalem;
       sandybridge = [ "westmere" ] ++ inferiors.westmere;
       ivybridge = [ "sandybridge" ] ++ inferiors.sandybridge;
