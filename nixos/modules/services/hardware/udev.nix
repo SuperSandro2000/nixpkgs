@@ -145,6 +145,7 @@ let
   hwdbBin = pkgs.runCommand "hwdb.bin"
     { preferLocalBuild = true;
       allowSubstitutes = false;
+      __contentAddressed = true;
       packages = unique (map toString ([udev] ++ cfg.packages));
     }
     ''
