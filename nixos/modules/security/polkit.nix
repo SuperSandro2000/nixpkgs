@@ -66,8 +66,18 @@ in
       "${pkgs.polkit.out}/lib/polkit-1/polkitd ${optionalString (!cfg.debug) "--no-debug"}"
     ];
 
-    systemd.services.polkit.restartTriggers = [ config.system.path ];
-    systemd.services.polkit.stopIfChanged = false;
+    systemd.services.polkit = {
+      restartTriggers = [
+        (pkgs.runCommand "polkit-paths" {
+          __contentAddressed = true;
+        } ''
+          mkdir -p $out/etc $out/share
+          cp -r ${config.system.path}/etc/polkit-1/ $out/etc
+          cp -r ${config.system.path}/share/polkit-1 $out/share
+        '')
+      ];
+      stopIfChanged = false;
+    };
 
     # The polkit daemon reads action/rule files
     environment.pathsToLink = [ "/share/polkit-1" ];
