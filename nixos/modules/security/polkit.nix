@@ -72,7 +72,18 @@ in
       "${cfg.package.out}/lib/polkit-1/polkitd ${lib.optionalString (!cfg.debug) "--no-debug"}"
     ];
 
-    systemd.services.polkit.restartTriggers = [ config.system.path ];
+    systemd.services.polkit.restartTriggers = [
+      (pkgs.runCommand "polkit-paths"
+        {
+          __contentAddressed = true;
+        }
+        ''
+          mkdir -p $out/etc $out/share
+          cp -r ${config.system.path}/etc/polkit-1/ $out/etc
+          cp -r ${config.system.path}/share/polkit-1 $out/share
+        ''
+      )
+    ];
     systemd.services.polkit.reloadTriggers = [
       config.environment.etc."polkit-1/rules.d/10-nixos.rules".source
     ];
