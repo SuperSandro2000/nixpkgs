@@ -112,7 +112,18 @@ in
     systemd.packages = [ cfg.package.out ];
 
     systemd.services.polkit = {
-      restartTriggers = [ config.system.path ];
+      restartTriggers = [
+        (pkgs.runCommand "polkit-paths"
+          {
+            __contentAddressed = true;
+          }
+          ''
+            mkdir -p $out/etc $out/share
+            cp -r ${config.system.path}/etc/polkit-1/ $out/etc
+            cp -r ${config.system.path}/share/polkit-1 $out/share
+          ''
+        )
+      ];
       reloadTriggers = [
         config.environment.etc."polkit-1/rules.d/10-nixos.rules".source
       ];
