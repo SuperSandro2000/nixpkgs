@@ -16,6 +16,10 @@ let
           hash = "sha256-a8BopUwZjmvxOzBVqs4fTo0SY8sEEloGUw90daYWfz8=";
         };
 
+        nativeBuildInputs = with final; [
+          setuptools
+        ];
+
         propagatedBuildInputs = with final; [
           beautifulsoup4
           django
