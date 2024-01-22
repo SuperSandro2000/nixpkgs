@@ -13576,6 +13576,8 @@ self: super: with self; {
 
   stumpy = callPackage ../development/python-modules/stumpy { };
 
+  stupidartnet = callPackage ../development/python-modules/stupidartnet { };
+
   stups-cli-support = callPackage ../development/python-modules/stups-cli-support { };
 
   stups-fullstop = callPackage ../development/python-modules/stups-fullstop { };
