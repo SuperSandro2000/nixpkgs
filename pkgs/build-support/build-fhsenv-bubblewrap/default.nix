@@ -267,6 +267,7 @@ let
       "''${symlinks[@]}"
       "''${auto_mounts[@]}"
       "''${x11_args[@]}"
+      --bind-try /etc/nixos/ /etc/nixos/
       ${concatStringsSep "\n  " extraBwrapArgs}
       ${containerInit} ${initArgs}
     )
