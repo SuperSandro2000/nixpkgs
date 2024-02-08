@@ -24,11 +24,23 @@ let
   confNoServer = concatStringsSep "\n" ((mapAttrsToList (toConf "") (builtins.removeAttrs cfg.settings [ "server" ])) ++ [""]);
   confServer = concatStringsSep "\n" (mapAttrsToList (toConf "  ") (builtins.removeAttrs cfg.settings.server [ "define-tag" ]));
 
-  confFile = pkgs.writeText "unbound.conf" ''
+  confFileUnchecked = pkgs.writeText "unbound.conf" ''
     server:
     ${optionalString (cfg.settings.server.define-tag != "") (toOption "  " "define-tag" cfg.settings.server.define-tag)}
     ${confServer}
     ${confNoServer}
+  '';
+  confFile = pkgs.runCommandLocal "unbound-checkconf" { } ''
+    cp ${confFileUnchecked} unbound.conf
+
+    # fake stateDir which is not accesible in the sandbox
+    mkdir -p $PWD/state
+    sed -i unbound.conf \
+      -e '/auto-trust-anchor-file/d' \
+      -e "s|${cfg.stateDir}|$PWD/state|"
+    ${cfg.package}/bin/unbound-checkconf unbound.conf
+
+    cp ${confFileUnchecked} $out
   '';
 
   rootTrustAnchorFile = "${cfg.stateDir}/root.key";
