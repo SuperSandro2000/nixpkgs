@@ -1,33 +1,29 @@
 {
   lib,
-  buildGoModule,
+  buildGo122Module,
   fetchFromGitHub,
   installShellFiles,
   nixosTests,
 }:
-buildGoModule rec {
+buildGo122Module rec {
   pname = "headscale";
-  version = "0.22.3";
+  version = "0.23.0-beta1";
 
   src = fetchFromGitHub {
     owner = "juanfont";
     repo = "headscale";
     rev = "v${version}";
-    hash = "sha256-nqmTqe3F3Oh8rnJH0clwACD/0RpqmfOMXNubr3C8rEc=";
+    hash = "sha256-uOaVK+3/DoUDbccelGYRx9zwAG6wYLywYbNN+7epnk0=";
   };
 
-  vendorHash = "sha256-IOkbbFtE6+tNKnglE/8ZuNxhPSnloqM2sLgTvagMmnc=";
-
-  patches = [
-    # backport of https://github.com/juanfont/headscale/pull/1697
-    ./trim-oidc-secret-path.patch
-  ];
+  vendorHash = "sha256-EorT2AVwA3usly/LcNor6r5UIhLCdj3L4O4ilgTIC2o=";
 
   ldflags = ["-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}"];
 
   nativeBuildInputs = [installShellFiles];
   checkFlags = ["-short"];
 
+  subPackages = [ "cmd/headscale" ];
   tags = ["ts2019"];
 
   postInstall = ''
