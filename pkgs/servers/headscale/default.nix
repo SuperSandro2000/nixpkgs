@@ -7,22 +7,23 @@
 }:
 buildGoModule rec {
   pname = "headscale";
-  version = "0.22.3";
+  version = "0.23.0-alpha3";
 
   src = fetchFromGitHub {
     owner = "juanfont";
     repo = "headscale";
     rev = "v${version}";
-    hash = "sha256-nqmTqe3F3Oh8rnJH0clwACD/0RpqmfOMXNubr3C8rEc=";
+    hash = "sha256-oNlCsosFl+ZsStSrEXk5SmirJCjc3H+Jr7Ro0C8EQ5U=";
   };
 
-  vendorHash = "sha256-IOkbbFtE6+tNKnglE/8ZuNxhPSnloqM2sLgTvagMmnc=";
+  vendorHash = "sha256-8x4RKaS8vnBYTPlvQTkDKWIAJOgPF99hvPiuRyTMrA8=";
 
   ldflags = ["-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}"];
 
   nativeBuildInputs = [installShellFiles];
   checkFlags = ["-short"];
 
+  subPackages = [ "cmd/headscale" ];
   tags = ["ts2019"];
 
   postInstall = ''
