@@ -31,6 +31,8 @@
 
   rmv-card = callPackage ./rmv-card { };
 
+  scheduler-card = callPackage ./scheduler-card { };
+
   template-entity-row = callPackage ./template-entity-row { };
 
   universal-remote-card = callPackage ./universal-remote-card { };
