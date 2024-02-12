@@ -22,6 +22,8 @@
 
   mushroom = callPackage ./mushroom { };
 
+  scheduler-card = callPackage ./scheduler-card { };
+
   valetudo-map-card = callPackage ./valetudo-map-card { };
 
   zigbee2mqtt-networkmap = callPackage ./zigbee2mqtt-networkmap { };
