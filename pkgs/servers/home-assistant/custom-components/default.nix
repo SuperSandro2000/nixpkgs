@@ -42,6 +42,8 @@
 
   prometheus_sensor = callPackage ./prometheus_sensor {};
 
+  scheduler = callPackage ./scheduler {};
+
   sensi = callPackage ./sensi {};
 
   smartir = callPackage ./smartir {};
