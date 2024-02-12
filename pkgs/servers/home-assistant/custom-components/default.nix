@@ -62,6 +62,8 @@
 
   samsungtv-smart = callPackage ./samsungtv-smart {};
 
+  scheduler = callPackage ./scheduler {};
+
   sensi = callPackage ./sensi {};
 
   smartir = callPackage ./smartir {};
