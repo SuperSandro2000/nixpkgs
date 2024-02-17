@@ -50,8 +50,9 @@
 
   smartthinq-sensors = callPackage ./smartthinq-sensors {};
 
-  tuya_local = callPackage ./tuya_local {};
+  thewatchman = callPackage ./thewatchman {};
 
+  tuya_local = callPackage ./tuya_local {};
   waste_collection_schedule = callPackage ./waste_collection_schedule {};
 
   xiaomi_gateway3 = callPackage ./xiaomi_gateway3 {};
