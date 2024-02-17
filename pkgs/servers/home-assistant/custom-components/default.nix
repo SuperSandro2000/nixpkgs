@@ -62,6 +62,8 @@
 
   spook = callPackage ./spook {};
 
+  thewatchman = callPackage ./thewatchman {};
+
   tuya_local = callPackage ./tuya_local {};
 
   volkswagencarnet = callPackage ./volkswagencarnet { };
