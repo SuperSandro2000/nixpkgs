@@ -31,13 +31,13 @@ let
     };
   };
 
-  version = "2023.1.3";
+  version = "2024.1.0";
 
   src = fetchFromGitHub {
     owner = "pretalx";
     repo = "pretalx";
     rev = "v${version}";
-    hash = "sha256-YxmkjfftNrInIcSkK21wJXiEU6hbdDa1Od8p+HiLprs=";
+    hash = "sha256-rFOlovybaEZnv5wBx6Dv8bVkP1D+CgYAKRXuNb6hLKQ=";
   };
 
   meta = with lib; {
@@ -53,7 +53,7 @@ let
 
     sourceRoot = "source/src/pretalx/frontend/schedule-editor";
 
-    npmDepsHash = "sha256-4cnBHZ8WpHgp/bbsYYbdtrhuD6ffUAZq9ZjoLpWGfRg=";
+    npmDepsHash = "sha256-B9R3Nn4tURNxzeyLDHscqHxYOQK9AcmDnyNq3k5WQQs=";
 
     buildPhase = ''
       runHook preBuild
@@ -81,22 +81,11 @@ python.pkgs.buildPythonApplication rec {
       --replace 'subprocess.check_call(["npm", "run", "build"], cwd=frontend_dir, env=env)' ""
 
     substituteInPlace src/setup.cfg \
-      --replace "--cov=./" ""
+      --replace "--cov=./ --cov-report=" ""
   '';
 
   nativeBuildInputs = [
     gettext
-    python.pkgs.pythonRelaxDepsHook
-  ];
-
-  pythonRelaxDeps = [
-    "bleach"
-    "cssutils"
-    "django-filter"
-    "django-formtools"
-    "libsass"
-    "markdown"
-    "pillow"
   ];
 
   propagatedBuildInputs = with python.pkgs; [
@@ -183,6 +172,7 @@ python.pkgs.buildPythonApplication rec {
   nativeCheckInputs = with python.pkgs; [
     faker
     freezegun
+    jsonschema
     pytest-django
     pytest-mock
     pytest-xdist
@@ -194,9 +184,16 @@ python.pkgs.buildPythonApplication rec {
     # tries to run npm run i18n:extract
     "test_common_custom_makemessages_does_not_blow_up"
     # Expected to perform X queries or less but Y were done
+    "test_can_see_schedule"
     "test_schedule_export_public"
     "test_schedule_frab_json_export"
+    "test_schedule_frab_xcal_export"
     "test_schedule_frab_xml_export"
+    "test_schedule_frab_xml_export_control_char"
+    "test_schedule_page_text_list"
+    "test_schedule_page_text_table"
+    "test_schedule_page_text_wrong_format"
+    "test_versioned_schedule_page"
   ];
 
   passthru = {
