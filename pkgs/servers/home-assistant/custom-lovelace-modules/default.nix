@@ -4,6 +4,8 @@
 {
   android-tv-card = callPackage ./android-tv-card { };
 
+  auto-entities = callPackage ./auto-entities { };
+
   button-card = callPackage ./button-card { };
 
   card-mod = callPackage ./card-mod { };
