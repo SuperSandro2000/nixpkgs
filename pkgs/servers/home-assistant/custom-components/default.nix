@@ -78,6 +78,8 @@
 
   spook = callPackage ./spook {};
 
+  thewatchman = callPackage ./thewatchman {};
+
   tuya_local = callPackage ./tuya_local {};
 
   volkswagen_we_connect_id = callPackage ./volkswagen_we_connect_id { };
