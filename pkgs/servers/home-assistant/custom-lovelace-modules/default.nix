@@ -8,6 +8,8 @@
 
   atomic-calendar-revive = callPackage ./atomic-calendar-revive { };
 
+  auto-entities = callPackage ./auto-entities { };
+
   button-card = callPackage ./button-card { };
 
   card-mod = callPackage ./card-mod { };
