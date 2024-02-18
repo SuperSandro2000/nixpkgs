@@ -33,8 +33,8 @@
 , buildInputs ? []
 , nativeBuildInputs ? []
 , cargoUpdateHook ? ""
-, cargoDepsHook ? ""
 , buildType ? "release"
+, passthru ? {}
 , meta ? {}
 , cargoLock ? null
 , cargoVendorDir ? null
@@ -149,6 +149,10 @@ stdenv.mkDerivation ((removeAttrs args [ "depsExtraArgs" "cargoUpdateHook" "carg
   doCheck = args.doCheck or true;
 
   strictDeps = true;
+
+  passthru = {
+    inherit cargoLock;
+  } // passthru;
 
   meta = {
     # default to Rust's platforms
