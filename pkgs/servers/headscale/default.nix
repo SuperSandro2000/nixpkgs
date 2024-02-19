@@ -1,22 +1,22 @@
 {
   lib,
-  buildGoModule,
+  buildGo122Module,
   fetchFromGitHub,
   installShellFiles,
   nixosTests,
 }:
-buildGoModule rec {
+buildGo122Module rec {
   pname = "headscale";
-  version = "0.23.0-alpha4";
+  version = "0.23.0-alpha5";
 
   src = fetchFromGitHub {
     owner = "juanfont";
     repo = "headscale";
     rev = "v${version}";
-    hash = "sha256-8qsm0OGAwKtGwMm3g4jUxhOLH9v9YS7iTi+JoMtvMc0=";
+    hash = "sha256-BMrbYvxNAUs5vK7zCevSKDnB2npWZQpAtxoePXi5r40=";
   };
 
-  vendorHash = "sha256-tK42AnCPOBngixyo71WAWB9p76E4ugVpmeSPhtmuwuI=";
+  vendorHash = "sha256-Yb5WaN0abPLZ4mPnuJGZoj6EMfoZjaZZ0f344KWva3o=";
 
   ldflags = ["-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}"];
 
