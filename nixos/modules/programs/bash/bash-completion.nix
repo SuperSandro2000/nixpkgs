@@ -18,9 +18,8 @@ in
 
   config = lib.mkIf cfg.completion.enable {
     programs.bash.promptPluginInit = ''
-      # Check whether we're running a version of Bash that has support for
-      # programmable completion. If we do, enable all modules installed in
-      # the system and user profile in obsolete /etc/bash_completion.d/
+      # Check whether we're running a version of Bash that has support for programmable completion.
+      # If we do, enable all modules installed in the system and user profile in obsolete /etc/bash_completion.d/
       # directories. Bash loads completions in all
       # $XDG_DATA_DIRS/bash-completion/completions/
       # on demand, so they do not need to be sourced here.
