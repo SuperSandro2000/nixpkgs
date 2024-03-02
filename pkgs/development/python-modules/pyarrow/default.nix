@@ -36,7 +36,12 @@ buildPythonPackage rec {
 
   postPatch = ''
     substituteInPlace pyproject.toml setup.py \
-      --replace "setuptools_scm < 8.0.0" "setuptools_scm"
+      --replace-fail "setuptools_scm < 8.0.0" "setuptools_scm"
+
+    # fix python 3.12 compatibility
+    # https://github.com/apache/arrow/pull/40322
+    substituteInPlace cmake_modules/FindPython3Alt.cmake \
+      --replace-fail "from distutils import sysconfig" "import sysconfig"
   '';
 
   nativeBuildInputs = [
