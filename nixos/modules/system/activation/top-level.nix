@@ -58,6 +58,7 @@ let
   baseSystem = pkgs.stdenvNoCC.mkDerivation (
     {
       name = "nixos-system-${config.system.name}-${config.system.nixos.label}";
+      __contentAddressed = true;
       preferLocalBuild = true;
       allowSubstitutes = false;
       passAsFile = [ "extraDependencies" ];
