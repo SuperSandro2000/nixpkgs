@@ -47,6 +47,7 @@ let
   # makes it bootable. See `activatable-system.nix`.
   baseSystem = pkgs.stdenvNoCC.mkDerivation ({
     name = "nixos-system-${config.system.name}-${config.system.nixos.label}";
+    __contentAddressed = true;
     preferLocalBuild = true;
     allowSubstitutes = false;
     passAsFile = [ "extraDependencies" ];
