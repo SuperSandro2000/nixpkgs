@@ -32,7 +32,7 @@ lib.fix (self: {
 , __extraName ? "combined"
 , __extraVersion ? ""
 # emulate the old texlive.combine (e.g. add man pages to main output)
-, __combine ? false
+, __combine ? true
 # adjust behavior further if called from the texlive.combine wrapper
 , __fromCombineWrapper ? false
 # build only the formats of a package (for internal use!)
