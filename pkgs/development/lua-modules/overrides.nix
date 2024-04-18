@@ -23,6 +23,7 @@
 , libiconv
 , libmpack
 , libmysqlclient
+, libpsl
 , libuuid
 , libuv
 , libxcrypt
@@ -515,6 +516,10 @@ with prev;
       USE_SYSTEM_LUA = "yes";
       USE_SYSTEM_MPACK = "yes";
     };
+  });
+
+  psl = prev.psl.overrideAttrs (drv: {
+    buildInputs = drv.buildInputs or [ ] ++ [ libpsl ];
   });
 
   rapidjson = prev.rapidjson.overrideAttrs (oa: {
