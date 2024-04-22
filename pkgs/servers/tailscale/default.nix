@@ -45,6 +45,7 @@ buildGoModule {
 
   subPackages = [
     "cmd/derper"
+    "cmd/derpprobe"
     "cmd/tailscaled"
   ];
 
