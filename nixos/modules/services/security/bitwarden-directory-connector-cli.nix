@@ -272,6 +272,38 @@ in {
         description = "Main process for Bitwarden Directory Connector";
         path = [pkgs.jq];
 
+        preStart = ''
+          set -eo pipefail
+
+          # create the config file
+          ${lib.getExe cfg.package} data-file
+          touch /tmp/data.json.tmp
+          chmod 600 /tmp/data.json{,.tmp}
+
+          ${lib.getExe cfg.package} config server ${cfg.domain}
+
+          # now login to set credentials
+          export BW_CLIENTID="$(< ${escapeShellArg cfg.secrets.bitwarden.client_path_id})"
+          export BW_CLIENTSECRET="$(< ${escapeShellArg cfg.secrets.bitwarden.client_path_secret})"
+          ${lib.getExe cfg.package} login
+
+          jq '.authenticatedAccounts[0] as $account
+            | .[$account].directoryConfigurations.ldap |= $ldap_data
+            | .[$account].directorySettings.organizationId |= $orgID
+            | .[$account].directorySettings.sync |= $sync_data' \
+            --argjson ldap_data ${escapeShellArg cfg.ldap.finalJSON} \
+            --arg orgID "''${BW_CLIENTID//organization.}" \
+            --argjson sync_data ${escapeShellArg cfg.sync.finalJSON} \
+            /tmp/data.json \
+            > /tmp/data.json.tmp
+
+          mv -f /tmp/data.json.tmp /tmp/data.json
+
+          # final config
+          ${lib.getExe cfg.package} config directory 0
+          ${lib.getExe cfg.package} config ldap.password --secretfile ${cfg.secrets.ldap}
+        '';
+
         environment = {
           BITWARDENCLI_CONNECTOR_APPDATA_DIR = "/tmp";
           BITWARDENCLI_CONNECTOR_PLAINTEXT_SECRETS = "true";
@@ -281,38 +313,6 @@ in {
           Type = "oneshot";
           User = "${cfg.user}";
           PrivateTmp = true;
-          preStart = ''
-            set -eo pipefail
-
-            # create the config file
-            ${lib.getExe cfg.package} data-file
-            touch /tmp/data.json.tmp
-            chmod 600 /tmp/data.json{,.tmp}
-
-            ${lib.getExe cfg.package} config server ${cfg.domain}
-
-            # now login to set credentials
-            export BW_CLIENTID="$(< ${escapeShellArg cfg.secrets.bitwarden.client_path_id})"
-            export BW_CLIENTSECRET="$(< ${escapeShellArg cfg.secrets.bitwarden.client_path_secret})"
-            ${lib.getExe cfg.package} login
-
-            jq '.authenticatedAccounts[0] as $account
-              | .[$account].directoryConfigurations.ldap |= $ldap_data
-              | .[$account].directorySettings.organizationId |= $orgID
-              | .[$account].directorySettings.sync |= $sync_data' \
-              --argjson ldap_data ${escapeShellArg cfg.ldap.finalJSON} \
-              --arg orgID "''${BW_CLIENTID//organization.}" \
-              --argjson sync_data ${escapeShellArg cfg.sync.finalJSON} \
-              /tmp/data.json \
-              > /tmp/data.json.tmp
-
-            mv -f /tmp/data.json.tmp /tmp/data.json
-
-            # final config
-            ${lib.getExe cfg.package} config directory 0
-            ${lib.getExe cfg.package} config ldap.password --secretfile ${cfg.secrets.ldap}
-          '';
-
           ExecStart = "${lib.getExe cfg.package} sync";
         };
       };
