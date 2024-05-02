@@ -107,8 +107,6 @@ in
       };
     };
 
-    environment.etc."X11/xkb".source = xcfg.xkb.dir;
-
     fonts.packages = [ pkgs.dejavu_fonts ];
 
     services.udisks2.enable = true;
