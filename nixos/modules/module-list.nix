@@ -482,6 +482,7 @@
   ./services/desktops/dleyna-server.nix
   ./services/desktops/espanso.nix
   ./services/desktops/flatpak.nix
+  ./services/desktops/gdk-pixbuf.nix
   ./services/desktops/geoclue2.nix
   ./services/desktops/gnome/at-spi2-core.nix
   ./services/desktops/gnome/evolution-data-server.nix
@@ -1494,7 +1495,6 @@
   ./services/x11/display-managers/sx.nix
   ./services/x11/display-managers/xpra.nix
   ./services/x11/fractalart.nix
-  ./services/x11/gdk-pixbuf.nix
   ./services/x11/hardware/cmt.nix
   ./services/x11/hardware/digimend.nix
   ./services/x11/hardware/synaptics.nix

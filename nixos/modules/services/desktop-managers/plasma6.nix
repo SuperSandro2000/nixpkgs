@@ -200,7 +200,7 @@ in {
     environment.sessionVariables.KPACKAGE_DEP_RESOLVERS_PATH = "${kdePackages.frameworkintegration.out}/libexec/kf6/kpackagehandlers";
 
     # Enable GTK applications to load SVG icons
-    services.xserver.gdk-pixbuf.modulePackages = [pkgs.librsvg];
+    services.gdk-pixbuf.modulePackages = [pkgs.librsvg];
 
     services.xkb.enable = true;
 
