@@ -57,7 +57,9 @@ in
     };
   };
 
-  config = {
+  config = lib.mkIf cfg.enable {
+    environment.etc."X11/xkb".source = cfg.dir;
+
     system.checks = lib.singleton (
       pkgs.runCommand "xkb-validated"
         {
