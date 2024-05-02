@@ -7,16 +7,16 @@
 }:
 buildGo122Module rec {
   pname = "headscale";
-  version = "0.23.0-alpha5";
+  version = "0.23.0-alpha11";
 
   src = fetchFromGitHub {
     owner = "juanfont";
     repo = "headscale";
     rev = "v${version}";
-    hash = "sha256-BMrbYvxNAUs5vK7zCevSKDnB2npWZQpAtxoePXi5r40=";
+    hash = "sha256-gd/AJAdOCLyZRPymORMz3EGwL6rt9C9bxFRVSpriR3Y=";
   };
 
-  vendorHash = "sha256-Yb5WaN0abPLZ4mPnuJGZoj6EMfoZjaZZ0f344KWva3o=";
+  vendorHash = "sha256-HGu/OCtjzPeBki5FSL6v1XivCJ30eqj9rL0x7ZVv1TM=";
 
   ldflags = ["-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}"];
 
