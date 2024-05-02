@@ -1930,7 +1930,6 @@
   ./services/x11/display-managers/startx.nix
   ./services/x11/display-managers/sx.nix
   ./services/x11/display-managers/xpra.nix
-  ./services/x11/extra-layouts.nix
   ./services/x11/fractalart.nix
   ./services/x11/hardware/digimend.nix
   ./services/x11/hardware/synaptics.nix
