@@ -60,6 +60,10 @@ buildGo123Module {
 
   tags = [
     "ts_include_cli"
+
+    "ts_omit_aws"
+    "ts_omit_bird"
+    "ts_omit_kube"
   ];
 
   doCheck = false;
