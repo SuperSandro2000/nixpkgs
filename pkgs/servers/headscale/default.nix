@@ -2,6 +2,7 @@
   lib,
   buildGo122Module,
   fetchFromGitHub,
+  fetchpatch,
   installShellFiles,
   nixosTests,
 }:
@@ -15,6 +16,14 @@ buildGo122Module rec {
     rev = "v${version}";
     hash = "sha256-gd/AJAdOCLyZRPymORMz3EGwL6rt9C9bxFRVSpriR3Y=";
   };
+
+  patches = [
+    # https://github.com/juanfont/headscale/pull/1939
+    (fetchpatch {
+      url = "https://github.com/juanfont/headscale/pull/1939/commits/973e9cf45858129d169ef9b093125113fb9c107c.patch";
+      hash = "sha256-VpZvAooBPLJqC6gtm8NSfk1uBqQBJoyiJDlG1qtL2/s=";
+    })
+  ];
 
   vendorHash = "sha256-HGu/OCtjzPeBki5FSL6v1XivCJ30eqj9rL0x7ZVv1TM=";
 
