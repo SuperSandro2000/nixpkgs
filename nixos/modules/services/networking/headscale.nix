@@ -27,6 +27,12 @@ in {
 
       package = lib.mkPackageOption pkgs "headscale" {};
 
+      configureNginx = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Configure nginx as a reverse proxy for headscale.";
+      };
+
       user = lib.mkOption {
         default = "headscale";
         type = lib.types.str;
@@ -104,7 +110,7 @@ in {
               description = ''
                 The url clients will connect to.
               '';
-              example = "https://myheadscale.example.com:443";
+              example = "https://myheadscale.example.com";
             };
 
             noise.private_key_path = lib.mkOption {
@@ -524,6 +530,21 @@ in {
       home = dataDir;
       group = cfg.group;
       isSystemUser = true;
+    };
+
+    services.nginx = lib.mkIf cfg.configureNginx {
+      enable = true;
+      virtualHosts."${toString (lib.filter (x: lib.isList x) (builtins.split "https*://([^:]*)[:]*[[:digit:]]*" cfg.settings.server_url))}" = {
+        forceSSL = true;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString cfg.port}";
+          proxyWebsockets = true;
+          extraConfig = ''
+            keepalive_timeout 0;
+            proxy_buffering off;
+          '';
+        };
+      };
     };
 
     systemd.services.headscale = {
