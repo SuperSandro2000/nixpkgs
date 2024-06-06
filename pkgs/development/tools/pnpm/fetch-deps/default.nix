@@ -52,6 +52,9 @@
             exit 1
           fi
 
+          # Don't force us to use an older version of pnpm. A newer version probably generates another FOD though.
+          jq --sort-keys "del(.. | .packageManager?)" package.json | sponge package.json
+
           export HOME=$(mktemp -d)
           pnpm config set store-dir $out
           # Some packages produce platform dependent outputs. We do not want to cache those in the global store
