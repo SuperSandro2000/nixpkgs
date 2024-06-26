@@ -11,7 +11,6 @@
 , pcre2
 , qrencode
 , icu
-, gspell
 , srtp
 , libnice
 , gnutls
@@ -23,22 +22,16 @@
 , webrtc-audio-processing
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "dino";
-  version = "0.4.3";
+  version = "0.4.3-unstable-2024-06-23";
 
   src = fetchFromGitHub {
     owner = "dino";
     repo = "dino";
-    rev = "v${version}";
-    sha256 = "sha256-smy/t6wTCnG0kuRFKwyeLENKqOQDhL0fZTtj3BHo6kw=";
+    rev = "749a0f1fae4885971bace1daec2ca0bdfba18eb8";
+    sha256 = "sha256-8fnJHCTNBjgJmyoRfMRMaJrZnmG9ZkYbzjCJq6bSHkw=";
   };
-
-  patches = [
-    # fixes build failure https://github.com/dino/dino/issues/1576
-    # backport of https://github.com/dino/dino/commit/657502955567dd538e56f300e075c7db52e25d74
-    ./fix-compile-new-vala-c.diff
-  ];
 
   postPatch = ''
     # don't overwrite manually set version information
@@ -72,7 +65,6 @@ stdenv.mkDerivation rec {
     pcre2
     icu
     libsignal-protocol-c
-    gspell
     srtp
     libnice
     gnutls
@@ -92,7 +84,7 @@ stdenv.mkDerivation rec {
     "-DRTP_ENABLE_VP9=true"
     "-DVERSION_FOUND=true"
     "-DVERSION_IS_RELEASE=true"
-    "-DVERSION_FULL=${version}"
+    "-DVERSION_FULL=0.4.3"
     "-DXGETTEXT_EXECUTABLE=${lib.getBin buildPackages.gettext}/bin/xgettext"
     "-DMSGFMT_EXECUTABLE=${lib.getBin buildPackages.gettext}/bin/msgfmt"
     "-DGLIB_COMPILE_RESOURCES_EXECUTABLE=${lib.getDev buildPackages.glib}/bin/glib-compile-resources"
@@ -105,8 +97,9 @@ stdenv.mkDerivation rec {
   doCheck = true;
   checkPhase = ''
     runHook preCheck
+    ./libdino-test
+    ./omemo-test
     ./xmpp-vala-test
-    ./signal-protocol-vala-test
     runHook postCheck
   '';
 
@@ -118,7 +111,7 @@ stdenv.mkDerivation rec {
   # will load
   #
   # See https://github.com/dino/dino/wiki/macOS
-  postFixup = lib.optionalString (stdenv.isDarwin) ''
+  postFixup = lib.optionalString stdenv.isDarwin ''
     cd "$out/lib/dino/plugins/"
     for f in *.dylib; do
       mv "$f" "$(basename "$f" .dylib).so"
