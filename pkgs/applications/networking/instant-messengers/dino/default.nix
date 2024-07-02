@@ -11,7 +11,6 @@
 , pcre2
 , qrencode
 , icu
-, gspell
 , srtp
 , libnice
 , gnutls
@@ -25,13 +24,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "dino";
-  version = "0.4.4";
+  version = "0.4.4-unstable-2024-10-18";
 
   src = fetchFromGitHub {
     owner = "dino";
     repo = "dino";
-    rev = "v${finalAttrs.version}";
-    sha256 = "sha256-I0ASeEjdXyxhz52QisU0q8mIBTKMfjaspJbxRIyOhD4=";
+    rev = "1e9a45f48143df6f3e36f3cd056a5b88271f8c2f";
+    hash = "sha256-jMHoCCs7492icr8scJQC/BR5wxHj0enGADmnzUPAo9s=";
   };
 
   postPatch = ''
@@ -66,7 +65,6 @@ stdenv.mkDerivation (finalAttrs: {
     pcre2
     icu
     libsignal-protocol-c
-    gspell
     srtp
     libnice
     gnutls
@@ -86,7 +84,7 @@ stdenv.mkDerivation (finalAttrs: {
     "-DRTP_ENABLE_VP9=true"
     "-DVERSION_FOUND=true"
     "-DVERSION_IS_RELEASE=true"
-    "-DVERSION_FULL=${finalAttrs.version}"
+    "-DVERSION_FULL=0.4.4"
     "-DXGETTEXT_EXECUTABLE=${lib.getBin buildPackages.gettext}/bin/xgettext"
     "-DMSGFMT_EXECUTABLE=${lib.getBin buildPackages.gettext}/bin/msgfmt"
     "-DGLIB_COMPILE_RESOURCES_EXECUTABLE=${lib.getDev buildPackages.glib}/bin/glib-compile-resources"
@@ -99,8 +97,9 @@ stdenv.mkDerivation (finalAttrs: {
   doCheck = true;
   checkPhase = ''
     runHook preCheck
+    ./libdino-test
+    ./omemo-test
     ./xmpp-vala-test
-    ./signal-protocol-vala-test
     runHook postCheck
   '';
 
