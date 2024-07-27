@@ -25,7 +25,6 @@ let
     # run.sh wants ldconfig
     glibc.bin
     # Games' dependencies
-    xorg.xrandr
     which
     # Needed by gdialog, including in the steam-runtime
     perl
