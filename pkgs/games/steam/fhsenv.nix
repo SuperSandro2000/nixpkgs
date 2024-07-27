@@ -12,7 +12,9 @@
 # https://github.com/ValveSoftware/steam-for-linux/issues/9121
 , privateTmp ? true # Whether to separate steam's /tmp from the host system
 
-, withGameSpecificLibraries ? true # include game specific libraries
+# Whether to include game specific libraries.
+# This assumes you are using the sniper runtime which includes many more packages than older runtimes.
+, withGameSpecificLibraries ? true
 }@args:
 
 let
@@ -39,7 +41,7 @@ let
 
     # It tries to execute xdg-user-dir and spams the log with command not founds
     xdg-user-dirs
-
+  ] ++ lib.optionals withGameSpecificLibraries [
     # electron based launchers need newer versions of these libraries than what runtime provides
     mesa
     sqlite
@@ -86,24 +88,57 @@ in buildFHSEnv rec {
   ] ++ commonTargetPkgs pkgs;
 
   multiPkgs = pkgs: with pkgs; [
-    # These are required by steam with proper errors
-    xorg.libXcomposite
-    xorg.libXtst
-    xorg.libXrandr
-    xorg.libXext
+    # Without these steam crashes
     xorg.libX11
-    xorg.libXfixes
-    libGL
-    libva
+    glib # libpango-1.0.so.0: undefined symbol: g_once_init_leave_pointer
+    freetype # libharfbuzz.so.0: undefined symbol: FT_Get_Color_Glyph_Layer
+    fontconfig # undefined symbol: FcCharSetDelChar
+    # required for to load vgui2_s.so
+    gtk2
+    xorg.libICE
+    xorg.libSM
+    xorg.libXext
+    xorg.libXi
+    xorg.libXinerama
+    xorg.libXrandr
+    xorg.libXrender
+    xorg.libXtst
     pipewire
 
-    # steamwebhelper
-    harfbuzz
-    libthai
-    pango
+    # These are required by steam with proper errors
+    libcap
+    libdrm
+    libGL
 
     lsof # friends options won't display "Launch Game" without it
     file # called by steam's setup.sh
+
+    # SteamVR
+    udev
+    dbus
+
+    # required by coreutils stuff to run correctly
+    # Steam ends up with LD_LIBRARY_PATH=/usr/lib:<bunch of runtime stuff>:<etc>
+    # which overrides DT_RUNPATH in our binaries, so it tries to dynload the
+    # very old versions of stuff from the runtime.
+    # FIXME: how do we even fix this correctly
+    attr
+    # same thing, but for Xwayland (usually via gamescope), already in the closure
+    libkrb5
+    keyutils
+  ] ++ lib.optionals withGameSpecificLibraries [
+    # Most of those dependencies are not required with newer runtimes
+    # TODO: think of a good way on how to deprecate this
+    ##########################################
+
+    xorg.libXcomposite
+    xorg.libXfixes
+    libva
+
+    # steamwebhelper, steamui.so, etc
+    harfbuzz
+    libthai
+    pango
 
     # dependencies for mesa drivers, needed inside pressure-vessel
     mesa.llvmPackages.llvm.lib
@@ -117,19 +152,13 @@ in buildFHSEnv rec {
     elfutils
 
     # Without these it silently fails
-    xorg.libXinerama
     xorg.libXcursor
-    xorg.libXrender
     xorg.libXScrnSaver
-    xorg.libXi
-    xorg.libSM
-    xorg.libICE
     gnome2.GConf
     curlWithGnuTls
     nspr
     nss
     cups
-    libcap
     SDL2
     libusb1
     dbus-glib
@@ -138,8 +167,6 @@ in buildFHSEnv rec {
     libudev0-shim
 
     # Verified games requirements
-    fontconfig
-    freetype
     xorg.libXt
     xorg.libXmu
     libogg
@@ -147,18 +174,11 @@ in buildFHSEnv rec {
     SDL
     SDL2_image
     glew110
-    libdrm
     libidn
     tbb
     zlib
 
-    # SteamVR
-    udev
-    dbus
-
     # Other things from runtime
-    glib
-    gtk2
     bzip2
     flac
     libglut
@@ -188,16 +208,8 @@ in buildFHSEnv rec {
     xorg.libXft
     libvdpau
 
-    # required by coreutils stuff to run correctly
-    # Steam ends up with LD_LIBRARY_PATH=/usr/lib:<bunch of runtime stuff>:<etc>
-    # which overrides DT_RUNPATH in our binaries, so it tries to dynload the
-    # very old versions of stuff from the runtime.
-    # FIXME: how do we even fix this correctly
-    attr
-    # same thing, but for Xwayland (usually via gamescope), already in the closure
-    libkrb5
-    keyutils
-  ] ++ lib.optionals withGameSpecificLibraries [
+    ##########################################
+
     # Not formally in runtime but needed by some games
     at-spi2-atk
     at-spi2-core   # CrossCode
