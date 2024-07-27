@@ -17,7 +17,10 @@ in
   options.services.speechd = {
     # FIXME: figure out how to deprecate this EXTREMELY CAREFULLY
     enable = mkEnableOption "speech-dispatcher speech synthesizer daemon" // {
-      default = true;
+      # conservative guess, as in ../misc/graphical-desktop.nix
+      default = config.services.xserver.enable || config.services.displayManager.enable;
+      defaultText = lib.literalExpression
+        "config.services.xserver.enable || config.services.displayManager.enable";
     };
     package = mkPackageOption pkgs "speechd" { };
   };
