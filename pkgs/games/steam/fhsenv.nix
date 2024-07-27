@@ -113,6 +113,23 @@ in buildFHSEnv rec {
     lsof # friends options won't display "Launch Game" without it
     file # called by steam's setup.sh
 
+    # dependencies for mesa drivers, needed inside pressure-vessel
+    mesa.llvmPackages.llvm.lib
+    vulkan-loader
+    # expat
+    # wayland
+    # elfutils
+    # libudev0-shim
+    # libva
+    # libvdpau
+    # systemd
+    xorg.libXau
+    xorg.libXdmcp
+    # xorg.libxcb
+    # xorg.libXdamage
+    # xorg.libxshmfence
+    # xorg.libXxf86vm
+
     # SteamVR
     udev
     dbus
@@ -133,23 +150,11 @@ in buildFHSEnv rec {
 
     xorg.libXcomposite
     xorg.libXfixes
-    libva
 
     # steamwebhelper, steamui.so, etc
     harfbuzz
     libthai
     pango
-
-    # dependencies for mesa drivers, needed inside pressure-vessel
-    mesa.llvmPackages.llvm.lib
-    vulkan-loader
-    expat
-    wayland
-    xorg.libxcb
-    xorg.libXdamage
-    xorg.libxshmfence
-    xorg.libXxf86vm
-    elfutils
 
     # Without these it silently fails
     xorg.libXcursor
@@ -164,7 +169,6 @@ in buildFHSEnv rec {
     dbus-glib
     gsettings-desktop-schemas
     ffmpeg
-    libudev0-shim
 
     # Verified games requirements
     xorg.libXt
@@ -174,7 +178,6 @@ in buildFHSEnv rec {
     SDL
     SDL2_image
     glew110
-    libidn
     tbb
     zlib
 
@@ -206,7 +209,6 @@ in buildFHSEnv rec {
     libvpx
     librsvg
     xorg.libXft
-    libvdpau
 
     ##########################################
 
@@ -304,7 +306,7 @@ in buildFHSEnv rec {
 
     set -o allexport # Export the following env vars
     ${envScript}
-    exec steam ${extraArgs} "$@"
+    exec "$@"
   '';
 
   inherit privateTmp;
