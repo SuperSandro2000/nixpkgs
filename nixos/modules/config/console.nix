@@ -116,16 +116,17 @@ in
   ###### implementation
 
   config = lib.mkMerge [
-    { console.keyMap = with config.services.xserver;
-        lib.mkIf cfg.useXkbConfig
-          (pkgs.runCommand "xkb-console-keymap" { preferLocalBuild = true; } ''
-            '${pkgs.buildPackages.ckbcomp}/bin/ckbcomp' \
-              ${lib.optionalString (config.environment.sessionVariables ? XKB_CONFIG_ROOT)
-                "-I${config.environment.sessionVariables.XKB_CONFIG_ROOT}"
-              } \
-              -model '${xkb.model}' -layout '${xkb.layout}' \
-              -option '${xkb.options}' -variant '${xkb.variant}' > "$out"
-          '');
+    { console.keyMap = let
+      xkb = config.environment.xkb;
+    in lib.mkIf cfg.useXkbConfig
+      (pkgs.runCommand "xkb-console-keymap" { preferLocalBuild = true; } ''
+        '${pkgs.buildPackages.ckbcomp}/bin/ckbcomp' \
+          ${lib.optionalString (config.environment.sessionVariables ? XKB_CONFIG_ROOT)
+            "-I${config.environment.sessionVariables.XKB_CONFIG_ROOT}"
+          } \
+          -model '${xkb.model}' -layout '${xkb.layout}' \
+          -option '${xkb.options}' -variant '${xkb.variant}' > "$out"
+      '');
     }
 
     (lib.mkIf (!cfg.enable) {
