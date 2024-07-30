@@ -84,8 +84,8 @@ let
 
     $desktopConfiguration
       # Configure keymap in X11
-      # services.xserver.xkb.layout = "us";
-      # services.xserver.xkb.options = "eurosign:e,caps:escape";
+      # environment.xkb.layout = "us";
+      # environment.xkb.options = "eurosign:e,caps:escape";
 
       # Enable CUPS to print documents.
       # services.printing.enable = true;
