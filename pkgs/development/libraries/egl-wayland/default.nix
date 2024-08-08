@@ -15,15 +15,17 @@
 
 stdenv.mkDerivation rec {
   pname = "egl-wayland";
-  version = "1.1.14";
+  version = "1.1.14-unstable-2024-08-06";
 
   outputs = [ "out" "dev" ];
 
   src = fetchFromGitHub {
     owner = "Nvidia";
     repo = pname;
-    rev = version;
-    hash = "sha256-MD+D/dRem3ONWGPoZ77j2UKcOCUuQ0nrahEQkNVEUnI=";
+    # fix for firefox 128
+    # https://github.com/NVIDIA/egl-wayland/pull/124
+    rev = "bd426eb032caf73e654f51234d62c8c8dd7a76e5";
+    hash = "sha256-YLQc5+IeSNr6FRm8VVcarF7o/qxICrjazkS2eefV33o=";
   };
 
   postPatch = ''
