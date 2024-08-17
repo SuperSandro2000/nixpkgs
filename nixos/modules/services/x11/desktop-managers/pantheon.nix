@@ -231,9 +231,6 @@ in
       # GTK4 will try both $XDG_CONFIG_DIRS/gtk-4.0 and ${gtk4}/etc/gtk-4.0, but not /etc/gtk-4.0.
       environment.etc."xdg/gtk-4.0/settings.ini".source = "${pkgs.pantheon.elementary-default-settings}/etc/gtk-4.0/settings.ini";
 
-      xdg.mime.enable = true;
-      xdg.icons.enable = true;
-
       xdg.portal.enable = true;
       xdg.portal.extraPortals = [
         pkgs.xdg-desktop-portal-gtk
