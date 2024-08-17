@@ -32,11 +32,4 @@ in
     logrotate.enable = mkDefault false;
     udisks2.enable = mkDefault false;
   };
-
-  xdg = {
-    autostart.enable = mkDefault false;
-    icons.enable = mkDefault false;
-    mime.enable = mkDefault false;
-    sounds.enable = mkDefault false;
-  };
 }
