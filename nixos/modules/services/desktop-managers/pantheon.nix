@@ -265,9 +265,6 @@ in
       environment.etc."xdg/gtk-4.0/settings.ini".source =
         "${pkgs.pantheon.elementary-default-settings}/etc/gtk-4.0/settings.ini";
 
-      xdg.mime.enable = true;
-      xdg.icons.enable = true;
-
       xdg.portal.enable = true;
       xdg.portal.extraPortals = utils.removePackagesByName (
         [
