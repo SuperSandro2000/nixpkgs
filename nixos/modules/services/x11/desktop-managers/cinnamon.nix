@@ -233,9 +233,6 @@ in
       # For printers@cinnamon.org applet
       programs.system-config-printer.enable = (mkIf config.services.printing.enable (mkDefault true));
 
-      xdg.mime.enable = true;
-      xdg.icons.enable = true;
-
       xdg.portal.enable = true;
       xdg.portal.extraPortals = [
         pkgs.xdg-desktop-portal-xapp
