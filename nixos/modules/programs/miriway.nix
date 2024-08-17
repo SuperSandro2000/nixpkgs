@@ -82,12 +82,20 @@ in
     # To make the Miriway session available if a display manager like SDDM is enabled:
     services.displayManager.sessionPackages = [ pkgs.miriway ];
 
-    xdg.icons.enable = true;
-    xdg.icons.fallbackCursorThemes = lib.mkDefault [
-      # Miriway looks for "default" theme, fails to start if not present
-      # Mir normally looks for DMZ-White theme if none specified, so make that present as the default
-      "DMZ-White"
-    ];
+    xdg = {
+      autostart.enable = true;
+      icons = {
+        enable = true;
+        fallbackCursorThemes = lib.mkDefault [
+          # Miriway looks for "default" theme, fails to start if not present
+          # Mir normally looks for DMZ-White theme if none specified, so make that present as the default
+          "DMZ-White"
+        ];
+      };
+      menus.enable = true;
+      mime.enable = true;
+      sounds.enable = true;
+    };
   };
 
   meta.maintainers = with lib.maintainers; [ OPNA2608 ];
