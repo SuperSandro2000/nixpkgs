@@ -218,9 +218,6 @@ in
           ] config.environment.cinnamon.excludePackages
         );
 
-      xdg.mime.enable = true;
-      xdg.icons.enable = true;
-
       xdg.portal.enable = true;
       xdg.portal.extraPortals = [
         pkgs.xdg-desktop-portal-xapp
