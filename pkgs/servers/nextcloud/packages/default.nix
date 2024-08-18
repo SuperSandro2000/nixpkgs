@@ -18,7 +18,7 @@ let packages = self:
       pkgs.fetchNextcloudApp {
         appName = pname;
         appVersion = data.version;
-        license = appBaseDefs.${pname};
+        licenses = appBaseDefs.${pname};
         inherit (data) url hash description homepage;
       }) {};
 
