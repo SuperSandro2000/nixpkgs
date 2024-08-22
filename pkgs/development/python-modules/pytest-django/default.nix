@@ -7,7 +7,6 @@
   setuptools-scm,
   django-configurations,
   pytest,
-  pytest-xdist,
   pytestCheckHook,
 }:
 buildPythonPackage rec {
@@ -31,7 +30,6 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [
     django-configurations
-    pytest-xdist
     pytestCheckHook
   ];
 
