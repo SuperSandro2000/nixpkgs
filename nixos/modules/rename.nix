@@ -23,7 +23,7 @@ in
     (mkRemovedOptionModule [ "environment" "blcr" "enable" ] "The BLCR module has been removed")
     (mkRemovedOptionModule [ "environment" "noXlibs" ] ''
       The environment.noXlibs option was removed, as it often caused surprising breakages for new users.
-      If you need its functionality, you can apply similar overlays in your own config.
+      If you need its functionality, you can apply similar overlays in your own config or use out of tree alternatives like https://github.com/NuschtOS/nixos-modules.
     '')
     (mkRemovedOptionModule [ "fonts" "fontconfig" "penultimate" ] "The corresponding package has removed from nixpkgs.")
     (mkRemovedOptionModule [ "hardware" "brightnessctl" ] ''
