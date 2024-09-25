@@ -13,13 +13,14 @@
   pynacl,
   pytestCheckHook,
   pytest-relaxed,
+  setuptools,
   six,
 }:
 
 buildPythonPackage rec {
   pname = "paramiko";
   version = "3.5.0";
-  format = "setuptools";
+  pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
@@ -34,6 +35,8 @@ buildPythonPackage rec {
       hash = "sha256-bPDghPeLo3NiOg+JwD5CJRRLv2VEqmSx1rOF2Tf8ZDA=";
     })
   ];
+
+  build-system = [ setuptools ];
 
   dependencies = [
     bcrypt
@@ -59,7 +62,7 @@ buildPythonPackage rec {
     mock
     pytestCheckHook
     pytest-relaxed
-  ] ++ lib.flatten (builtins.attrValues optional-dependencies);
+  ] ++ lib.flatten (lib.attrValues optional-dependencies);
 
   pythonImportsCheck = [ "paramiko" ];
 
