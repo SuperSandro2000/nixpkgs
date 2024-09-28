@@ -7,7 +7,7 @@ let
       , pkg-config, libxml2, tzdata, libkrb5, substituteAll, darwin
       , linux-pam
 
-      , removeReferencesTo, writeShellApplication
+      , removeReferencesTo, writeShellApplication, bison, flex, perl, docbook_xml_dtd_45, docbook-xsl-nons, libxslt
 
       # This is important to obtain a version of `libpq` that does not depend on systemd.
       , systemdSupport ? lib.meta.availableOn stdenv.hostPlatform systemdLibs && !stdenv.hostPlatform.isStatic
@@ -79,7 +79,8 @@ let
       disallowedRequisites = [
         stdenv'.cc
       ] ++ (
-        map lib.getDev (builtins.filter (drv: drv ? "dev") finalAttrs.buildInputs)
+        # map lib.getDev (builtins.filter (drv: drv ? "dev") finalAttrs.buildInputs)
+        []
       ) ++ lib.optionals jitSupport [
         llvmPackages.llvm.out
       ];
@@ -117,7 +118,8 @@ let
       pkg-config
       removeReferencesTo
     ]
-      ++ lib.optionals jitSupport [ llvmPackages.llvm.dev nukeReferences ];
+      ++ lib.optionals jitSupport [ llvmPackages.llvm.dev nukeReferences ]
+      ++ lib.optionals (atLeast "17") [ bison flex perl docbook_xml_dtd_45 docbook-xsl-nons libxslt ];
 
     enableParallelBuilding = true;
 
@@ -153,7 +155,8 @@ let
       ++ lib.optionals stdenv'.hostPlatform.isLinux [ "--with-pam" ]
       # This could be removed once the upstream issue is resolved:
       # https://postgr.es/m/flat/427c7c25-e8e1-4fc5-a1fb-01ceff185e5b%40technowledgy.de
-      ++ lib.optionals (stdenv'.hostPlatform.isDarwin && atLeast "16") [ "LDFLAGS_EX_BE=-Wl,-export_dynamic" ];
+      ++ lib.optionals (stdenv'.hostPlatform.isDarwin && atLeast "16") [ "LDFLAGS_EX_BE=-Wl,-export_dynamic" ]
+      ++ lib.optionals (atLeast "17") [ "--without-perl" ];
 
     patches = [
       (if atLeast "16" then ./patches/relative-to-symlinks-16+.patch else ./patches/relative-to-symlinks.patch)
@@ -168,7 +171,7 @@ let
       })
 
       # TODO: Remove this with the next set of minor releases
-      (fetchpatch (
+      (if olderThan "17" then fetchpatch (
         if atLeast "14" then {
           url = "https://github.com/postgres/postgres/commit/b27622c90869aab63cfe22159a459c57768b0fa4.patch";
           hash = "sha256-7G+BkJULhyx6nlMEjClcr2PJg6awgymZHr2JgGhXanA=";
@@ -181,7 +184,7 @@ let
           url = "https://github.com/postgres/postgres/commit/205813da4c264d80db3c3215db199cc119e18369.patch";
           hash = "sha256-L8/ns/fxTh2ayfDQXtBIKaArFhMd+v86UxVFWQdmzUw=";
           excludes = [ "doc/*" ];
-        })
+        }) else {}
       )
     ] ++ lib.optionals stdenv'.hostPlatform.isMusl (
       # Using fetchurl instead of fetchpatch on purpose: https://github.com/NixOS/nixpkgs/issues/240141
