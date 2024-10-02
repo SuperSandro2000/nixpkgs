@@ -4,10 +4,28 @@
 # the user/group to run under.)
 
 { config, lib, ... }:
+let
+  global-config = config;
+in
+{ config, name, ... }:
 
 with lib;
 {
   options = {
+    assertions = mkOption {
+      type = types.listOf (types.attrsOf types.unspecified);
+      default = [ ];
+      description = "This is just a helper option to carry assertions out of virtualHosts.";
+      internal = true;
+    };
+
+    warnings = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "This is just a helper option to carry warnings out of virtualHosts.";
+      internal = true;
+    };
+
     serverName = mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -359,7 +377,8 @@ with lib;
       type = types.attrsOf (
         types.submodule (
           import ./location-options.nix {
-            inherit lib config;
+            config = global-config;
+            inherit lib;
           }
         )
       );
@@ -374,4 +393,78 @@ with lib;
       description = "Declarative location config";
     };
   };
+
+  config =
+    let
+      inherit (global-config.services.nginx) package;
+    in
+    {
+      assertions = [
+        {
+          assertion = all (l: l.root == null || l.alias == null) (attrValues config.locations);
+          message = "Only one of nginx root or alias can be specified on a location.";
+        }
+        {
+          assertion =
+            count id [
+              config.addSSL
+              config.onlySSL
+              config.forceSSL
+              config.rejectSSL
+            ] <= 1;
+          message = ''
+            Options services.nginx.service.virtualHosts."${name}".addSSL,
+            services.nginx.virtualHosts."${name}".onlySSL,
+            services.nginx.virtualHosts."${name}".forceSSL and
+            services.nginx.virtualHosts."${name}".rejectSSL are mutually exclusive.
+          '';
+        }
+        {
+          assertion = !(config.enableACME && config.useACMEHost != null);
+          message = ''
+            Options services.nginx.service.virtualHosts."${name}".enableACME and
+            services.nginx.virtualHosts."${name}".useACMEHost are mutually exclusive.
+          '';
+        }
+        {
+          # The idea is to understand whether there is a virtual host with a listen configuration
+          # that requires ACME configuration but has no HTTP listener which will make deterministically fail
+          # this operation.
+          # Options' priorities are the following at the moment:
+          # listen (vhost) > defaultListen (server) > listenAddresses (vhost) > defaultListenAddresses (server)
+          assertion =
+            let
+              cfg = global-config.services.nginx;
+              hasAtLeastHttpListener =
+                listenOptions:
+                any (
+                  listenLine: if listenLine ? proxyProtocol then !listenLine.proxyProtocol else true
+                ) listenOptions;
+              hasAtLeastDefaultHttpListener =
+                if cfg.defaultListen != [ ] then
+                  hasAtLeastHttpListener cfg.defaultListen
+                else
+                  (cfg.defaultListenAddresses != [ ]);
+              hasAtLeastVhostHttpListener =
+                if config.listen != [ ] then
+                  hasAtLeastHttpListener config.listen
+                else
+                  (config.listenAddresses != [ ]);
+              vhostAuthority =
+                config.listen != [ ] || (cfg.defaultListen == [ ] && config.listenAddresses != [ ]);
+            in
+            # Either vhost has precedence and we need a vhost specific http listener
+            # Either vhost set nothing and inherit from server settings
+            config.enableACME
+            -> (
+              (vhostAuthority && hasAtLeastVhostHttpListener)
+              || (!vhostAuthority && hasAtLeastDefaultHttpListener)
+            );
+          message = ''
+            services.nginx.virtualHosts."${name}".enableACME requires a HTTP listener
+            to answer to ACME requests.
+          '';
+        }
+      ];
+    };
 }

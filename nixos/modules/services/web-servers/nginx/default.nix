@@ -1361,45 +1361,42 @@ in
   ];
 
   config = mkIf cfg.enable {
-    assertions =
-      let
-        hostOrAliasIsNull = l: l.root == null || l.alias == null;
-      in
-      [
-        {
-          assertion = all (host: all hostOrAliasIsNull (attrValues host.locations)) (attrValues virtualHosts);
-          message = "Only one of nginx root or alias can be specified on a location.";
-        }
+    warnings = concatMap (host: host.warnings) (lib.attrValues virtualHosts);
 
-        {
-          assertion = all (
-            host:
-            with host;
-            count id [
-              addSSL
-              onlySSL
-              forceSSL
-              rejectSSL
-            ] <= 1
-          ) (attrValues virtualHosts);
-          message = ''
-            Options services.nginx.service.virtualHosts.<name>.addSSL,
-            services.nginx.virtualHosts.<name>.onlySSL,
-            services.nginx.virtualHosts.<name>.forceSSL and
-            services.nginx.virtualHosts.<name>.rejectSSL are mutually exclusive.
-          '';
-        }
+    assertions = [
+      {
+        assertion = all (
+          host:
+          all (location: !(location.proxyPass != null && location.uwsgiPass != null)) (
+            attrValues host.locations
+          )
+        ) (attrValues virtualHosts);
+        message = ''
+          Options services.nginx.service.virtualHosts.<name>.proxyPass and
+          services.nginx.virtualHosts.<name>.uwsgiPass are mutually exclusive.
+        '';
+      }
 
-        {
-          assertion = all (host: !(host.enableACME && host.useACMEHost != null)) (attrValues virtualHosts);
-          message = ''
-            Options services.nginx.service.virtualHosts.<name>.enableACME and
-            services.nginx.virtualHosts.<name>.useACMEHost are mutually exclusive.
-          '';
-        }
-
-        {
-          assertion = all (
+      {
+        # The idea is to understand whether there is a virtual host with a listen configuration
+        # that requires ACME configuration but has no HTTP listener which will make deterministically fail
+        # this operation.
+        # Options' priorities are the following at the moment:
+        # listen (vhost) > defaultListen (server) > listenAddresses (vhost) > defaultListenAddresses (server)
+        assertion =
+          let
+            hasAtLeastHttpListener =
+              listenOptions:
+              any (
+                listenLine: if listenLine ? proxyProtocol then !listenLine.proxyProtocol else true
+              ) listenOptions;
+            hasAtLeastDefaultHttpListener =
+              if cfg.defaultListen != [ ] then
+                hasAtLeastHttpListener cfg.defaultListen
+              else
+                (cfg.defaultListenAddresses != [ ]);
+          in
+          all (
             host:
             all (location: !(location.proxyPass != null && location.uwsgiPass != null)) (
               attrValues host.locations
@@ -1458,6 +1455,7 @@ in
           '';
         }
       ]
+      ++ lib.flatten (map (host: host.assertions) (lib.attrValues virtualHosts))
       ++ map (
         name:
         mkCertOwnershipAssertion {
