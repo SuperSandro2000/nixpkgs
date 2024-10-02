@@ -248,15 +248,16 @@ in
     nginx = mkOption {
       type = types.nullOr (
         types.submodule (
-          lib.recursiveUpdate (import ../web-servers/nginx/vhost-options.nix { inherit config lib; }) {
-            # enable encryption by default,
-            # as sensitive login and Dolibarr (ERP) data should not be transmitted in clear text.
-            options.forceSSL.default = true;
-            options.enableACME.default = true;
-          }
+          lib.modules.importApply ../web-servers/nginx/vhost-options.nix { inherit config lib; }
         )
       );
       default = null;
+      defaultText = ''
+        {
+          forceSSL = true;
+          enableACME = true;
+        }
+      '';
       example = lib.literalExpression ''
         {
           serverAliases = [
@@ -444,6 +445,10 @@ in
       lib.mkMerge [
         cfg.nginx
         {
+          # enable encryption by default,
+          # as sensitive login and Dolibarr (ERP) data should not be transmitted in clear text.
+          forceSSL = lib.mkDefault true;
+          enableACME = lib.mkDefault true;
           root = lib.mkForce "${package}/htdocs";
           locations."/".index = "index.php";
           locations."~ [^/]\\.php(/|$)" = {
