@@ -1361,43 +1361,10 @@ in
   ];
 
   config = mkIf cfg.enable {
+    warnings = concatMap (host: host.warnings) (lib.attrValues virtualHosts);
+
     assertions =
-      let
-        hostOrAliasIsNull = l: l.root == null || l.alias == null;
-      in
       [
-        {
-          assertion = all (host: all hostOrAliasIsNull (attrValues host.locations)) (attrValues virtualHosts);
-          message = "Only one of nginx root or alias can be specified on a location.";
-        }
-
-        {
-          assertion = all (
-            host:
-            with host;
-            count id [
-              addSSL
-              onlySSL
-              forceSSL
-              rejectSSL
-            ] <= 1
-          ) (attrValues virtualHosts);
-          message = ''
-            Options services.nginx.service.virtualHosts.<name>.addSSL,
-            services.nginx.virtualHosts.<name>.onlySSL,
-            services.nginx.virtualHosts.<name>.forceSSL and
-            services.nginx.virtualHosts.<name>.rejectSSL are mutually exclusive.
-          '';
-        }
-
-        {
-          assertion = all (host: !(host.enableACME && host.useACMEHost != null)) (attrValues virtualHosts);
-          message = ''
-            Options services.nginx.service.virtualHosts.<name>.enableACME and
-            services.nginx.virtualHosts.<name>.useACMEHost are mutually exclusive.
-          '';
-        }
-
         {
           assertion = all (
             host:
@@ -1458,6 +1425,7 @@ in
           '';
         }
       ]
+      ++ lib.flatten (map (host: host.assertions) (lib.attrValues virtualHosts))
       ++ map (
         name:
         mkCertOwnershipAssertion {
