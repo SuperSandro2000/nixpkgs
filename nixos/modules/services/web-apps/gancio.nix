@@ -148,14 +148,15 @@ in
 
     nginx = mkOption {
       type = types.submodule (
-        lib.recursiveUpdate (import ../web-servers/nginx/vhost-options.nix { inherit config lib; }) {
-          # enable encryption by default,
-          # as sensitive login credentials should not be transmitted in clear text.
-          options.forceSSL.default = true;
-          options.enableACME.default = true;
-        }
+        lib.modules.importApply ../web-servers/nginx/vhost-options.nix { inherit config lib; }
       );
       default = { };
+      defaultText = ''
+        {
+          enableACME = true;
+          forceSSL = true;
+        }
+      '';
       example = {
         enableACME = false;
         forceSSL = false;
@@ -280,6 +281,8 @@ in
       virtualHosts."${cfg.settings.hostname}" = mkMerge [
         cfg.nginx
         {
+          enableACME = lib.mkDefault true;
+          forceSSL = lib.mkDefault true;
           locations = {
             "/" = {
               index = "index.html";
