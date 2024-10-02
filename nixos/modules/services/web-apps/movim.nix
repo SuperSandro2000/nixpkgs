@@ -528,9 +528,15 @@ in
       };
 
       nginx = mkOption {
-        type = types.nullOr (
-          types.submodule (import ../web-servers/nginx/vhost-options.nix { inherit config lib; })
-        );
+        type =
+          with types;
+          nullOr (
+            submodule (
+              lib.modules.importApply ../web-servers/nginx/vhost-options.nix {
+                inherit config lib;
+              }
+            )
+          );
         default = null;
         example =
           lib.literalExpression # nix

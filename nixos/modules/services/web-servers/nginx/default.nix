@@ -1448,27 +1448,27 @@ in
           '';
         }
 
-        {
-          assertion = cfg.resolver.ipv4 || cfg.resolver.ipv6;
-          message = ''
-            At least one of services.nginx.resolver.ipv4 and services.nginx.resolver.ipv6 must be true.
-          '';
-        }
-      ]
-      ++ lib.flatten (map (host: host.assertions) (lib.attrValues virtualHosts))
-      ++ map (
-        name:
-        mkCertOwnershipAssertion {
-          cert = config.security.acme.certs.${name};
-          groups = config.users.groups;
-          services = [
-            config.systemd.services.nginx
-          ]
-          ++ lib.optional (
-            cfg.enableReload || vhostCertNames != [ ]
-          ) config.systemd.services.nginx-config-reload;
-        }
-      ) vhostCertNames;
+      {
+        assertion = cfg.resolver.ipv4 || cfg.resolver.ipv6;
+        message = ''
+          At least one of services.nginx.resolver.ipv4 and services.nginx.resolver.ipv6 must be true.
+        '';
+      }
+    ]
+    ++ concatMap (host: host.assertions) (lib.attrValues virtualHosts)
+    ++ map (
+      name:
+      mkCertOwnershipAssertion {
+        cert = config.security.acme.certs.${name};
+        groups = config.users.groups;
+        services = [
+          config.systemd.services.nginx
+        ]
+        ++ lib.optional (
+          cfg.enableReload || vhostCertNames != [ ]
+        ) config.systemd.services.nginx-config-reload;
+      }
+    ) vhostCertNames;
 
     services.nginx.additionalModules =
       optional cfg.recommendedBrotliSettings pkgs.nginxModules.brotli
