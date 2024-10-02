@@ -1384,7 +1384,7 @@ in
           '';
         }
       ]
-      ++ lib.flatten (map (host: host.assertions) (lib.attrValues virtualHosts))
+      ++ concatMap (host: host.assertions) (lib.attrValues virtualHosts)
       ++ map (
         name:
         mkCertOwnershipAssertion {
