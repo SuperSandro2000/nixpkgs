@@ -330,6 +330,11 @@ in
       uwsgi = mkIf cfg.configureUwsgi {
         requires = [ "searx-init.service" ];
         after = [ "searx-init.service" ];
+        restartTriggers = [
+          cfg.environmentFile
+          cfg.package
+          cfg.settingsFile
+        ];
       };
     };
 
