@@ -77,15 +77,22 @@ in
         dbType = if cfg.dbtype == "pgsql" then "postgresql" else cfg.dbtype;
         dbUser = lib.optionalString (cfg.dbuser != null) cfg.dbuser;
         dbPass = lib.optionalString (cfg.dbpassFile != null) ":$DATABASE_PASSWORD";
-        isSocket = lib.hasPrefix "/" (toString cfg.dbhost);
+        dbHostHasPrefix = prefix: lib.hasPrefix prefix (toString cfg.dbhost);
+        isPostgresql = dbType == "postgresql";
+        isMysql = dbType == "mysql";
+        isSocket = (isPostgresql && dbHostHasPrefix "/") || (isMysql && dbHostHasPrefix "localhost:/");
         dbHost = lib.optionalString (cfg.dbhost != null) (if
           isSocket then
-            if dbType == "postgresql" then "?host=${cfg.dbhost}" else
-            if dbType == "mysql" then "?socket=${cfg.dbhost}" else throw "unsupported dbtype"
+            if isPostgresql then "" else
+            if isMysql then "@localhost" else throw "unsupported dbtype"
           else
             "@${cfg.dbhost}");
+        dbOpts = lib.optionalString (cfg.dbhost != null && isSocket) (
+          if isPostgresql then "?host=${cfg.dbhost}" else
+          if isMysql then "?socket=${lib.removePrefix "localhost:" cfg.dbhost}" else throw "unsupported dbtype"
+        );
         dbName = lib.optionalString (cfg.dbname != null) "/${cfg.dbname}";
-        dbUrl = "${dbType}://${dbUser}${dbPass}${lib.optionalString (!isSocket) dbHost}${dbName}${lib.optionalString isSocket dbHost}";
+        dbUrl = "${dbType}://${dbUser}${dbPass}${dbHost}${dbName}${dbOpts}";
       in lib.optionalString (dbPass != "") ''
         export DATABASE_PASSWORD="$(<"${cfg.dbpassFile}")"
       '' + ''
