@@ -353,7 +353,8 @@ in
             tr -dc A-Za-z0-9 < /dev/urandom | head -c64 | ${pkgs.moreutils}/bin/sponge '${secretKeyFile}'
           )
         fi
-        export PAPERLESS_SECRET_KEY=$(cat '${secretKeyFile}')
+        PAPERLESS_SECRET_KEY="$(cat '${secretKeyFile}')"
+        export PAPERLESS_SECRET_KEY
         if [[ ! $PAPERLESS_SECRET_KEY ]]; then
           echo "PAPERLESS_SECRET_KEY is empty, refusing to start."
           exit 1
