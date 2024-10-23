@@ -400,10 +400,17 @@ with lib;
     in
     {
       assertions = [
-        {
-          assertion = all (l: l.root == null || l.alias == null) (attrValues config.locations);
-          message = "Only one of nginx root or alias can be specified on a location.";
-        }
+        (
+          let
+            matchedLocations = filterAttrs (n: v: v.root != null && v.alias != null) config.locations;
+          in
+          {
+            assertion = matchedLocations == { };
+            message = ''
+              Only one of root or alias can be specified on services.nginx.virtualHosts."${name}".locations: ${lib.concatStringsSep ", " (attrValues matchedLocations)}.
+            '';
+          }
+        )
         {
           assertion =
             count id [
