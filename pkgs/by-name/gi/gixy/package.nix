@@ -1,7 +1,6 @@
 {
   lib,
   fetchFromGitHub,
-  fetchpatch2,
   python3,
   nginx,
 }:
@@ -25,40 +24,33 @@ let
 in
 python.pkgs.buildPythonApplication rec {
   pname = "gixy";
-  version = "0.1.24";
+  version = "0.2.1";
   pyproject = true;
 
-  # fetching from GitHub because the PyPi source is missing the tests
   src = fetchFromGitHub {
     owner = "dvershinin";
     repo = "gixy";
     rev = "v${version}";
-    hash = "sha256-YDpOqqBCNHV33j/8VuysVKJ/EcDb48nDJIxPcCDAc7o=";
+    hash = "sha256-mOqCUIWqWDZdiGu+qQgPSSzs87q1DznZX62zDPKKakE=";
   };
 
   patches = [
-    # Migrate tests to pytest
-    # https://github.com/dvershinin/gixy/pull/9
-    (fetchpatch2 {
-      url = "https://github.com/dvershinin/gixy/pull/9.diff";
-      hash = "sha256-vfYryFoay360k5v2nxAVW4Fy1tbVZFfCmlJtyQ4NxO4=";
-    })
     ./python3.13-compat.patch
   ];
 
   build-system = [ python.pkgs.setuptools ];
 
   dependencies = with python.pkgs; [
-    cached-property
     configargparse
     pyparsing
     jinja2
     six
   ];
 
-  nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
-
-  pythonRemoveDeps = [ "argparse" ];
+  nativeCheckInputs = with python.pkgs; [
+    pytestCheckHook
+    pytest-xdist
+  ];
 
   passthru = {
     inherit (nginx.passthru) tests;
@@ -74,7 +66,7 @@ python.pkgs.buildPythonApplication rec {
     homepage = "https://github.com/yandex/gixy";
     sourceProvenance = [ lib.sourceTypes.fromSource ];
     license = lib.licenses.mpl20;
-    maintainers = [ ];
+    maintainers = [ lib.maintainers.SuperSandro2000 ];
     platforms = lib.platforms.unix;
   };
 }
