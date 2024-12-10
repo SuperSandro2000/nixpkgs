@@ -327,6 +327,7 @@ lib.makeOverridable (
               "''${symlinks[@]}"
               "''${auto_mounts[@]}"
               "''${x11_args[@]}"
+              --bind-try /etc/nixos/ /etc/nixos/
               ${concatStringsSep "\n  " (finalAttrs.extraBwrapArgs or [ ])}
               ${containerInit} ${initArgs}
             )
