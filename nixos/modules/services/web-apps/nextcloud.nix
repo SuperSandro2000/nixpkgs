@@ -1775,6 +1775,9 @@ in
               rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
               rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json last;
             ''}
+
+            open_file_cache max=1000;
+            open_file_cache_errors on;
           '';
         };
 
