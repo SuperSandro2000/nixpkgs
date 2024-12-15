@@ -20,4 +20,9 @@ mkKdeDerivation {
     pipewire
     xorg.libXdamage
   ];
+
+  postInstall = ''
+    ln -s $out/share/krfb/krfb.notifyrc $out/share/krfb.notifyrc
+    ln -s $out/share/krfb/krfb.notifyrc $out/share/krfb-virtualmonitor.notifyrc
+  '';
 }
