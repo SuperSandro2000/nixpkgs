@@ -421,40 +421,43 @@ in
           };
           environment = env;
 
-          preStart =
-            ''
-              # remove old papaerless-manage symlink
-              # TODO: drop with NixOS 25.11
-              [[ -L '${cfg.dataDir}/paperless-manage' ]] && rm '${cfg.dataDir}/paperless-manage'
+          preStart = ''
+            # remove old papaerless-manage symlink
+            # TODO: drop with NixOS 25.11
+            [[ -L '${cfg.dataDir}/paperless-manage' ]] && rm '${cfg.dataDir}/paperless-manage'
 
-              # Auto-migrate on first run or if the package has changed
-              versionFile="${cfg.dataDir}/src-version"
-              version=$(cat "$versionFile" 2>/dev/null || echo 0)
+            # Auto-migrate on first run or if the package has changed
+            versionFile="${cfg.dataDir}/src-version"
+            version=$(cat "$versionFile" 2>/dev/null || echo 0)
 
-              if [[ $version != ${cfg.package.version} ]]; then
-                ${cfg.package}/bin/paperless-ngx migrate
+            if [[ $version != ${cfg.package.version} ]]; then
+              ${cfg.package}/bin/paperless-ngx migrate
 
-                # Parse old version string format for backwards compatibility
-                version=$(echo "$version" | grep -ohP '[^-]+$')
+              # Parse old version string format for backwards compatibility
+              version=$(echo "$version" | grep -ohP '[^-]+$')
 
-                versionLessThan() {
-                  target=$1
-                  [[ $({ echo "$version"; echo "$target"; } | sort -V | head -1) != "$target" ]]
-                }
+              versionLessThan() {
+                target=$1
+                [[ $({ echo "$version"; echo "$target"; } | sort -V | head -1) != "$target" ]]
+              }
 
-                if versionLessThan 1.12.0; then
-                  # Reindex documents as mentioned in https://github.com/paperless-ngx/paperless-ngx/releases/tag/v1.12.1
-                  echo "Reindexing documents, to allow searching old comments. Required after the 1.12.x upgrade."
-                  ${cfg.package}/bin/paperless-ngx document_index reindex
-                fi
-
-                echo ${cfg.package.version} > "$versionFile"
+              if versionLessThan 1.12.0; then
+                # Reindex documents as mentioned in https://github.com/paperless-ngx/paperless-ngx/releases/tag/v1.12.1
+                echo "Reindexing documents, to allow searching old comments. Required after the 1.12.x upgrade."
+                ${cfg.package}/bin/paperless-ngx document_index reindex
               fi
-            ''
-            + lib.optionalString (cfg.passwordFile != null) ''
+
+              echo ${cfg.package.version} > "$versionFile"
+            fi
+
+            if ${
+              if cfg.passwordFile != null then "true" else "false"
+            } || [[ -n $PAPERLESS_ADMIN_PASSWORD ]]; then
               export PAPERLESS_ADMIN_USER="''${PAPERLESS_ADMIN_USER:-admin}"
-              PAPERLESS_ADMIN_PASSWORD=$(cat "$CREDENTIALS_DIRECTORY/PAPERLESS_ADMIN_PASSWORD")
-              export PAPERLESS_ADMIN_PASSWORD
+              if [[ -e $CREDENTIALS_DIRECTORY/PAPERLESS_ADMIN_PASSWORD ]]; then
+                PAPERLESS_ADMIN_PASSWORD=$(cat "$CREDENTIALS_DIRECTORY/PAPERLESS_ADMIN_PASSWORD")
+                export PAPERLESS_ADMIN_PASSWORD
+              fi
               superuserState="$PAPERLESS_ADMIN_USER:$PAPERLESS_ADMIN_PASSWORD"
               superuserStateFile="${cfg.dataDir}/superuser-state"
 
@@ -462,7 +465,8 @@ in
                 ${cfg.package}/bin/paperless-ngx manage_superuser
                 echo "$superuserState" > "$superuserStateFile"
               fi
-            '';
+            fi
+          '';
           requires = lib.optional cfg.database.createLocally "postgresql.service";
           after =
             lib.optional enableRedis "redis-paperless.service"
