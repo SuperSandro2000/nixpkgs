@@ -710,6 +710,10 @@ in
             return 404;
           '';
         };
+        extraConfig = ''
+          open_file_cache max=1000;
+          open_file_cache_errors on;
+        '';
       };
     };
 
