@@ -149,7 +149,6 @@ rec {
         xorg.libpciaccess
 
         glib
-        gtk2
         bzip2
         zlib
         gdk-pixbuf
@@ -174,7 +173,6 @@ rec {
         dbus
         cups
         libcap
-        SDL2
         libusb1
         udev
         dbus-glib
@@ -194,7 +192,6 @@ rec {
         libuuid
         libogg
         libvorbis
-        SDL2_image
         glew110
         openssl
         libidn
@@ -216,9 +213,6 @@ rec {
         libtiff
         pixman
         speex
-        SDL2_ttf
-        SDL2_mixer
-        libappindicator-gtk2
         libcaca
         libcanberra
         libgcrypt
