@@ -83,7 +83,6 @@ in
             proxyPass = "http://127.0.0.1:${toString cfg.port}";
             proxyWebsockets = true;
             extraConfig = ''
-              keepalive_timeout 0;
               proxy_buffering off;
             '';
           };
