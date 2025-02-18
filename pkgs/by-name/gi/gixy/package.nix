@@ -24,14 +24,14 @@ let
 in
 python.pkgs.buildPythonApplication rec {
   pname = "gixy";
-  version = "0.2.4";
+  version = "0.2.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "dvershinin";
     repo = "gixy";
-    tag = "v${version}";
-    hash = "sha256-hUbjDVcqhgnX/tegwxAmdtzS9JlqNkIE7W4AJIxwJ0o=";
+    rev = "v${version}";
+    hash = "sha256-mOqCUIWqWDZdiGu+qQgPSSzs87q1DznZX62zDPKKakE=";
   };
 
   build-system = [ python.pkgs.setuptools ];
