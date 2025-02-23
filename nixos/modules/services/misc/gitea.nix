@@ -29,6 +29,9 @@ let
   '' + lib.optionalString config.services.nginx.virtualHosts.${cfg.settings.server.DOMAIN}.http3 ''
     add_header Alt-Svc 'h3=":$server_port"; ma=86400';
   '';
+
+  inherit (cfg.settings) mailer;
+  useSendmail = (mailer ? ENABLED) && mailer.ENABLED && (mailer ? SENDMAIL_PATH);
 in
 
 {
@@ -792,13 +795,13 @@ in
         # Capabilities
         CapabilityBoundingSet = "";
         # Security
-        NoNewPrivileges = true;
+        NoNewPrivileges = !useSendmail;
         # Sandboxing
         ProtectSystem = "strict";
         ProtectHome = true;
         PrivateTmp = true;
-        PrivateDevices = true;
-        PrivateUsers = true;
+        PrivateDevices = !useSendmail;
+        PrivateUsers = !useSendmail;
         ProtectHostname = true;
         ProtectClock = true;
         ProtectKernelTunables = true;
@@ -815,7 +818,12 @@ in
         PrivateMounts = true;
         # System Call Filtering
         SystemCallArchitectures = "native";
-        SystemCallFilter = [ "~@cpu-emulation @debug @keyring @mount @obsolete @privileged @setuid" "setrlimit" ];
+        SystemCallFilter = [
+          "~@cpu-emulation @debug @keyring @mount @obsolete @setuid"
+          "setrlimit"
+        ] ++ lib.optionals (!useSendmail) [
+          "~@privileged"
+        ];
       };
 
       environment = {
