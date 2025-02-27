@@ -1,0 +1,12 @@
+diff --git a/src/config.cpp b/src/config.cpp
+index 54eb5236..82b5bf60 100644
+--- a/src/config.cpp
++++ b/src/config.cpp
+@@ -1041,6 +1041,7 @@ namespace config {
+   void apply_config(std::unordered_map<std::string, std::string> &&vars) {
+     if (!fs::exists(stream.file_apps.c_str())) {
+       fs::copy_file(SUNSHINE_ASSETS_DIR "/apps.json", stream.file_apps);
++      fs::permissions(stream.file_apps, fs::perms::owner_write, fs::perm_options::add);
+     }
+ 
+     for (auto &[name, val] : vars) {
