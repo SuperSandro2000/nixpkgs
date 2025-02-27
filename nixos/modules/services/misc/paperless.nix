@@ -618,6 +618,7 @@ in
             SystemCallFilter = defaultServiceConfig.SystemCallFilter ++ [ "mbind" ];
             # Needs to serve web page
             PrivateNetwork = false;
+            RuntimeDirectory = lib.mkIf cfg.configureNginx "paperless";
           };
           environment = env // {
             PYTHONPATH = "${cfg.package.python.pkgs.makePythonPath cfg.package.propagatedBuildInputs}:${cfg.package}/lib/paperless-ngx/src";
