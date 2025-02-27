@@ -71,6 +71,11 @@ stdenv'.mkDerivation (finalAttrs: {
     fetchSubmodules = true;
   };
 
+  patches = [
+    # otherwise the config is not writable after the initial copy and you cannot modify any Apps
+    ./make-apps-json-writable.diff
+  ];
+
   # build webui
   ui = buildNpmPackage {
     inherit (finalAttrs) src version;
