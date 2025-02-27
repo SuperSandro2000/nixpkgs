@@ -66,6 +66,11 @@ stdenv'.mkDerivation rec {
     fetchSubmodules = true;
   };
 
+  patches = [
+    # otherwise the config is not writable after the initial copy and you cannot modify any Apps
+    ./make-apps-json-writable.diff
+  ];
+
   # build webui
   ui = buildNpmPackage {
     inherit src version;
@@ -228,7 +233,7 @@ stdenv'.mkDerivation rec {
   '';
 
   postInstall = ''
-    install -Dm644 ../packaging/linux/${pname}.desktop $out/share/applications/${pname}.desktop
+    install -Dm644 ../packaging/linux/sunshine.desktop $out/share/applications/sunshine.desktop
   '';
 
   passthru = {
