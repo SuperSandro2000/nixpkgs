@@ -41,7 +41,7 @@ let
                 citus
               ];
             settings = {
-              shared_preload_libraries = "citus";
+              shared_preload_libraries = [ "citus" ];
             };
           };
         };

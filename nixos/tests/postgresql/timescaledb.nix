@@ -61,7 +61,7 @@ let
                 timescaledb_toolkit
               ];
             settings = {
-              shared_preload_libraries = "timescaledb, timescaledb_toolkit";
+              shared_preload_libraries = [ "timescaledb" "timescaledb_toolkit" ];
             };
           };
         };

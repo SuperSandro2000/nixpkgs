@@ -43,7 +43,7 @@ let
               ps: with ps; [
                 pgvecto-rs
               ];
-            settings.shared_preload_libraries = "vectors";
+            settings.shared_preload_libraries = [ "vectors" ];
           };
         };
 
