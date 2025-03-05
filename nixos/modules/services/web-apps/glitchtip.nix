@@ -66,7 +66,7 @@ in
 
       settings = lib.mkOption {
         description = ''
-          Configuration of GlitchTip. See <https://glitchtip.com/documentation/install#configuration> for more information.
+          Configuration of GlitchTip. See <https://glitchtip.com/documentation/install#configuration> for more information and required settings.
         '';
         default = { };
         defaultText = lib.literalExpression ''
@@ -132,17 +132,13 @@ in
       database.createLocally = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = ''
-          Whether to enable and configure a local PostgreSQL database server.
-        '';
+        description = "Whether to enable and configure a local PostgreSQL database server.";
       };
 
       redis.createLocally = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = ''
-          Whether to enable and configure a local Redis instance.
-        '';
+        description = "Whether to enable and configure a local Redis instance.";
       };
 
       gunicorn.extraArgs = lib.mkOption {
