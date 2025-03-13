@@ -18,7 +18,14 @@ with pkgs;
                 platforms = lib.unique (jdk.meta.platforms ++ other.meta.platforms);
               };
             };
-          openjdkLinux = mkOpenjdkLinuxOnly featureVersion;
+          openjdkLinux =
+            let
+              openjdk = callPackage ../development/compilers/openjdk/generic.nix { inherit featureVersion; };
+            in
+            openjdk
+            // {
+              headless = openjdk.override { headless = true; };
+            };
           openjdkDarwin =
             let
               openjdk = callPackage path-darwin { };
@@ -29,18 +36,6 @@ with pkgs;
           (mergeMetaPlatforms openjdkLinux openjdkDarwin)
         else
           (mergeMetaPlatforms openjdkDarwin openjdkLinux);
-
-      mkOpenjdkLinuxOnly =
-        featureVersion:
-        let
-          openjdk = callPackage ../development/compilers/openjdk/generic.nix { inherit featureVersion; };
-        in
-        assert stdenv.hostPlatform.isLinux;
-        openjdk
-        // {
-          headless = openjdk.override { headless = true; };
-        };
-
     in
     rec {
       corretto11 = callPackage ../development/compilers/corretto/11.nix { };
