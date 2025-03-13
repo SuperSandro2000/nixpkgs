@@ -9,13 +9,26 @@ with pkgs;
     let
       mkOpenjdk =
         featureVersion: path-darwin:
+        let
+          mergeMetaPlatforms =
+            jdk: other:
+            jdk
+            // {
+              meta = jdk.meta // {
+                platforms = lib.unique (jdk.meta.platforms ++ other.meta.platforms);
+              };
+            };
+          openjdkLinux = mkOpenjdkLinuxOnly featureVersion;
+          openjdkDarwin =
+            let
+              openjdk = callPackage path-darwin { };
+            in
+            openjdk // { headless = openjdk; };
+        in
         if stdenv.hostPlatform.isLinux then
-          mkOpenjdkLinuxOnly featureVersion
+          (mergeMetaPlatforms openjdkLinux openjdkDarwin)
         else
-          let
-            openjdk = callPackage path-darwin { };
-          in
-          openjdk // { headless = openjdk; };
+          (mergeMetaPlatforms openjdkDarwin openjdkLinux);
 
       mkOpenjdkLinuxOnly =
         featureVersion:
