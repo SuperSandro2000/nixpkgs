@@ -6,7 +6,7 @@
   qtwayland,
   libssh,
   libvncserver,
-  freerdp,
+  freerdp3,
 }:
 mkKdeDerivation {
   pname = "krdc";
@@ -23,11 +23,16 @@ mkKdeDerivation {
     shared-mime-info
   ];
 
+  extraCmakeFlags = [
+    "-DWITH_RDP=OFF"
+    "-DWITH_RDP3=ON"
+  ];
+
   extraBuildInputs = [
     qtwayland
     libssh
     libvncserver
-    freerdp
+    freerdp3
   ];
 
   meta.mainProgram = "krdc";
