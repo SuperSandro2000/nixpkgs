@@ -24,14 +24,14 @@ let
 in
 python.pkgs.buildPythonApplication rec {
   pname = "gixy";
-  version = "0.2.7";
+  version = "0.2.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "dvershinin";
     repo = "gixy";
-    tag = "v${version}";
-    hash = "sha256-qGOvdmH4ZTk1v1ItHY9HaAgZtodmNgbUvJDa4JHfNzY=";
+    rev = "v${version}";
+    hash = "sha256-mOqCUIWqWDZdiGu+qQgPSSzs87q1DznZX62zDPKKakE=";
   };
 
   patches = [
