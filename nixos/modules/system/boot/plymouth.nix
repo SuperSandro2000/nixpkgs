@@ -181,6 +181,8 @@ in
     # Prevent Plymouth taking over the screen during system updates.
     systemd.services.plymouth-start.restartIfChanged = false;
 
+    systemd.shutdownRamfs.storePaths = [ "${plymouth}/libexec/plymouth/plymouthd-fd-escrow" ];
+
     boot.initrd.systemd = {
       extraBin.plymouth = "${plymouth}/bin/plymouth"; # for the recovery shell
       storePaths = [
