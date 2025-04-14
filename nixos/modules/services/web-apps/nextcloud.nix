@@ -125,7 +125,7 @@ let
 
   requiresRuntimeSystemdCredentials = (lib.length runtimeSystemdCredentials) != 0;
 
-  occ = pkgs.writeShellApplication {
+  occ = (pkgs.writeShellApplication {
     name = "nextcloud-occ";
 
     text =
@@ -191,7 +191,9 @@ let
           exec ${command}
         fi
       '';
-  };
+  }).overrideAttrs (_: {
+    preferLocalBuild = true;
+  });
 
   inherit (config.system) stateVersion;
 
