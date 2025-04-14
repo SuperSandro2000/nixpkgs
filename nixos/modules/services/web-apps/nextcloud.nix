@@ -1054,7 +1054,10 @@ in
             nextcloud31
         );
 
-      services.nextcloud.phpPackage = pkgs.php83;
+      services.nextcloud.phpPackage =
+        if versionOlder cfg.package.version "30" then
+          pkgs.php83
+        else pkgs.php84;
 
       services.nextcloud.phpOptions = mkMerge [
         (mapAttrs (const mkOptionDefault) defaultPHPSettings)
