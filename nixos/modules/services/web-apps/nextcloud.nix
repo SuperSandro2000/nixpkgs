@@ -121,58 +121,62 @@ let
 
   requiresRuntimeSystemdCredentials = (lib.length runtimeSystemdCredentials) != 0;
 
-  occ = pkgs.writeShellApplication {
-    name = "nextcloud-occ";
+  occ =
+    (pkgs.writeShellApplication {
+      name = "nextcloud-occ";
 
-    text =
-      let
-        command = ''
-          ${lib.getExe' pkgs.coreutils "env"} \
-            NEXTCLOUD_CONFIG_DIR="${datadir}/config" \
-            ${phpCli} \
-            occ "$@"
+      text =
+        let
+          command = ''
+            ${lib.getExe' pkgs.coreutils "env"} \
+              NEXTCLOUD_CONFIG_DIR="${datadir}/config" \
+              ${phpCli} \
+              occ "$@"
+          '';
+        in
+        ''
+          cd ${webroot}
+
+          # NOTE: This is templated at eval time
+          requiresRuntimeSystemdCredentials=${lib.boolToString requiresRuntimeSystemdCredentials}
+
+          # NOTE: This wrapper is both used in the internal nextcloud service units
+          #       and by users outside a service context for administration. As such,
+          #       when there's an existing CREDENTIALS_DIRECTORY, we inherit it for use
+          #       in the nix_read_secret() php function.
+          #       When there's no CREDENTIALS_DIRECTORY we try to use systemd-run to
+          #       load the credentials just as in a service unit.
+          #
+          # `systemd-run` with `--description` is also being used since `nextcloud-occ` might be used
+          # to set sensitive data in `config.php` and persisting this into system logs is a bad idea.
+          if [[ $requiresRuntimeSystemdCredentials == true && -z "''${CREDENTIALS_DIRECTORY:-}" ]] || [[ "$USER" != nextcloud ]]; then
+            exec ${lib.getExe' config.systemd.package "systemd-run"} \
+              ${
+                lib.escapeShellArgs (
+                  map (credential: "--property=LoadCredential=${credential}") runtimeSystemdCredentials
+                )
+              } \
+              --description "Nextcloud OCC Command" \
+              --uid=nextcloud \
+              --same-dir \
+              --pty \
+              --pipe \
+              --wait \
+              --collect \
+              --service-type=exec \
+              --setenv OC_PASS \
+              --setenv NC_PASS \
+              --quiet \
+              -- \
+              ${command}
+          else
+            exec ${command}
+          fi
         '';
-      in
-      ''
-        cd ${webroot}
-
-        # NOTE: This is templated at eval time
-        requiresRuntimeSystemdCredentials=${lib.boolToString requiresRuntimeSystemdCredentials}
-
-        # NOTE: This wrapper is both used in the internal nextcloud service units
-        #       and by users outside a service context for administration. As such,
-        #       when there's an existing CREDENTIALS_DIRECTORY, we inherit it for use
-        #       in the nix_read_secret() php function.
-        #       When there's no CREDENTIALS_DIRECTORY we try to use systemd-run to
-        #       load the credentials just as in a service unit.
-        #
-        # `systemd-run` with `--description` is also being used since `nextcloud-occ` might be used
-        # to set sensitive data in `config.php` and persisting this into system logs is a bad idea.
-        if [[ $requiresRuntimeSystemdCredentials == true && -z "''${CREDENTIALS_DIRECTORY:-}" ]] || [[ "$USER" != nextcloud ]]; then
-          exec ${lib.getExe' config.systemd.package "systemd-run"} \
-            ${
-              lib.escapeShellArgs (
-                map (credential: "--property=LoadCredential=${credential}") runtimeSystemdCredentials
-              )
-            } \
-            --description "Nextcloud OCC Command" \
-            --uid=nextcloud \
-            --same-dir \
-            --pty \
-            --pipe \
-            --wait \
-            --collect \
-            --service-type=exec \
-            --setenv OC_PASS \
-            --setenv NC_PASS \
-            --quiet \
-            -- \
-            ${command}
-        else
-          exec ${command}
-        fi
-      '';
-  };
+    }).overrideAttrs
+      (_: {
+        preferLocalBuild = true;
+      });
 
   inherit (config.system) stateVersion;
 
