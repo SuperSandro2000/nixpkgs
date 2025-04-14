@@ -568,6 +568,8 @@ rec {
             # The derivation name is different from the script file name
             # to keep the script file name short to avoid cluttering logs.
             name = "unit-script-${scriptName}";
+
+            preferLocalBuild = true;
           });
     in
     lib.getExe out;

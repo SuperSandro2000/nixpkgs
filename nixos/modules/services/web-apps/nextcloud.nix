@@ -121,73 +121,77 @@ let
 
   requiresRuntimeSystemdCredentials = (lib.length runtimeSystemdCredentials) != 0;
 
-  occ = pkgs.writeShellApplication {
-    name = "nextcloud-occ";
+  occ =
+    (pkgs.writeShellApplication {
+      name = "nextcloud-occ";
 
-    text =
-      let
-        command = ''
-          ${lib.getExe' pkgs.coreutils "env"} \
-            NEXTCLOUD_CONFIG_DIR="${datadir}/config" \
-            ${phpCli} \
-            occ "$@"
-        '';
-      in
-      ''
-        cd ${webroot}
+      text =
+        let
+          command = ''
+            ${lib.getExe' pkgs.coreutils "env"} \
+              NEXTCLOUD_CONFIG_DIR="${datadir}/config" \
+              ${phpCli} \
+              occ "$@"
+          '';
+        in
+        ''
+          cd ${webroot}
 
-        # NOTE: This is templated at eval time
-        requiresRuntimeSystemdCredentials=${lib.boolToString requiresRuntimeSystemdCredentials}
+          # NOTE: This is templated at eval time
+          requiresRuntimeSystemdCredentials=${lib.boolToString requiresRuntimeSystemdCredentials}
 
-        # NOTE: This wrapper is both used in the internal nextcloud service units
-        #       and by users outside a service context for administration. As such,
-        #       when there's an existing CREDENTIALS_DIRECTORY, we inherit it for use
-        #       in the nix_read_secret() php function.
-        #       When there's no CREDENTIALS_DIRECTORY we try to use systemd-run to
-        #       load the credentials just as in a service unit.
-        # NOTE: If there are no credentials that are required at runtime then there's no need
-        #       to load any credentials.
-        if [[ $requiresRuntimeSystemdCredentials == true && -z "''${CREDENTIALS_DIRECTORY:-}" ]]; then
-          exec ${lib.getExe' config.systemd.package "systemd-run"} \
-            ${
-              lib.escapeShellArgs (
-                map (credential: "--property=LoadCredential=${credential}") runtimeSystemdCredentials
-              )
-            } \
-            --uid=nextcloud \
-            --same-dir \
-            --pty \
-            --wait \
-            --collect \
-            --service-type=exec \
-            --setenv OC_PASS \
-            --setenv NC_PASS \
-            --quiet \
-            -- \
-            ${command}
-        elif [[ "$USER" != nextcloud ]]; then
-          if [[ -x /run/wrappers/bin/sudo ]]; then
-            exec /run/wrappers/bin/sudo \
-              --preserve-env=CREDENTIALS_DIRECTORY \
-              --preserve-env=OC_PASS \
-              --preserve-env=NC_PASS \
-              --user=nextcloud \
+          # NOTE: This wrapper is both used in the internal nextcloud service units
+          #       and by users outside a service context for administration. As such,
+          #       when there's an existing CREDENTIALS_DIRECTORY, we inherit it for use
+          #       in the nix_read_secret() php function.
+          #       When there's no CREDENTIALS_DIRECTORY we try to use systemd-run to
+          #       load the credentials just as in a service unit.
+          # NOTE: If there are no credentials that are required at runtime then there's no need
+          #       to load any credentials.
+          if [[ $requiresRuntimeSystemdCredentials == true && -z "''${CREDENTIALS_DIRECTORY:-}" ]]; then
+            exec ${lib.getExe' config.systemd.package "systemd-run"} \
+              ${
+                lib.escapeShellArgs (
+                  map (credential: "--property=LoadCredential=${credential}") runtimeSystemdCredentials
+                )
+              } \
+              --uid=nextcloud \
+              --same-dir \
+              --pty \
+              --wait \
+              --collect \
+              --service-type=exec \
+              --setenv OC_PASS \
+              --setenv NC_PASS \
+              --quiet \
               -- \
               ${command}
+          elif [[ "$USER" != nextcloud ]]; then
+            if [[ -x /run/wrappers/bin/sudo ]]; then
+              exec /run/wrappers/bin/sudo \
+                --preserve-env=CREDENTIALS_DIRECTORY \
+                --preserve-env=OC_PASS \
+                --preserve-env=NC_PASS \
+                --user=nextcloud \
+                -- \
+                ${command}
+            else
+              exec ${lib.getExe' pkgs.util-linux "runuser"} \
+                --whitelist-environment=CREDENTIALS_DIRECTORY \
+                --whitelist-environment=OC_PASS \
+                --whitelist-environment=NC_PASS \
+                --user=nextcloud \
+                -- \
+                ${command}
+            fi
           else
-            exec ${lib.getExe' pkgs.util-linux "runuser"} \
-              --whitelist-environment=CREDENTIALS_DIRECTORY \
-              --whitelist-environment=OC_PASS \
-              --whitelist-environment=NC_PASS \
-              --user=nextcloud \
-              -- \
-              ${command}
+            exec ${command}
           fi
-        else
-          exec ${command}
-        fi
-      '';
-  };
+        '';
+    }).overrideAttrs
+      (_: {
+        preferLocalBuild = true;
+      });
 
   inherit (config.system) stateVersion;
 
