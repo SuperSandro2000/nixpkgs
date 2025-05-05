@@ -412,14 +412,6 @@ in
                 '';
                 example = [ "alice@example.com" ];
               };
-
-              strip_email_domain = lib.mkOption {
-                type = lib.types.bool;
-                default = true;
-                description = ''
-                  Whether the domain part of the email address should be removed when generating namespaces.
-                '';
-              };
             };
 
             tls_letsencrypt_hostname = lib.mkOption {
@@ -558,9 +550,7 @@ in
       [ "services" "headscale" "settings" "tls_letsencrypt_listen" ]
     )
 
-    (mkRemovedOptionModule [ "services" "headscale" "openIdConnect" "domainMap" ] ''
-      Headscale no longer uses domain_map. If you're using an old version of headscale you can still set this option via services.headscale.settings.oidc.domain_map.
-    '')
+    (mkRemovedOptionModule [ "services" "headscale" "openIdConnect" "domainMap" ] "Headscale no longer uses domain_map.")
   ];
 
   config = lib.mkIf cfg.enable {
