@@ -21,7 +21,10 @@ stdenv.mkDerivation rec {
   ];
 
   prePatch = ''
-    sed -i 's@usb_modeswitch@${usb-modeswitch}/lib/udev/usb_modeswitch@g' 40-usb_modeswitch.rules
+    substituteInPlace 40-usb_modeswitch.rules \
+      --replace-fail "usb_modeswitch" "${usb-modeswitch}/lib/udev/usb_modeswitch"
+
+    sed -i 's/,,/,/g' 40-usb_modeswitch.rules
   '';
 
   # we add tcl here so we can patch in support for new devices by dropping config into
