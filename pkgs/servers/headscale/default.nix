@@ -1,6 +1,6 @@
 {
   lib,
-  buildGoModule,
+  buildGo124Module,
   fetchFromGitHub,
   installShellFiles,
   iana-etc,
@@ -9,7 +9,8 @@
   postgresql,
   stdenv,
 }:
-buildGoModule rec {
+
+buildGo124Module rec {
   pname = "headscale";
   version = "0.26.1";
 
