@@ -554,9 +554,7 @@ in
       [ "services" "headscale" "settings" "tls_letsencrypt_listen" ]
     )
 
-    (mkRemovedOptionModule [ "services" "headscale" "openIdConnect" "domainMap" ] ''
-      Headscale no longer uses domain_map. If you're using an old version of headscale you can still set this option via services.headscale.settings.oidc.domain_map.
-    '')
+    (mkRemovedOptionModule [ "services" "headscale" "openIdConnect" "domainMap" ] "Headscale no longer uses domain_map.")
   ];
 
   config = lib.mkIf cfg.enable {
