@@ -147,6 +147,9 @@ let
           exit 1
         fi
 
+        # Verify all the udev rules
+        ${lib.getExe' config.systemd.package "udevadm"} verify --resolve-names=never $out
+
         # If auto-configuration is disabled, then remove
         # udev's 80-drivers.rules file, which contains rules for
         # automatically calling modprobe.
