@@ -170,7 +170,7 @@ in
                 '';
               };
 
-              auto_update_enable = lib.mkOption {
+              auto_update_enabled = lib.mkOption {
                 type = lib.types.bool;
                 default = true;
                 description = ''
@@ -499,7 +499,11 @@ in
   imports = with lib; [
     (mkRenamedOptionModule
       [ "services" "headscale" "derp" "autoUpdate" ]
-      [ "services" "headscale" "settings" "derp" "auto_update_enable" ]
+      [ "services" "headscale" "settings" "derp" "auto_update_enabled" ]
+    )
+    (mkRenamedOptionModule
+      [ "services" "headscale" "derp" "auto_update_enable" ]
+      [ "services" "headscale" "settings" "derp" "auto_update_enabled" ]
     )
     (mkRenamedOptionModule
       [ "services" "headscale" "derp" "paths" ]
