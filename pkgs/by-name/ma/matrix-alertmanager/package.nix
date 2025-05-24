@@ -2,6 +2,7 @@
   lib,
   buildNpmPackage,
   fetchFromGitHub,
+  fetchpatch,
   jq,
   nix-update-script,
 }:
@@ -16,6 +17,11 @@ buildNpmPackage rec {
     rev = "v${version}";
     hash = "sha256-kdz5KyT0ZIbiq6MMVAQBPjz2QP1kcNWtEv10/RzH/14=";
   };
+
+  patches = [
+    ./shorter-retry.diff
+    ./combine-grouped-alerts.diff
+  ];
 
   postPatch = ''
     ${lib.getExe jq} '. += {"bin": "src/app.js"}' package.json > package.json.tmp
