@@ -40,7 +40,7 @@
   wayland,
   # The themes here are soft dependencies; only icons are missing without them.
   adwaita-icon-theme,
-  withKf5Wallet ? stdenv.hostPlatform.isLinux,
+  withKf5Wallet ? false,
   libsForQt5,
   withLibsecret ? stdenv.hostPlatform.isLinux,
   withWebkitGtk ? false,
