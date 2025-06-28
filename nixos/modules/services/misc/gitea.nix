@@ -26,6 +26,9 @@ let
 
     ${lib.optionalString (cfg.extraConfig != null) cfg.extraConfig}
   '';
+
+  inherit (cfg.settings) mailer;
+  useSendmail = mailer.ENABLED && mailer.PROTOCOL or null == "sendmail";
 in
 
 {
@@ -362,15 +365,6 @@ in
         description = "Path to a file containing the SMTP password.";
       };
 
-      mailerUseSendmail = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          Use the operating system's sendmail command instead of SMTP.
-          Note: some sandbox settings will be disabled.
-        '';
-      };
-
       metricsTokenFile = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
@@ -441,6 +435,36 @@ in
                     "Critical"
                   ];
                   description = "General log level.";
+                };
+              };
+
+              mailer = {
+                ENABLED = lib.mkOption {
+                  type = lib.types.bool;
+                  default = false;
+                  description = "Whether to use an email service to send notifications.";
+                };
+
+                PROTOCOL = lib.mkOption {
+                  type = lib.types.enum [
+                    null
+                    "smtp"
+                    "smtps"
+                    "smtp+starttls"
+                    "smtp+unix"
+                    "sendmail"
+                    "dummy"
+                  ];
+                  default = null;
+                  description = "Which mail server protocol to use.";
+                };
+
+                SENDMAIL_PATH = lib.mkOption {
+                  type = lib.types.path;
+                  # somewhat duplicated with useSendmail but cannot be deduped because of infinite recursion
+                  default = if config.mailer.ENABLED && config.mailer.PROTOCOL == "sendmail" then "/run/wrappers/bin/sendmail" else "sendmail";
+                  defaultText = lib.literalExpression ''if config.${options.mailer.ENABLED} && config.${options.mailer.PROTOCOL} == "sendmail" then "/run/wrappers/bin/sendmail" else "sendmail"'';
+                  description = "Path to sendmail binary or script.";
                 };
               };
 
@@ -694,15 +718,9 @@ in
           PATH = cfg.lfs.contentDir;
         };
 
-        mailer = lib.mkMerge [
-          (lib.mkIf (cfg.mailerPasswordFile != null) {
-            PASSWD = "#mailerpass#";
-          })
-          (lib.mkIf cfg.mailerUseSendmail {
-            PROTOCOL = "sendmail";
-            SENDMAIL_PATH = "/run/wrappers/bin/sendmail";
-          })
-        ];
+        mailer = lib.mkIf (cfg.mailerPasswordFile != null) {
+          PASSWD = "#mailerpass#";
+        };
 
         metrics = lib.mkIf (cfg.metricsTokenFile != null) {
           TOKEN = "#metricstoken#";
@@ -1049,18 +1067,18 @@ in
           cfg.repositoryRoot
           cfg.stateDir
           cfg.lfs.contentDir
-        ] ++ lib.optional cfg.mailerUseSendmail "/var/lib/postfix/queue/maildrop";
+        ] ++ lib.optional (useSendmail && config.services.postfix.enable) "/var/lib/postfix/queue/maildrop";
         UMask = "0027";
         # Capabilities
         CapabilityBoundingSet = "";
         # Security
-        NoNewPrivileges = lib.optional (!cfg.mailerUseSendmail) true;
+        NoNewPrivileges = !useSendmail;
         # Sandboxing
         ProtectSystem = "strict";
         ProtectHome = true;
         PrivateTmp = true;
         PrivateDevices = true;
-        PrivateUsers = lib.optional (!cfg.mailerUseSendmail) true;
+        PrivateUsers = !useSendmail;
         ProtectHostname = true;
         ProtectClock = true;
         ProtectKernelTunables = true;
@@ -1071,7 +1089,7 @@ in
           "AF_UNIX"
           "AF_INET"
           "AF_INET6"
-        ] ++ lib.optional cfg.mailerUseSendmail "AF_NETLINK";
+        ] ++ lib.optional (useSendmail && config.services.postfix.enable) "AF_NETLINK";
         RestrictNamespaces = true;
         LockPersonality = true;
         MemoryDenyWriteExecute = true;
@@ -1081,10 +1099,14 @@ in
         PrivateMounts = true;
         # System Call Filtering
         SystemCallArchitectures = "native";
-        SystemCallFilter = [
-          "~@cpu-emulation @debug @keyring @mount @obsolete @setuid"
-          "setrlimit"
-        ] ++ lib.optional (!cfg.mailerUseSendmail) "~@privileged";
+        SystemCallFilter =
+          [
+            "~@cpu-emulation @debug @keyring @mount @obsolete @setuid"
+            "setrlimit"
+          ]
+          ++ lib.optionals (!useSendmail) [
+            "~@privileged"
+          ];
       };
 
       environment = {
