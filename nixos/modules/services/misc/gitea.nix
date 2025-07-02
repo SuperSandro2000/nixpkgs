@@ -483,8 +483,7 @@ in
 
                 AVATAR_UPLOAD_PATH = lib.mkOption {
                   type = lib.types.str;
-                  default = lib.optionalString (config.picture.AVATAR_STORAGE_TYPE == "local") "data/" + "avatars";
-                  defaultText = lib.literalExpression ''lib.optionalString (config.${options.picture.AVATAR_STORAGE_TYPE} == "local") "data/" + "avatars"'';
+                  default = "avatars";
                   description = "Path under which user avatars will be uploaded.";
                 };
 
@@ -496,10 +495,7 @@ in
 
                 REPOSITORY_AVATAR_UPLOAD_PATH = lib.mkOption {
                   type = lib.types.str;
-                  default =
-                    lib.optionalString (config.picture.REPOSITORY_AVATAR_STORAGE_TYPE == "local") "data/"
-                    + "repo-avatars";
-                  defaultText = lib.literalExpression ''lib.optionalString (config.${options.picture.REPOSITORY_AVATAR_STORAGE_TYPE} == "local") "data/" + "repo-avatars"'';
+                  default = "repo-avatars";
                   description = "Path under which repository avatars will be uploaded.";
                 };
               };
@@ -860,7 +856,7 @@ in
             };
 
             "^~ /avatars/" = lib.mkIf (cfg.settings.picture.AVATAR_STORAGE_TYPE == "local") {
-              alias = "${cfg.stateDir}/${cfg.settings.picture.AVATAR_UPLOAD_PATH}/";
+              alias = "${cfg.stateDir}/data/${cfg.settings.picture.AVATAR_UPLOAD_PATH}/";
               priority = 200;
               tryFiles = "$uri =404";
               extraConfig = ''
@@ -871,7 +867,7 @@ in
             };
 
             "^~ /repo-avatars/" = lib.mkIf (cfg.settings.picture.REPOSITORY_AVATAR_STORAGE_TYPE == "local") {
-              alias = "${cfg.stateDir}/${cfg.settings.picture.REPOSITORY_AVATAR_UPLOAD_PATH}/";
+              alias = "${cfg.stateDir}/data/${cfg.settings.picture.REPOSITORY_AVATAR_UPLOAD_PATH}/";
               priority = 210;
               tryFiles = "$uri =404";
               extraConfig = ''
