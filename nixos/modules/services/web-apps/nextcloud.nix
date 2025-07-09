@@ -438,6 +438,7 @@ in
       ];
     };
     phpPackage = mkPackageOption pkgs "php" {
+      default = [ "php83" ];
       example = "php82";
     };
 
@@ -1073,8 +1074,6 @@ in
           else
             nextcloud31
         );
-
-      services.nextcloud.phpPackage = pkgs.php83;
 
       services.nextcloud.phpOptions = mkMerge [
         (mapAttrs (const mkOptionDefault) defaultPHPSettings)
