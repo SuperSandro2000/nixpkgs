@@ -163,6 +163,23 @@ in
     services.phpfpm.pools = mkIf (cfg.pool != null) {
       ${cfg.pool} = {
         user = cfg.user;
+        phpPackage = pkgs.php.withExtensions (
+          { enabled, all }:
+          with all;
+          [
+            # https://github.com/RSS-Bridge/rss-bridge/blob/master/composer.json#L24-L44
+            curl
+            dom
+            filter
+            intl
+            mbstring
+            memcached
+            openssl
+            simplexml
+            sqlite3
+            zip
+          ]
+        );
         settings = lib.mapAttrs (name: mkDefault) {
           "listen.owner" = cfg.user;
           "listen.group" = cfg.group;
