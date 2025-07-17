@@ -181,7 +181,7 @@ in
 
   config = lib.mkIf cfg.enable {
     warnings =
-      lib.optional (cfg.nginx.createLocally -> (cfg.listenAddress == "127.0.0.1" || cfg.port == "8000"))
+      lib.optional (cfg.nginx.createLocally -> (cfg.listenAddress != "127.0.0.1" || cfg.port != 8000))
         "When services.glitchtip.nginx.createLocally is turned on, services.glitchtip.listenAddress and services.glitchtip.port have no effect.";
 
     services.glitchtip = {
