@@ -40,7 +40,7 @@ stdenv.mkDerivation (finalAttrs: {
   pnpmDeps = pnpm_10.fetchDeps {
     inherit (finalAttrs) pname version src;
     fetcherVersion = 1;
-    hash = "sha256-XOlFJFFyzbx8Bg92HXhVFFCI51j2GUK7+LJKfqVOQyU=";
+    hash = "sha256-ENHTZ2MkD1TcOtNhNwCJfN/4FrYlGkfIeX/6wdfy7nY=";
   };
 
   env.COREPACK_ENABLE_STRICT = 0;
