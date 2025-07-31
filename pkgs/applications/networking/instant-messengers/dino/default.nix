@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  fetchpatch,
   vala,
   ninja,
   wrapGAppsHook4,
@@ -45,6 +46,14 @@ stdenv.mkDerivation (finalAttrs: {
     tag = "v${finalAttrs.version}";
     hash = "sha256-Y3MGKpfhjmqnIvmt4mXnkmpjF/riXPDXyUiSrsceY6o=";
   };
+
+  patches = [
+    # message redaction
+    (fetchpatch {
+      url = "https://github.com/dino/dino/pull/1719.diff";
+      hash = "sha256-drgFugeqcU9ZRm+RM3Yrv212HCALbMxRpv3vmYcPNuY=";
+    })
+  ];
 
   postPatch = ''
     echo ${finalAttrs.version} > VERSION
