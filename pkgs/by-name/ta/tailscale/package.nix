@@ -58,8 +58,6 @@ buildGoModule {
     "cmd/derper"
     "cmd/derpprobe"
     "cmd/tailscaled"
-    "cmd/tsidp"
-    "cmd/get-authkey"
   ];
 
   excludedPackages = [
@@ -76,6 +74,9 @@ buildGoModule {
 
   tags = [
     "ts_include_cli"
+    "ts_omit_aws"
+    "ts_omit_bird"
+    "ts_omit_kube"
   ];
 
   # Remove vendored tooling to ensure it's not used; also avoids some unnecessary tests
