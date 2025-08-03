@@ -55,6 +55,7 @@ buildGoModule (finalAttrs: {
     "cmd/derper"
     "cmd/derpprobe"
     "cmd/tailscaled"
+    "cmd/tsidp"
     "cmd/get-authkey"
   ];
 
@@ -72,6 +73,13 @@ buildGoModule (finalAttrs: {
 
   tags = [
     "ts_include_cli"
+    "ts_omit_aws"
+    "ts_omit_bird"
+    "ts_omit_kube"
+    "ts_omit_tpm"
+    # breaks tests :(
+    # "ts_omit_syspolicy"
+    # "ts_omit_capture"
   ];
 
   # Remove vendored tooling to ensure it's not used; also avoids some unnecessary tests
