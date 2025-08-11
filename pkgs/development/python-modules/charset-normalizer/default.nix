@@ -3,6 +3,7 @@
   aiohttp,
   buildPythonPackage,
   fetchFromGitHub,
+  isPyPy,
   mypy,
   pytestCheckHook,
   requests,
@@ -22,13 +23,12 @@ buildPythonPackage rec {
     hash = "sha256-ZEHxBErjjvofqe3rkkgiEuEJcoluwo+2nZrLfrsHn5Q=";
   };
 
-  build-system = [
-    mypy
+  build-system = lib.optional (!isPyPy) mypy ++ [
     setuptools
     setuptools-scm
   ];
 
-  env.CHARSET_NORMALIZER_USE_MYPYC = "1";
+  env.CHARSET_NORMALIZER_USE_MYPYC = lib.optionalString (!isPyPy) "1";
 
   nativeCheckInputs = [ pytestCheckHook ];
 
