@@ -7,6 +7,7 @@
   fetchFromGitHub,
   lib,
   replaceVars,
+  php83,
 
   ncVersion,
 }:
