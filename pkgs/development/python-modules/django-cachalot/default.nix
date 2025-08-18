@@ -7,20 +7,25 @@
   psycopg2,
   jinja2,
   beautifulsoup4,
+  pytest-django,
+  pytestCheckHook,
   python,
   pytz,
+  redis,
+  redisTestHook,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "django-cachalot";
-  version = "2.7.0";
-  format = "setuptools";
+  version = "2.8.0";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "noripyt";
     repo = "django-cachalot";
     tag = "v${version}";
-    hash = "sha256-Fi5UvqH2bVb4v/GWDkEYIcBMBVos+35g4kcEnZTOQvw=";
+    hash = "sha256-3W+9cULL3mMtAkxbqetoIj2FL/HRbzWHIDMe9O1e6BM=";
   };
 
   patches = [
@@ -29,14 +34,20 @@ buildPythonPackage rec {
     ./disable-unsupported-tests.patch
   ];
 
-  propagatedBuildInputs = [ django ];
+  build-system = [ setuptools ];
 
-  checkInputs = [
+  dependencies = [ django ];
+
+  nativeCheckInputs = [
     beautifulsoup4
     django-debug-toolbar
     psycopg2
     jinja2
+    pytest-django
+    pytestCheckHook
     pytz
+    redis
+    redisTestHook
   ];
 
   pythonImportsCheck = [ "cachalot" ];
