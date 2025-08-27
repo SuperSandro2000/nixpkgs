@@ -34,6 +34,11 @@ buildPerlPackage {
     GetoptLong
   ];
 
+  postInstall = ''
+    substituteInPlace $out/bin/bro-perl \
+      --replace-fail "-I${perlPackages.ExtUtilsPkgConfig}/lib/perl5/site_perl" ""
+  '';
+
   env = {
     NIX_CFLAGS_COMPILE = "-I${brotli.dev}/include";
     NIX_CFLAGS_LINK = "-L${lib.getLib brotli}/lib -lbrotlienc -lbrotlidec -lbrotlicommon";
