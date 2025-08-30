@@ -1,16 +1,20 @@
 {
   lib,
-  appdirs,
   build,
   buildPythonPackage,
   fetchFromGitHub,
   hatchling,
   hatch-vcs,
+  jsonschema,
   magicgui,
   napari, # reverse dependency, for tests
+  napari-plugin-engine,
+  numpy,
+  platformdirs,
+  psygnal,
   pydantic,
+  pytestCheckHook,
   pythonOlder,
-  pytomlpp,
   pyyaml,
   rich,
   typer,
@@ -37,15 +41,37 @@ buildPythonPackage rec {
   ];
 
   dependencies = [
-    appdirs
     build
-    magicgui
     pydantic
-    pytomlpp
     pyyaml
+    platformdirs
+    psygnal
     rich
     typer
     tomli-w
+  ];
+
+  nativeBuildInputs = [
+    jsonschema
+    magicgui
+    napari-plugin-engine
+    numpy
+    pytestCheckHook
+  ];
+
+  disabledTestPaths = [
+    # requires internet
+    "tests/test_fetch.py"
+    # requires unpackaged pytest-pretty
+    "tests/test_pytest_plugin.py"
+  ];
+
+  disabledTests = [
+    # requires internet
+    "test_cli_fetch"
+    # requires an old version of napari-svg
+    "test_cli_convert_svg"
+    "test_conversion"
   ];
 
   pythonImportsCheck = [ "npe2" ];
