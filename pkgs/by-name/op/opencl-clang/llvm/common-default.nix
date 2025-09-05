@@ -15,7 +15,6 @@
   wrapCCWith,
   wrapBintoolsWith,
   buildPackages,
-  buildLlvmTools, # tools, but from the previous stage, for cross
   targetLlvmLibraries, # libraries, but from the next stage, for cross
   targetLlvm,
   gitRelease ? null,
@@ -93,13 +92,27 @@ let
         '';
     in
     {
-      libllvm = callPackage ./llvm { };
+      libllvm = callPackage ./llvm {
+        tblgen = buildPackages.opencl-clang.llvmPkgs.tblgen;
+      };
 
-      # `llvm` historically had the binaries.  When choosing an output explicitly,
-      # we need to reintroduce `outputSpecified` to get the expected behavior e.g. of lib.get*
-      llvm = tools.libllvm;
+      tblgen = callPackage ./tblgen.nix {
+        patches =
+          builtins.filter
+            # Crude method to drop polly patches if present, they're not needed for tblgen.
+            (p: (!lib.hasInfix "-polly" p))
+            tools.libllvm.patches;
+        clangPatches =
+          # Would take tools.libclang.patches, but this introduces a cycle due
+          # to replacements depending on the llvm outpath (e.g. the LLVMgold patch).
+          # So take the only patch known to be necessary.
+          ./clang/gnu-install-dirs.patch
+        ;
+      };
 
-      libclang = callPackage ./clang { };
+      libclang = callPackage ./clang {
+        tblgen = buildPackages.opencl-clang.llvmPkgs.tblgen;
+      };
 
       clang-unwrapped = tools.libclang;
 
@@ -116,9 +129,7 @@ let
     }
   );
 
-  libraries = lib.makeExtensible (libraries: {
-    stdenv = overrideCC stdenv buildLlvmTools.clang;
-  });
+  libraries = lib.makeExtensible (libraries: { });
 
   noExtend = extensible: lib.attrsets.removeAttrs extensible [ "extend" ];
 in

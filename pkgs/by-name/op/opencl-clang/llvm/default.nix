@@ -41,7 +41,6 @@ let
       recurseIntoAttrs (
         callPackage ./common-default.nix (
           {
-            buildLlvmTools = buildPackages."llvmPackages_${attrName}".tools;
             targetLlvmLibraries =
               # Allow overriding targetLlvmLibraries; this enables custom runtime builds.
               packageSetArgs.targetLlvmLibraries or targetPackages."llvmPackages_${attrName}".libraries

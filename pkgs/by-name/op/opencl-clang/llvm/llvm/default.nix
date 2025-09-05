@@ -17,7 +17,7 @@
   release_version,
   zlib,
   which,
-  buildLlvmTools,
+  tblgen,
   updateAutotoolsGnuConfigScriptsHook,
   fetchpatch,
 }:
@@ -65,16 +65,14 @@ stdenv.mkDerivation (
     # Used when creating a version-suffixed symlink of libLLVM.dylib
     shortVersion = lib.concatStringsSep "." (lib.take 1 (lib.splitString "." release_version));
 
-    src = runCommand "llvm-src-${version}" { inherit (monorepoSrc) passthru; } (
-      ''
-        mkdir -p "$out"
-        cp -r ${monorepoSrc}/llvm "$out"
-        cp -r ${monorepoSrc}/cmake "$out"
-        cp -r ${monorepoSrc}/third-party "$out"
-        chmod u+w "$out/llvm/tools"
-        cp -r ${monorepoSrc}/polly "$out/llvm/tools"
-      ''
-    );
+    src = runCommand "llvm-src-${version}" { inherit (monorepoSrc) passthru; } ''
+      mkdir -p "$out"
+      cp -r ${monorepoSrc}/llvm "$out"
+      cp -r ${monorepoSrc}/cmake "$out"
+      cp -r ${monorepoSrc}/third-party "$out"
+      chmod u+w "$out/llvm/tools"
+      cp -r ${monorepoSrc}/polly "$out/llvm/tools"
+    '';
     sourceRoot = "${finalAttrs.src.name}/llvm";
 
     outputs = [
@@ -225,7 +223,7 @@ stdenv.mkDerivation (
           (lib.cmakeFeature "LLVM_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/llvm")
           (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
           (lib.cmakeBool "LLVM_LINK_LLVM_DYLIB" true)
-          (lib.cmakeFeature "LLVM_TABLEGEN" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
+          (lib.cmakeFeature "LLVM_TABLEGEN" "${tblgen}/bin/llvm-tblgen")
         ];
       in
       flagsForLlvmConfig
@@ -307,11 +305,7 @@ stdenv.mkDerivation (
         ''
     );
 
-    doCheck =
-      (
-        !stdenv.hostPlatform.isx86_32 # TODO: why
-      )
-      && (stdenv.hostPlatform == stdenv.buildPlatform);
+    doCheck = stdenv.hostPlatform == stdenv.buildPlatform;
 
     checkTarget = "check-all";
 

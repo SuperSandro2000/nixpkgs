@@ -40,12 +40,12 @@ let
     });
 
   llvmPkgs = (callPackages ./llvm { })."15";
-  llvm = addPatches "llvm" llvmPkgs.llvm;
+  llvm = addPatches "llvm" llvmPkgs.tools.libllvm;
   spirv-llvm-translator' = spirv-llvm-translator.override { inherit llvm; };
   libclang = addPatches "clang" llvmPkgs.libclang;
 
   passthru = rec {
-    inherit llvm libclang patchesOut;
+    inherit llvmPkgs llvm libclang patchesOut;
     spirv-llvm-translator = spirv-llvm-translator';
 
     clang-unwrapped = libclang.out;

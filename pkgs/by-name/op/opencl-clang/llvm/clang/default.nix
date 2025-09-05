@@ -10,7 +10,7 @@
   libllvm,
   version,
   python3,
-  buildLlvmTools,
+  tblgen,
   replaceVars,
   fetchpatch,
 }:
@@ -83,15 +83,10 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.cmakeFeature "CLANG_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/clang")
     (lib.cmakeBool "CLANGD_BUILD_XPC" false)
     (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
-    (lib.cmakeFeature "LLVM_TABLEGEN_EXE" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
-    (lib.cmakeFeature "CLANG_TABLEGEN" "${buildLlvmTools.tblgen}/bin/clang-tblgen")
-    # Added in LLVM15:
-    # `clang-tidy-confusable-chars-gen`: https://github.com/llvm/llvm-project/commit/c3574ef739fbfcc59d405985a3a4fa6f4619ecdb
-    # `clang-pseudo-gen`: https://github.com/llvm/llvm-project/commit/cd2292ef824591cc34cc299910a3098545c840c7
-    (lib.cmakeFeature "CLANG_TIDY_CONFUSABLE_CHARS_GEN" "${buildLlvmTools.tblgen}/bin/clang-tidy-confusable-chars-gen")
-
-    # clang-pseudo removed in LLVM20: https://github.com/llvm/llvm-project/commit/ed8f78827895050442f544edef2933a60d4a7935
-    (lib.cmakeFeature "CLANG_PSEUDO_GEN" "${buildLlvmTools.tblgen}/bin/clang-pseudo-gen")
+    (lib.cmakeFeature "LLVM_TABLEGEN_EXE" "${tblgen}/bin/llvm-tblgen")
+    (lib.cmakeFeature "CLANG_TABLEGEN" "${tblgen}/bin/clang-tblgen")
+    (lib.cmakeFeature "CLANG_TIDY_CONFUSABLE_CHARS_GEN" "${tblgen}/bin/clang-tidy-confusable-chars-gen")
+    (lib.cmakeFeature "CLANG_PSEUDO_GEN" "${tblgen}/bin/clang-pseudo-gen")
   ];
 
   postPatch = ''
