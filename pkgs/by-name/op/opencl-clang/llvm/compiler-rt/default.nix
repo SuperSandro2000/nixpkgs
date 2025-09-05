@@ -3,7 +3,6 @@
   stdenv,
   llvm_meta,
   version,
-  src,
   monorepoSrc,
   runCommand,
   cmake,
