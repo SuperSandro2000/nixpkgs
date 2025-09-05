@@ -188,16 +188,6 @@ stdenv.mkDerivation (
         (getVersionFile "llvm/lit-shell-script-runner-set-dyld-library-path.patch")
       ]
       ++
-        lib.optional (lib.versions.major release_version == "13")
-          # Fix random compiler crashes: https://bugs.llvm.org/show_bug.cgi?id=50611
-          (
-            fetchpatch {
-              url = "https://raw.githubusercontent.com/archlinux/svntogit-packages/4764a4f8c920912a2bfd8b0eea57273acfe0d8a8/trunk/no-strict-aliasing-DwarfCompileUnit.patch";
-              sha256 = "18l6mrvm2vmwm77ckcnbjvh6ybvn72rhrb799d4qzwac4x2ifl7g";
-              stripLen = 1;
-            }
-          )
-      ++
         lib.optional (lib.versionAtLeast release_version "12" && lib.versionOlder release_version "19")
           # Add missing include headers to build against gcc-15:
           #   https://github.com/llvm/llvm-project/pull/101761
@@ -218,21 +208,6 @@ stdenv.mkDerivation (
         # Fix for Python 3.13
         (getVersionFile "llvm/no-pipes.patch")
       ]
-      ++ lib.optionals (lib.versionOlder release_version "14") [
-        # Backport gcc-13 fixes with missing includes.
-        (fetchpatch {
-          name = "signals-gcc-13.patch";
-          url = "https://github.com/llvm/llvm-project/commit/ff1681ddb303223973653f7f5f3f3435b48a1983.patch";
-          hash = "sha256-CXwYxQezTq5vdmc8Yn88BUAEly6YZ5VEIA6X3y5NNOs=";
-          stripLen = 1;
-        })
-        (fetchpatch {
-          name = "base64-gcc-13.patch";
-          url = "https://github.com/llvm/llvm-project/commit/5e9be93566f39ee6cecd579401e453eccfbe81e5.patch";
-          hash = "sha256-PAwrVrvffPd7tphpwCkYiz+67szPRzRB2TXBvKfzQ7U=";
-          stripLen = 1;
-        })
-      ]
       ++
         lib.optionals
           (
@@ -248,45 +223,6 @@ stdenv.mkDerivation (
               hash = "sha256-Ot45P/iwaR4hkcM3xtLwfryQNgHI6pv6ADjv98tgdZA=";
             })
           ]
-      ++
-        lib.optional (lib.versions.major release_version == "17")
-          # Fixes a crash with -fzero-call-used-regs=used-gpr
-          # See also https://github.com/llvm/llvm-project/issues/75168
-          (
-            fetchpatch {
-              name = "fix-fzero-call-used-regs.patch";
-              url = "https://github.com/llvm/llvm-project/commit/f800c1f3b207e7bcdc8b4c7192928d9a078242a0.patch";
-              stripLen = 1;
-              hash = "sha256-e8YKrMy2rGcSJGC6er2V66cOnAnI+u1/yImkvsRsmg8=";
-            }
-          )
-      ++ lib.optionals (lib.versions.major release_version == "18") [
-        # Reorgs one test so the next patch applies
-        (fetchpatch {
-          name = "osabi-test-reorg.patch";
-          url = "https://github.com/llvm/llvm-project/commit/06cecdc60ec9ebfdd4d8cdb2586d201272bdf6bd.patch";
-          stripLen = 1;
-          hash = "sha256-s9GZTNgzLS511Pzh6Wb1hEV68lxhmLWXjlybHBDMhvM=";
-        })
-        # Sets the OSABI for OpenBSD, needed for an LLD patch for OpenBSD.
-        # https://github.com/llvm/llvm-project/pull/98553
-        (fetchpatch {
-          name = "mc-set-openbsd-osabi.patch";
-          url = "https://github.com/llvm/llvm-project/commit/b64c1de714c50bec7493530446ebf5e540d5f96a.patch";
-          stripLen = 1;
-          hash = "sha256-fqw5gTSEOGs3kAguR4tINFG7Xja1RAje+q67HJt2nGg=";
-        })
-      ]
-      ++
-        lib.optionals (lib.versionAtLeast release_version "17" && lib.versionOlder release_version "19")
-          [
-            # Fixes test-suite on glibc 2.40 (https://github.com/llvm/llvm-project/pull/100804)
-            (fetchpatch {
-              url = "https://github.com/llvm/llvm-project/commit/1e8df9e85a1ff213e5868bd822877695f27504ad.patch";
-              hash = "sha256-mvBlG2RxpZPFnPI7jvCMz+Fc8JuM15Ye3th1FVZMizE=";
-              stripLen = 1;
-            })
-          ]
       ++ lib.optionals enablePolly [
         # Just like the `gnu-install-dirs` patch, but for `polly`.
         (getVersionFile "llvm/gnu-install-dirs-polly.patch")
@@ -295,17 +231,7 @@ stdenv.mkDerivation (
         lib.optional (lib.versionAtLeast release_version "15")
           # Just like the `llvm-lit-cfg` patch, but for `polly`.
           (getVersionFile "llvm/polly-lit-cfg-add-libs-to-dylib-path.patch")
-      ++
-        lib.optional (lib.versions.major release_version == "20")
-          # Test failure on riscv64, fixed in llvm 21
-          # https://github.com/llvm/llvm-project/issues/150818
-          (
-            fetchpatch {
-              url = "https://github.com/llvm/llvm-project/commit/bd49bbaaafc98433a2cb4e95ce25b7a201baf5a5.patch";
-              hash = "sha256-3hkbYPUVRAtWpo5qBmc2jLZLivURMx8T0GQomvNZesc=";
-              stripLen = 1;
-            }
-          );
+      ;
 
     nativeBuildInputs = [
       cmake
@@ -315,16 +241,8 @@ stdenv.mkDerivation (
       python
     ]
     ++ (lib.optional (lib.versionAtLeast release_version "15") ninja)
-    ++ optionals enableManpages [
-      # Note: we intentionally use `python3Packages` instead of `python3.pkgs`;
-      # splicing does *not* work with the latter. (TODO: fix)
-      python3Packages.sphinx
-    ]
     ++ optionals (lib.versionOlder version "18" && enableManpages) [
       python3Packages.recommonmark
-    ]
-    ++ optionals (lib.versionAtLeast version "18" && enableManpages) [
-      python3Packages.myst-parser
     ];
 
     buildInputs = [
@@ -334,9 +252,7 @@ stdenv.mkDerivation (
     ++ optional enablePFM libpfm; # exegesis
 
     propagatedBuildInputs =
-      (lib.optional (
-        lib.versionAtLeast release_version "14" || stdenv.buildPlatform == stdenv.hostPlatform
-      ) ncurses)
+      (lib.optional (stdenv.buildPlatform == stdenv.hostPlatform) ncurses)
       ++ [ zlib ];
 
     postPatch =
