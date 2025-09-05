@@ -264,13 +264,6 @@ let
       # doesn’t support like LLVM. Probably we should move to some other
       # file.
 
-      bintools-unwrapped = callPackage ./bintools.nix { };
-
-      bintoolsNoLibc = wrapBintoolsWith {
-        bintools = tools.bintools-unwrapped;
-        libc = targetPackages.preLibcHeaders;
-      };
-
       bintools = wrapBintoolsWith { bintools = tools.bintools-unwrapped; };
 
       clangUseLLVM = wrapCCWith (
@@ -320,62 +313,6 @@ let
           ++ lib.optional stdenv.targetPlatform.isWasm "-fno-exceptions";
           nixSupport.cc-ldflags = lib.optionals (
             !stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD
-          ) [ "-L${targetLlvmLibraries.libunwind}/lib" ];
-        }
-      );
-
-      clangWithLibcAndBasicRtAndLibcxx = wrapCCWith (
-        rec {
-          cc = tools.clang-unwrapped;
-          libcxx = targetLlvmLibraries.libcxx;
-          bintools = bintools';
-          extraPackages = [
-            targetLlvmLibraries.compiler-rt-no-libc
-          ]
-          ++
-            lib.optionals
-              (
-                !stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD && !stdenv.targetPlatform.isDarwin
-              )
-              [
-                targetLlvmLibraries.libunwind
-              ];
-          extraBuildCommands =
-            lib.optionalString (lib.versions.major metadata.release_version == "13") (
-              ''
-                echo "-rtlib=compiler-rt -Wno-unused-command-line-argument" >> $out/nix-support/cc-cflags
-                echo "-B${targetLlvmLibraries.compiler-rt-no-libc}/lib" >> $out/nix-support/cc-cflags
-              ''
-              + lib.optionalString (!stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isDarwin) ''
-                echo "--unwindlib=libunwind" >> $out/nix-support/cc-cflags
-                echo "-L${targetLlvmLibraries.libunwind}/lib" >> $out/nix-support/cc-ldflags
-              ''
-              + lib.optionalString (!stdenv.targetPlatform.isWasm && stdenv.targetPlatform.useLLVM or false) ''
-                echo "-lunwind" >> $out/nix-support/cc-ldflags
-              ''
-              + lib.optionalString stdenv.targetPlatform.isWasm ''
-                echo "-fno-exceptions" >> $out/nix-support/cc-cflags
-              ''
-            )
-            + mkExtraBuildCommandsBasicRt cc;
-        }
-        // lib.optionalAttrs (lib.versionAtLeast metadata.release_version "14") {
-          nixSupport.cc-cflags = [
-            "-rtlib=compiler-rt"
-            "-Wno-unused-command-line-argument"
-            "-B${targetLlvmLibraries.compiler-rt-no-libc}/lib"
-          ]
-          ++ lib.optional (
-            !stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD && !stdenv.targetPlatform.isDarwin
-          ) "--unwindlib=libunwind"
-          ++ lib.optional (
-            !stdenv.targetPlatform.isWasm
-            && !stdenv.targetPlatform.isFreeBSD
-            && stdenv.targetPlatform.useLLVM or false
-          ) "-lunwind"
-          ++ lib.optional stdenv.targetPlatform.isWasm "-fno-exceptions";
-          nixSupport.cc-ldflags = lib.optionals (
-            !stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD && !stdenv.targetPlatform.isDarwin
           ) [ "-L${targetLlvmLibraries.libunwind}/lib" ];
         }
       );
@@ -488,50 +425,7 @@ let
     in
     (
       {
-        compiler-rt-libc = callPackage ./compiler-rt (
-          let
-            # temp rename to avoid infinite recursion
-            stdenv = args.stdenv;
-          in
-          {
-            inherit stdenv;
-          }
-          // lib.optionalAttrs (stdenv.hostPlatform.useLLVM or false) {
-            libxcrypt = (libxcrypt.override { inherit stdenv; }).overrideAttrs (old: {
-              configureFlags = old.configureFlags ++ [ "--disable-symvers" ];
-            });
-          }
-        );
-
-        compiler-rt-no-libc = callPackage ./compiler-rt {
-          doFakeLibgcc = stdenv.hostPlatform.useLLVM or false;
-          stdenv =
-            # Darwin needs to use a bootstrap stdenv to avoid an infinite recursion when cross-compiling.
-            if stdenv.hostPlatform.isDarwin then
-              overrideCC darwin.bootstrapStdenv buildLlvmTools.clangNoLibcNoRt
-            else
-              overrideCC stdenv buildLlvmTools.clangNoLibcNoRt;
-        };
-
-        compiler-rt =
-          if
-            stdenv.hostPlatform.libc == null
-            # Building the with-libc compiler-rt and WASM doesn't yet work,
-            # because wasilibc doesn't provide some expected things. See
-            # compiler-rt's file for further details.
-            || stdenv.hostPlatform.isWasm
-            # Failing `#include <term.h>` in
-            # `lib/sanitizer_common/sanitizer_platform_limits_freebsd.cpp`
-            # sanitizers, not sure where to get it.
-            || stdenv.hostPlatform.isFreeBSD
-          then
-            libraries.compiler-rt-no-libc
-          else
-            libraries.compiler-rt-libc;
-
         stdenv = overrideCC stdenv buildLlvmTools.clang;
-
-        libcxxStdenv = overrideCC stdenv buildLlvmTools.libcxxClang;
 
         libcxx = callPackage ./libcxx (
           {
@@ -546,13 +440,6 @@ let
             inherit (metadata) monorepoSrc; # Preserve bug during #307211 refactor.
           }
         );
-
-        libunwind = callPackage ./libunwind {
-          stdenv = overrideCC stdenv buildLlvmTools.clangWithLibcAndBasicRt;
-        };
-
-        openmp = callPackage ./openmp {
-        };
       }
     )
   );
