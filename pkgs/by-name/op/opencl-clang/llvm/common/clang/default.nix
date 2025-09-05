@@ -21,12 +21,12 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "clang";
   inherit version;
 
-  src = runCommand "clang-src-${version}" { inherit (monorepoSrc) passthru; } (''
+  src = runCommand "clang-src-${version}" { inherit (monorepoSrc) passthru; } ''
     mkdir -p "$out"
     cp -r ${monorepoSrc}/cmake "$out"
     cp -r ${monorepoSrc}/clang "$out"
     cp -r ${monorepoSrc}/clang-tools-extra "$out"
-  '');
+  '';
 
   sourceRoot = "${finalAttrs.src.name}/clang";
 

@@ -25,7 +25,7 @@ rec {
     owner = "llvm";
     repo = "llvm-project";
     rev = "llvmorg-${releaseInfo.version}";
-    sha256 = releaseInfo.original.sha256;
+    inherit (releaseInfo.original) sha256;
     passthru = { inherit owner repo rev; };
   };
 }

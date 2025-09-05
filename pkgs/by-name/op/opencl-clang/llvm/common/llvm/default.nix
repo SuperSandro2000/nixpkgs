@@ -338,10 +338,10 @@ stdenv.mkDerivation (
       substituteInPlace "$dev/lib/cmake/llvm/LLVMExports-${lib.toLower finalAttrs.finalPackage.cmakeBuildType}.cmake" \
         --replace-fail "$out/bin/llvm-config" "$dev/bin/llvm-config"
     ''
-    + (''
+    + ''
       substituteInPlace "$dev/lib/cmake/llvm/LLVMConfig.cmake" \
         --replace-fail 'set(LLVM_BINARY_DIR "''${LLVM_INSTALL_PREFIX}")' 'set(LLVM_BINARY_DIR "'"$lib"'")'
-    '')
+    ''
     + optionalString (stdenv.buildPlatform != stdenv.hostPlatform) (
       if stdenv.buildPlatform.canExecute stdenv.hostPlatform then
         ''

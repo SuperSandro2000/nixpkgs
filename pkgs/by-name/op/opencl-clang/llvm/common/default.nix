@@ -75,7 +75,7 @@ let
         name = builtins.baseNameOf p;
         path =
           let
-            patchDir = toString ({ path = metadata.versionDir; }).path;
+            patchDir = toString { path = metadata.versionDir; }.path;
           in
           "${patchDir}/${p}";
       };
@@ -93,9 +93,9 @@ let
           mkdir "$rsrc"
           echo "-resource-dir=$rsrc" >> $out/nix-support/cc-cflags
         ''
-        + (''
+        + ''
           ln -s "${lib.getLib cc}/lib/clang/${clangVersion}/include" "$rsrc"
-        '');
+        '';
       mkExtraBuildCommands =
         cc:
         mkExtraBuildCommands0 cc
@@ -122,7 +122,7 @@ let
       llvm-manpages = lowPrio (
         tools.libllvm.override {
           enableManpages = true;
-          python3 = pkgs.python3; # don't use python-boot
+          inherit (pkgs) python3; # don't use python-boot
         }
       );
 
@@ -144,9 +144,9 @@ let
       # doesn’t support like LLVM. Probably we should move to some other
       # file.
 
-      clangUseLLVM = wrapCCWith (rec {
+      clangUseLLVM = wrapCCWith rec {
         cc = tools.clang-unwrapped;
-        libcxx = targetLlvmLibraries.libcxx;
+        inherit (targetLlvmLibraries) libcxx;
         bintools = bintools';
         extraPackages = [
           targetLlvmLibraries.compiler-rt
@@ -164,13 +164,13 @@ let
           "-lunwind"
         ];
         nixSupport.cc-ldflags = [ "-L${targetLlvmLibraries.libunwind}/lib" ];
-      });
+      };
     }
   );
 
-  libraries = lib.makeExtensible (libraries: ({
+  libraries = lib.makeExtensible (libraries: {
     stdenv = overrideCC stdenv buildLlvmTools.clang;
-  }));
+  });
 
   noExtend = extensible: lib.attrsets.removeAttrs extensible [ "extend" ];
 in
