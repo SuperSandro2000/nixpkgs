@@ -2,10 +2,10 @@
   lib,
   stdenv,
   applyPatches,
+  callPackages,
   fetchFromGitHub,
   cmake,
   git,
-  llvmPackages_15,
   spirv-llvm-translator,
 }:
 
@@ -39,7 +39,7 @@ let
       '';
     });
 
-  llvmPkgs = llvmPackages_15;
+  llvmPkgs = (callPackages ./llvm { })."15";
   llvm = addPatches "llvm" llvmPkgs.llvm;
   spirv-llvm-translator' = spirv-llvm-translator.override { inherit llvm; };
   libclang = addPatches "clang" llvmPkgs.libclang;
