@@ -14,7 +14,7 @@
   # `(llvmPackages.override { <someLlvmDependency> = bar; }).clang` and get
   # an llvmPackages whose packages are overridden in an internally consistent way.
   ...
-}@packageSetArgs:
+}:
 let
   versions = {
     "15.0.7".officialRelease.sha256 = "sha256-wjuZQyXQ/jsmvy6y1aksCcEDXGBjuhpgngF3XQJ/T4s=";
@@ -40,21 +40,18 @@ let
     in
     lib.nameValuePair attrName (
       recurseIntoAttrs (
-        callPackage ./common-default.nix (
-          {
-            buildLlvmTools = buildPackages.opencl-clang.llvmPkgs.tools;
-            targetLlvmLibraries = targetPackages.opencl-clang.llvmPkgs.libraries or llvmPkgs.libraries;
-            targetLlvm = targetPackages.opencl-clang.llvmPkgs.llvm or llvmPkgs.llvm;
-            inherit
-              officialRelease
-              gitRelease
-              monorepoSrc
-              version
-              patchesFn
-              ;
-          }
-          // packageSetArgs # Allow overrides.
-        )
+        callPackage ./common-default.nix {
+          buildLlvmTools = buildPackages.opencl-clang.llvmPkgs.tools;
+          targetLlvmLibraries = targetPackages.opencl-clang.llvmPkgs.libraries or llvmPkgs.libraries;
+          targetLlvm = targetPackages.opencl-clang.llvmPkgs.llvm or llvmPkgs.llvm;
+          inherit
+            officialRelease
+            gitRelease
+            monorepoSrc
+            version
+            patchesFn
+            ;
+        }
       )
     );
 
