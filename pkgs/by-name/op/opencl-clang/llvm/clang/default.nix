@@ -2,19 +2,16 @@
   lib,
   stdenv,
   llvm_meta,
-  monorepoSrc ? null,
+  monorepoSrc,
   runCommand,
   cmake,
   ninja,
   libxml2,
   libllvm,
-  release_version,
   version,
   python3,
   buildLlvmTools,
-  devExtraCmakeFlags ? [ ],
   replaceVars,
-  getVersionFile,
   fetchpatch,
 }:
 stdenv.mkDerivation (finalAttrs: {
@@ -95,8 +92,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     # clang-pseudo removed in LLVM20: https://github.com/llvm/llvm-project/commit/ed8f78827895050442f544edef2933a60d4a7935
     (lib.cmakeFeature "CLANG_PSEUDO_GEN" "${buildLlvmTools.tblgen}/bin/clang-pseudo-gen")
-  ]
-  ++ devExtraCmakeFlags;
+  ];
 
   postPatch = ''
     # Make sure clang passes the correct location of libLTO to ld64
@@ -142,7 +138,6 @@ stdenv.mkDerivation (finalAttrs: {
       };
 
   passthru = {
-    inherit libllvm;
     isClang = true;
     hardeningUnsupportedFlagsByTargetPlatform = _: [
       "fortify3"

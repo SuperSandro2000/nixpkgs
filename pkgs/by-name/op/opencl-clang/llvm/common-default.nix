@@ -57,7 +57,6 @@ let
       monorepoSrc
       ;
     src = monorepoSrc;
-    versionDir = (builtins.toString ../.) + "/${lib.versions.major release_version}";
     getVersionFile =
       p:
       builtins.path {

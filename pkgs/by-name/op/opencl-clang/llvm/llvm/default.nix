@@ -21,8 +21,6 @@
   updateAutotoolsGnuConfigScriptsHook,
   enableSharedLibraries ? !stdenv.hostPlatform.isStatic,
   enableTerminfo ? true,
-  devExtraCmakeFlags ? [ ],
-  getVersionFile,
   fetchpatch,
 }:
 
@@ -289,8 +287,7 @@ stdenv.mkDerivation (
                 )
               )
             )
-          ]
-      ++ devExtraCmakeFlags;
+          ];
 
     postInstall = ''
       mkdir -p $python/share
