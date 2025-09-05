@@ -106,8 +106,7 @@ let
           # Would take tools.libclang.patches, but this introduces a cycle due
           # to replacements depending on the llvm outpath (e.g. the LLVMgold patch).
           # So take the only patch known to be necessary.
-          ./clang/gnu-install-dirs.patch
-        ;
+          ./clang/gnu-install-dirs.patch;
       };
 
       libclang = callPackage ./clang {
