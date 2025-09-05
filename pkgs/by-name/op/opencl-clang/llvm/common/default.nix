@@ -63,7 +63,6 @@ let
           fetchFromGitHub
           release_version
           officialRelease
-          monorepoSrc'
           version
           ;
       })

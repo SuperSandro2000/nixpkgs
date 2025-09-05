@@ -21,10 +21,7 @@
   which,
   buildLlvmTools,
   updateAutotoolsGnuConfigScriptsHook,
-  enableManpages ? false,
   enableSharedLibraries ? !stdenv.hostPlatform.isStatic,
-  enablePFM ?
-    stdenv.hostPlatform.isLinux, # PFM only supports Linux
   enableTerminfo ? true,
   devExtraCmakeFlags ? [ ],
   getVersionFile,
@@ -206,17 +203,14 @@ stdenv.mkDerivation (
       # this is needed until scripts are updated to not use /usr/bin/uname on FreeBSD native
       updateAutotoolsGnuConfigScriptsHook
       python
-    ]
-    ++ (lib.optional (lib.versionAtLeast release_version "15") ninja)
-    ++ optionals (lib.versionOlder version "18" && enableManpages) [
-      python3Packages.recommonmark
+      ninja
     ];
 
     buildInputs = [
       libxml2
       libffi
-    ]
-    ++ optional enablePFM libpfm; # exegesis
+      libpfm
+    ];
 
     propagatedBuildInputs =
       (lib.optional (stdenv.buildPlatform == stdenv.hostPlatform) ncurses)

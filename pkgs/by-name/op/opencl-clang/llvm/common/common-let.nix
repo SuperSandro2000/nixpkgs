@@ -3,7 +3,7 @@
   fetchFromGitHub ? null,
   release_version ? null,
   officialRelease ? null,
-  monorepoSrc' ? null,
+  # monorepoSrc' ? null,
   version ? null,
 }@args:
 
@@ -18,23 +18,15 @@ rec {
 
   releaseInfo = rec {
       original = officialRelease;
-      release_version = args.version or original.version;
+      release_version = args.version;
       version = release_version;
     };
 
-  monorepoSrc =
-    if monorepoSrc' != null then
-      monorepoSrc'
-    else
-      let
-        sha256 = releaseInfo.original.sha256;
-        rev = "llvmorg-${releaseInfo.version}";
-      in
-      fetchFromGitHub rec {
-        owner = "llvm";
-        repo = "llvm-project";
-        inherit rev sha256;
-        passthru = { inherit owner repo rev; };
-      };
-
+  monorepoSrc = fetchFromGitHub rec {
+    owner = "llvm";
+    repo = "llvm-project";
+    rev = "llvmorg-${releaseInfo.version}";
+    sha256 = releaseInfo.original.sha256;
+    passthru = { inherit owner repo rev; };
+  };
 }

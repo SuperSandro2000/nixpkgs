@@ -46,16 +46,12 @@ stdenv.mkDerivation (
       # options when building & linking a source file with trailing
       # libraries. eg: `clang -munsupported hello.c -lc`
       ./clang-unsupported-option.patch
-      (if lib.versionAtLeast release_version "14" then
-        fetchpatch {
-          name = "ignore-nostd-link.patch";
-          url = "https://github.com/llvm/llvm-project/commit/5b77e752dcd073846b89559d6c0e1a7699e58615.patch";
-          relative = "clang";
-          hash = "sha256-qzSAmoGY+7POkDhcGgQRPaNQ3+7PIcIc9cZuiE/eLkc=";
-        }
-      else
-        ./ignore-nostd-link-13.diff
-      )
+      (fetchpatch {
+        name = "ignore-nostd-link.patch";
+        url = "https://github.com/llvm/llvm-project/commit/5b77e752dcd073846b89559d6c0e1a7699e58615.patch";
+        relative = "clang";
+        hash = "sha256-qzSAmoGY+7POkDhcGgQRPaNQ3+7PIcIc9cZuiE/eLkc=";
+      })
     # Pass the correct path to libllvm
       (replaceVars
         (
