@@ -190,11 +190,9 @@ stdenv.mkDerivation (
       ++ [
         # Just like the `gnu-install-dirs` patch, but for `polly`.
         (getVersionFile "llvm/gnu-install-dirs-polly.patch")
-      ]
-      ++
-        lib.optional (lib.versionAtLeast release_version "15")
-          # Just like the `llvm-lit-cfg` patch, but for `polly`.
-          (getVersionFile "llvm/polly-lit-cfg-add-libs-to-dylib-path.patch");
+        # Just like the `llvm-lit-cfg` patch, but for `polly`.
+        (getVersionFile "llvm/polly-lit-cfg-add-libs-to-dylib-path.patch")
+      ];
 
     nativeBuildInputs = [
       cmake
@@ -224,12 +222,8 @@ stdenv.mkDerivation (
         substituteInPlace unittests/IR/CMakeLists.txt \
           --replace-fail "PassBuilderCallbacksTest.cpp" ""
         rm unittests/IR/PassBuilderCallbacksTest.cpp
-      ''
-      + ''
         rm test/tools/llvm-objcopy/ELF/mirror-permissions-unix.test
         rm utils/lit/tests/googletest-timeout.py
-      ''
-      + ''
         patchShebangs test/BugPoint/compile-custom.ll.py
       '';
 
@@ -255,17 +249,8 @@ stdenv.mkDerivation (
         # Some flags don't need to be repassed because LLVM already does so (like
         # CMAKE_BUILD_TYPE), others are irrelevant to the result.
         flagsForLlvmConfig =
-          (
-            if lib.versionOlder release_version "15" then
-              [
-                (lib.cmakeFeature "LLVM_INSTALL_CMAKE_DIR" "${placeholder "dev"}/lib/cmake/llvm/")
-              ]
-            else
-              [
-                (lib.cmakeFeature "LLVM_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/llvm")
-              ]
-          )
-          ++ [
+          [
+            (lib.cmakeFeature "LLVM_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/llvm")
             (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
             (lib.cmakeBool "LLVM_LINK_LLVM_DYLIB" enableSharedLibraries)
             (lib.cmakeFeature "LLVM_TABLEGEN" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
