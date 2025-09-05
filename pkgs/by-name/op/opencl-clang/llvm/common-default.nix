@@ -131,33 +131,30 @@ let
     }
   );
 
-  libraries = lib.makeExtensible (libraries:
+  libraries = lib.makeExtensible (
+    libraries:
     let
-      callPackage = newScope (
-        libraries
-        // buildLlvmTools
-        // args
-        // metadata
-      );
+      callPackage = newScope (libraries // buildLlvmTools // args // metadata);
     in
-  {
-    compiler-rt-libc = callPackage ./compiler-rt (
-      let
-        # temp rename to avoid infinite recursion
-        stdenv = args.stdenv;
-      in
-      {
-        inherit stdenv;
-      }
-      // lib.optionalAttrs (stdenv.hostPlatform.useLLVM or false) {
-        libxcrypt = (libxcrypt.override { inherit stdenv; }).overrideAttrs (old: {
-          configureFlags = old.configureFlags ++ [ "--disable-symvers" ];
-        });
-      }
-    );
+    {
+      compiler-rt-libc = callPackage ./compiler-rt (
+        let
+          # temp rename to avoid infinite recursion
+          stdenv = args.stdenv;
+        in
+        {
+          inherit stdenv;
+        }
+        // lib.optionalAttrs (stdenv.hostPlatform.useLLVM or false) {
+          libxcrypt = (libxcrypt.override { inherit stdenv; }).overrideAttrs (old: {
+            configureFlags = old.configureFlags ++ [ "--disable-symvers" ];
+          });
+        }
+      );
 
-    compiler-rt = libraries.compiler-rt-libc;
-  });
+      compiler-rt = libraries.compiler-rt-libc;
+    }
+  );
 
   noExtend = extensible: lib.attrsets.removeAttrs extensible [ "extend" ];
 in
