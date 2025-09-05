@@ -37,8 +37,7 @@ let
     let
       inherit
         (import ./common/common-let.nix {
-          inherit lib;
-          inherit gitRelease officialRelease version;
+          inherit lib officialRelease version;
         })
         releaseInfo
         ;

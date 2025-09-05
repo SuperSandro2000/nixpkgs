@@ -2,7 +2,6 @@
   lib,
   fetchFromGitHub ? null,
   release_version ? null,
-  gitRelease ? null,
   officialRelease ? null,
   monorepoSrc' ? null,
   version ? null,
@@ -17,19 +16,11 @@ rec {
     platforms = lib.platforms.x86;
   };
 
-  releaseInfo =
-    if gitRelease != null then
-      rec {
-        original = gitRelease;
-        release_version = args.version or original.version;
-        version = gitRelease.rev-version;
-      }
-    else
-      rec {
-        original = officialRelease;
-        release_version = args.version or original.version;
-        version = release_version;
-      };
+  releaseInfo = rec {
+      original = officialRelease;
+      release_version = args.version or original.version;
+      version = release_version;
+    };
 
   monorepoSrc =
     if monorepoSrc' != null then
@@ -37,7 +28,7 @@ rec {
     else
       let
         sha256 = releaseInfo.original.sha256;
-        rev = if gitRelease != null then gitRelease.rev else "llvmorg-${releaseInfo.version}";
+        rev = "llvmorg-${releaseInfo.version}";
       in
       fetchFromGitHub rec {
         owner = "llvm";
