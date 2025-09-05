@@ -7,12 +7,10 @@
   monorepoSrc ? null,
   runCommand,
   cmake,
-  darwin,
   ninja,
   python3,
   python3Packages,
   libffi,
-  ld64,
   libbfd,
   libpfm,
   libxml2,
@@ -21,17 +19,12 @@
   release_version,
   zlib,
   which,
-  sysctl,
   buildLlvmTools,
   updateAutotoolsGnuConfigScriptsHook,
   enableManpages ? false,
   enableSharedLibraries ? !stdenv.hostPlatform.isStatic,
   enablePFM ?
-    stdenv.hostPlatform.isLinux # PFM only supports Linux
-    # broken for Ampere eMAG 8180 (c2.large.arm on Packet) #56245
-    # broken for the armv7l builder
-    && !stdenv.hostPlatform.isAarch,
-  enablePolly ? lib.versionAtLeast release_version "14",
+    stdenv.hostPlatform.isLinux, # PFM only supports Linux
   enableTerminfo ? true,
   devExtraCmakeFlags ? [ ],
   getVersionFile,
@@ -92,7 +85,7 @@ stdenv.mkDerivation (
             cp -r ${monorepoSrc}/cmake "$out"
             cp -r ${monorepoSrc}/third-party "$out"
           ''
-          + lib.optionalString enablePolly ''
+          + ''
             chmod u+w "$out/llvm/tools"
             cp -r ${monorepoSrc}/polly "$out/llvm/tools"
           ''
@@ -197,7 +190,7 @@ stdenv.mkDerivation (
               hash = "sha256-Ot45P/iwaR4hkcM3xtLwfryQNgHI6pv6ADjv98tgdZA=";
             })
           ]
-      ++ lib.optionals enablePolly [
+      ++ [
         # Just like the `gnu-install-dirs` patch, but for `polly`.
         (getVersionFile "llvm/gnu-install-dirs-polly.patch")
       ]
@@ -230,83 +223,19 @@ stdenv.mkDerivation (
       ++ [ zlib ];
 
     postPatch =
-        # dup of above patch with different conditions
-        optionalString
-          (
-            stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86 && lib.versionAtLeast release_version "15"
-          )
-          (
-            optionalString (lib.versionOlder release_version "16") ''
-              substituteInPlace test/ExecutionEngine/Interpreter/intrinsics.ll \
-                --replace-fail "%roundeven32 = call float @llvm.roundeven.f32(float 0.000000e+00)" "" \
-                --replace-fail "%roundeven64 = call double @llvm.roundeven.f64(double 0.000000e+00)" ""
-
-            ''
-            +
-              # fails when run in sandbox
-              (
-                  # This test fails on darwin x86_64 because `sw_vers` reports a different
-                  # macOS version than what LLVM finds by reading
-                  # `/System/Library/CoreServices/SystemVersion.plist` (which is passed into
-                  # the sandbox on macOS).
-                  #
-                  # The `sw_vers` provided by nixpkgs reports the macOS version associated
-                  # with the `CoreFoundation` framework with which it was built. Because
-                  # nixpkgs pins the SDK for `aarch64-darwin` and `x86_64-darwin` what
-                  # `sw_vers` reports is not guaranteed to match the macOS version of the host
-                  # that's building this derivation.
-                  #
-                  # Astute readers will note that we only _patch_ this test on aarch64-darwin
-                  # (to use the nixpkgs provided `sw_vers`) instead of disabling it outright.
-                  # So why does this test pass on aarch64?
-                  #
-                  # Well, it seems that `sw_vers` on aarch64 actually links against the _host_
-                  # CoreFoundation framework instead of the nixpkgs provided one.
-                  #
-                  # Not entirely sure what the right fix is here. I'm assuming aarch64
-                  # `sw_vers` doesn't intentionally link against the host `CoreFoundation`
-                  # (still digging into how this ends up happening, will follow up) but that
-                  # aside I think the more pertinent question is: should we be patching LLVM's
-                  # macOS version detection logic to use `sw_vers` instead of reading host
-                  # paths? This *is* a way in which details about builder machines can creep
-                  # into the artifacts that are produced, affecting reproducibility, but it's
-                  # not clear to me when/where/for what this even gets used in LLVM.
-                  #
-                  # TODO(@rrbutani): fix/follow-up
-                  (
-                      ''
-                        substituteInPlace unittests/Support/Host.cpp \
-                          --replace-fail "getMacOSHostVersion" "DISABLED_getMacOSHostVersion"
-                      ''
-                  )
-                +
-                  # This test fails with a `dysmutil` crash; have not yet dug into what's
-                  # going on here (TODO(@rrbutani)).
-                  lib.optionalString (lib.versionOlder release_version "19") ''
-                    rm test/tools/dsymutil/ARM/obfuscated.test
-                  ''
-              )
-          )
-      +
         # FileSystem permissions tests fail with various special bits
-        ''
-          substituteInPlace unittests/Support/CMakeLists.txt \
-            --replace-fail "Path.cpp" ""
-          rm unittests/Support/Path.cpp
-          substituteInPlace unittests/IR/CMakeLists.txt \
-            --replace-fail "PassBuilderCallbacksTest.cpp" ""
-          rm unittests/IR/PassBuilderCallbacksTest.cpp
-        ''
-      + lib.optionalString (lib.versionAtLeast release_version "13") ''
-        rm test/tools/llvm-objcopy/ELF/mirror-permissions-unix.test
       ''
-      +
-        # timing-based tests are trouble
-        lib.optionalString
-          (lib.versionAtLeast release_version "15" && lib.versionOlder release_version "17")
-          ''
-            rm utils/lit/tests/googletest-timeout.py
-          ''
+        substituteInPlace unittests/Support/CMakeLists.txt \
+          --replace-fail "Path.cpp" ""
+        rm unittests/Support/Path.cpp
+        substituteInPlace unittests/IR/CMakeLists.txt \
+          --replace-fail "PassBuilderCallbacksTest.cpp" ""
+        rm unittests/IR/PassBuilderCallbacksTest.cpp
+      ''
+      + ''
+        rm test/tools/llvm-objcopy/ELF/mirror-permissions-unix.test
+        rm utils/lit/tests/googletest-timeout.py
+      ''
       + ''
         patchShebangs test/BugPoint/compile-custom.ll.py
       '';
@@ -319,9 +248,7 @@ stdenv.mkDerivation (
     '';
 
     # E.g. Mesa uses the build-id as a cache key (see #93946):
-    LDFLAGS = optionalString (
-      enableSharedLibraries && !stdenv.hostPlatform.isDarwin
-    ) "-Wl,--build-id=sha1";
+    LDFLAGS = "-Wl,--build-id=sha1";
 
     cmakeBuildType = "Release";
 
@@ -361,18 +288,7 @@ stdenv.mkDerivation (
         (lib.cmakeBool "LLVM_ENABLE_DUMP" true)
         (lib.cmakeBool "LLVM_ENABLE_TERMINFO" enableTerminfo)
         (lib.cmakeBool "LLVM_INCLUDE_TESTS" finalAttrs.finalPackage.doCheck)
-      ]
-      ++ optionals stdenv.hostPlatform.isStatic [
-        # Disables building of shared libs, -fPIC is still injected by cc-wrapper
-        (lib.cmakeBool "LLVM_ENABLE_PIC" false)
-        (lib.cmakeBool "CMAKE_SKIP_INSTALL_RPATH" true)
-        (lib.cmakeBool "LLVM_BUILD_STATIC" true)
-        # libxml2 needs to be disabled because the LLVM build system ignores its .la
-        # file and doesn't link zlib as well.
-        # https://github.com/ClangBuiltLinux/tc-build/issues/150#issuecomment-845418812
-        (lib.cmakeBool "LLVM_ENABLE_LIBXML2" false)
-      ]
-      ++ optionals (libbfd != null) [
+
         # LLVM depends on binutils only through libbfd/include/plugin-api.h, which
         # is meant to be a stable interface. Depend on that file directly rather
         # than through a build of BFD to break the dependency of clang on the target
