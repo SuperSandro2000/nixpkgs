@@ -15,6 +15,7 @@
   wrapCCWith,
   wrapBintoolsWith,
   buildPackages,
+  buildLlvmTools, # tools, but from the previous stage, for cross
   targetLlvmLibraries, # libraries, but from the next stage, for cross
   targetLlvm,
   gitRelease ? null,
@@ -92,6 +93,8 @@ let
         '';
     in
     {
+      compiler-rt = libraries.compiler-rt-libc;
+
       libllvm = callPackage ./llvm {
         inherit (buildPackages.opencl-clang.llvmPkgs) tblgen;
       };
@@ -128,7 +131,33 @@ let
     }
   );
 
-  libraries = lib.makeExtensible (libraries: { });
+  libraries = lib.makeExtensible (libraries:
+    let
+      callPackage = newScope (
+        libraries
+        // buildLlvmTools
+        // args
+        // metadata
+      );
+    in
+  {
+    compiler-rt-libc = callPackage ./compiler-rt (
+      let
+        # temp rename to avoid infinite recursion
+        stdenv = args.stdenv;
+      in
+      {
+        inherit stdenv;
+      }
+      // lib.optionalAttrs (stdenv.hostPlatform.useLLVM or false) {
+        libxcrypt = (libxcrypt.override { inherit stdenv; }).overrideAttrs (old: {
+          configureFlags = old.configureFlags ++ [ "--disable-symvers" ];
+        });
+      }
+    );
+
+    compiler-rt = libraries.compiler-rt-libc;
+  });
 
   noExtend = extensible: lib.attrsets.removeAttrs extensible [ "extend" ];
 in

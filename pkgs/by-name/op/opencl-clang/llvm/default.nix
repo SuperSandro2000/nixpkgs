@@ -4,6 +4,7 @@
   stdenvAdapters,
   buildPackages,
   targetPackages,
+  opencl-clang,
   stdenv,
   pkgs,
   recurseIntoAttrs,
@@ -41,11 +42,9 @@ let
       recurseIntoAttrs (
         callPackage ./common-default.nix (
           {
-            targetLlvmLibraries =
-              # Allow overriding targetLlvmLibraries; this enables custom runtime builds.
-              packageSetArgs.targetLlvmLibraries or targetPackages."llvmPackages_${attrName}".libraries
-                or llvmPackages."${attrName}".libraries;
-            targetLlvm = targetPackages."llvmPackages_${attrName}".llvm or llvmPackages."${attrName}".llvm;
+            buildLlvmTools = buildPackages.opencl-clang.llvmPkgs.tools;
+            targetLlvmLibraries = targetPackages.opencl-clang.llvmPkgs.libraries or llvmPkgs.libraries;
+            targetLlvm = targetPackages.opencl-clang.llvmPkgs.llvm or llvmPkgs.llvm;
             inherit
               officialRelease
               gitRelease
@@ -59,6 +58,6 @@ let
       )
     );
 
-  llvmPackages = lib.mapAttrs' (version: args: mkPackage (args // { inherit version; })) versions;
+  llvmPkgs = lib.mapAttrs' (version: args: mkPackage (args // { inherit version; })) versions;
 in
-llvmPackages // { inherit mkPackage versions; }
+llvmPkgs // { inherit mkPackage versions; }
