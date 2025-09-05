@@ -96,15 +96,4 @@
       path = ../12;
     }
   ];
-  "openmp/run-lit-directly.patch" = [
-    {
-      after = "16";
-      path = ../16;
-    }
-    {
-      after = "14";
-      before = "16";
-      path = ../14;
-    }
-  ];
 }

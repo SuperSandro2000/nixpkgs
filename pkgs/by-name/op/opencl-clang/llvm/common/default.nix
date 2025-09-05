@@ -456,10 +456,7 @@ let
           bintools = bintools';
           extraPackages = [ ];
           extraBuildCommands = mkExtraBuildCommands0 cc;
-        }
-        // lib.optionalAttrs (
-          lib.versionAtLeast metadata.release_version "15" && stdenv.targetPlatform.isWasm
-        ) { nixSupport.cc-cflags = [ "-fno-exceptions" ]; };
+        };
 
       # Aliases
       clangNoCompilerRt = tools.clangNoLibcNoRt;
@@ -474,24 +471,6 @@ let
           python3 = pkgs.python3; # don't use python-boot
         }
       );
-    }
-    // lib.optionalAttrs (lib.versionAtLeast metadata.release_version "16") {
-      mlir = callPackage ./mlir { };
-    }
-    // lib.optionalAttrs (lib.versionAtLeast metadata.release_version "19") {
-      bolt = callPackage ./bolt {
-      };
-    }
-    //
-      lib.optionalAttrs
-        (lib.versionAtLeast metadata.release_version "16" && lib.versionOlder metadata.release_version "20")
-        {
-          libclc = callPackage ./libclc { };
-        }
-    // lib.optionalAttrs (lib.versionAtLeast metadata.release_version "20") {
-      flang = callPackage ./flang {
-        mlir = tools.mlir;
-      };
     }
   );
 
@@ -512,14 +491,7 @@ let
         compiler-rt-libc = callPackage ./compiler-rt (
           let
             # temp rename to avoid infinite recursion
-            stdenv =
-              # Darwin needs to use a bootstrap stdenv to avoid an infinite recursion when cross-compiling.
-              if args.stdenv.hostPlatform.isDarwin then
-                overrideCC darwin.bootstrapStdenv buildLlvmTools.clangWithLibcAndBasicRtAndLibcxx
-              else if args.stdenv.hostPlatform.useLLVM or false then
-                overrideCC args.stdenv buildLlvmTools.clangWithLibcAndBasicRtAndLibcxx
-              else
-                args.stdenv;
+            stdenv = args.stdenv;
           in
           {
             inherit stdenv;
@@ -581,30 +553,6 @@ let
 
         openmp = callPackage ./openmp {
         };
-      }
-      // lib.optionalAttrs (lib.versionAtLeast metadata.release_version "20") {
-        libc-overlay = callPackage ./libc {
-          isFullBuild = false;
-          # Use clang due to "gnu::naked" not working on aarch64.
-          # Issue: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77882
-          stdenv = overrideCC stdenv buildLlvmTools.clang;
-        };
-
-        libc-full = callPackage ./libc {
-          isFullBuild = true;
-          # Use clang due to "gnu::naked" not working on aarch64.
-          # Issue: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77882
-          stdenv = overrideCC stdenv buildLlvmTools.clangNoLibcNoRt;
-          cmake =
-            if stdenv.targetPlatform.libc == "llvm" then buildPackages.cmakeMinimal else buildPackages.cmake;
-          python3 =
-            if stdenv.targetPlatform.libc == "llvm" then
-              buildPackages.python3Minimal
-            else
-              buildPackages.python3;
-        };
-
-        libc = if stdenv.targetPlatform.libc == "llvm" then libraries.libc-full else libraries.libc-overlay;
       }
     )
   );
