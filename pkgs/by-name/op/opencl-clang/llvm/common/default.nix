@@ -104,12 +104,6 @@ let
               ln -s "${lib.getLib cc}/lib/clang/${clangVersion}/include" "$rsrc"
             ''
         );
-      mkExtraBuildCommandsBasicRt =
-        cc:
-        mkExtraBuildCommands0 cc
-        + ''
-          ln -s "${targetLlvmLibraries.compiler-rt-no-libc.out}/lib" "$rsrc/lib"
-        '';
       mkExtraBuildCommands =
         cc:
         mkExtraBuildCommands0 cc
@@ -118,7 +112,6 @@ let
           ln -s "${targetLlvmLibraries.compiler-rt.out}/share" "$rsrc/share"
         '';
 
-      bintoolsNoLibc' = if bootBintoolsNoLibc == null then tools.bintoolsNoLibc else bootBintoolsNoLibc;
       bintools' = if bootBintools == null then tools.bintools else bootBintools;
     in
     {
@@ -142,27 +135,12 @@ let
       );
 
       # pick clang appropriate for package set we are targeting
-      clang =
-        if stdenv.targetPlatform.libc == null then
-          tools.clangNoLibc
-        else if stdenv.targetPlatform.useLLVM or false then
-          tools.clangUseLLVM
-        else if (pkgs.targetPackages.stdenv or args.stdenv).cc.isGNU then
-          tools.libstdcxxClang
-        else
-          tools.libcxxClang;
+      clang = tools.libstdcxxClang;
 
       libstdcxxClang = wrapCCWith rec {
         cc = tools.clang-unwrapped;
         # libstdcxx is taken from gcc in an ad-hoc way in cc-wrapper.
         libcxx = null;
-        extraPackages = [ targetLlvmLibraries.compiler-rt ];
-        extraBuildCommands = mkExtraBuildCommands cc;
-      };
-
-      libcxxClang = wrapCCWith rec {
-        cc = tools.clang-unwrapped;
-        libcxx = targetLlvmLibraries.libcxx;
         extraPackages = [ targetLlvmLibraries.compiler-rt ];
         extraBuildCommands = mkExtraBuildCommands cc;
       };
@@ -186,25 +164,15 @@ let
             targetLlvmLibraries.libunwind
           ];
           extraBuildCommands = mkExtraBuildCommands cc;
-        }
-        // lib.optionalAttrs (lib.versionAtLeast metadata.release_version "14") {
+
           nixSupport.cc-cflags = [
             "-rtlib=compiler-rt"
             "-Wno-unused-command-line-argument"
             "-B${targetLlvmLibraries.compiler-rt}/lib"
-          ]
-          ++ lib.optional (
-            !stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD
-          ) "--unwindlib=libunwind"
-          ++ lib.optional (
-            !stdenv.targetPlatform.isWasm
-            && !stdenv.targetPlatform.isFreeBSD
-            && stdenv.targetPlatform.useLLVM or false
-          ) "-lunwind"
-          ++ lib.optional stdenv.targetPlatform.isWasm "-fno-exceptions";
-          nixSupport.cc-ldflags = lib.optionals (
-            !stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD
-          ) [ "-L${targetLlvmLibraries.libunwind}/lib" ];
+            "--unwindlib=libunwind"
+            "-lunwind"
+          ];
+          nixSupport.cc-ldflags = [ "-L${targetLlvmLibraries.libunwind}/lib" ];
         }
       );
     }
@@ -212,33 +180,9 @@ let
 
   libraries = lib.makeExtensible (
     libraries:
-    let
-      callPackage = newScope (
-        libraries
-        // buildLlvmTools
-        // args
-        // metadata
-        # Previously monorepoSrc was erroneously not being passed through.
-        // lib.optionalAttrs (lib.versionOlder metadata.release_version "14") { monorepoSrc = null; } # Preserve a bug during #307211, TODO: remove; causes llvm 13 rebuild.
-      );
-    in
     (
       {
         stdenv = overrideCC stdenv buildLlvmTools.clang;
-
-        libcxx = callPackage ./libcxx (
-          {
-            stdenv =
-              if stdenv.hostPlatform.isDarwin then
-                overrideCC darwin.bootstrapStdenv buildLlvmTools.clangWithLibcAndBasicRt
-              else
-                overrideCC stdenv buildLlvmTools.clangWithLibcAndBasicRt;
-          }
-          // lib.optionalAttrs (lib.versionOlder metadata.release_version "14") {
-            # TODO: remove this, causes LLVM 13 packages rebuild.
-            inherit (metadata) monorepoSrc; # Preserve bug during #307211 refactor.
-          }
-        );
       }
     )
   );
