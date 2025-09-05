@@ -61,9 +61,9 @@ stdenv.mkDerivation (
           libllvmLibdir = "${libllvm.lib}/lib";
         }
       )
-    ]
+
     # Backport version logic from Clang 16. This is needed by the following patch.
-    ++ lib.optional (lib.versions.major release_version == "15") (fetchpatch {
+    (fetchpatch {
       name = "clang-darwin-Use-consistent-version-define-stringifying-logic.patch";
       url = "https://github.com/llvm/llvm-project/commit/60a33ded751c86fff9ac1c4bdd2b341fbe4b0649.patch?full_index=1";
       includes = [ "lib/Basic/Targets/OSTargets.cpp" ];
@@ -72,16 +72,14 @@ stdenv.mkDerivation (
     })
     # Backport `__ENVIRONMENT_OS_VERSION_MIN_REQUIRED__` support from Clang 17.
     # This is needed by newer SDKs (14+).
-    ++
-      [
-        (fetchpatch {
-          name = "clang-darwin-An-OS-version-preprocessor-define.patch";
-          url = "https://github.com/llvm/llvm-project/commit/c8e2dd8c6f490b68e41fe663b44535a8a21dfeab.patch?full_index=1";
-          includes = [ "lib/Basic/Targets/OSTargets.cpp" ];
-          stripLen = 1;
-          hash = "sha256-Vs32kql7N6qtLqc12FtZHURcbenA7+N3E/nRRX3jdig=";
-        })
-      ];
+    (fetchpatch {
+      name = "clang-darwin-An-OS-version-preprocessor-define.patch";
+      url = "https://github.com/llvm/llvm-project/commit/c8e2dd8c6f490b68e41fe663b44535a8a21dfeab.patch?full_index=1";
+      includes = [ "lib/Basic/Targets/OSTargets.cpp" ];
+      stripLen = 1;
+      hash = "sha256-Vs32kql7N6qtLqc12FtZHURcbenA7+N3E/nRRX3jdig=";
+    })
+  ];
 
     nativeBuildInputs = [
       cmake
@@ -94,22 +92,21 @@ stdenv.mkDerivation (
       libllvm
     ];
 
-    cmakeFlags =
-      [
-        (lib.cmakeFeature "CLANG_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/clang")
-        (lib.cmakeBool "CLANGD_BUILD_XPC" false)
-        (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
-        (lib.cmakeFeature "LLVM_TABLEGEN_EXE" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
-        (lib.cmakeFeature "CLANG_TABLEGEN" "${buildLlvmTools.tblgen}/bin/clang-tblgen")
-        # Added in LLVM15:
-        # `clang-tidy-confusable-chars-gen`: https://github.com/llvm/llvm-project/commit/c3574ef739fbfcc59d405985a3a4fa6f4619ecdb
-        # `clang-pseudo-gen`: https://github.com/llvm/llvm-project/commit/cd2292ef824591cc34cc299910a3098545c840c7
-        (lib.cmakeFeature "CLANG_TIDY_CONFUSABLE_CHARS_GEN" "${buildLlvmTools.tblgen}/bin/clang-tidy-confusable-chars-gen")
+    cmakeFlags = [
+      (lib.cmakeFeature "CLANG_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/clang")
+      (lib.cmakeBool "CLANGD_BUILD_XPC" false)
+      (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
+      (lib.cmakeFeature "LLVM_TABLEGEN_EXE" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
+      (lib.cmakeFeature "CLANG_TABLEGEN" "${buildLlvmTools.tblgen}/bin/clang-tblgen")
+      # Added in LLVM15:
+      # `clang-tidy-confusable-chars-gen`: https://github.com/llvm/llvm-project/commit/c3574ef739fbfcc59d405985a3a4fa6f4619ecdb
+      # `clang-pseudo-gen`: https://github.com/llvm/llvm-project/commit/cd2292ef824591cc34cc299910a3098545c840c7
+      (lib.cmakeFeature "CLANG_TIDY_CONFUSABLE_CHARS_GEN" "${buildLlvmTools.tblgen}/bin/clang-tidy-confusable-chars-gen")
 
-        # clang-pseudo removed in LLVM20: https://github.com/llvm/llvm-project/commit/ed8f78827895050442f544edef2933a60d4a7935
-        (lib.cmakeFeature "CLANG_PSEUDO_GEN" "${buildLlvmTools.tblgen}/bin/clang-pseudo-gen")
-      ]
-      ++ devExtraCmakeFlags;
+      # clang-pseudo removed in LLVM20: https://github.com/llvm/llvm-project/commit/ed8f78827895050442f544edef2933a60d4a7935
+      (lib.cmakeFeature "CLANG_PSEUDO_GEN" "${buildLlvmTools.tblgen}/bin/clang-pseudo-gen")
+    ]
+    ++ devExtraCmakeFlags;
 
     postPatch = ''
       # Make sure clang passes the correct location of libLTO to ld64
@@ -133,13 +130,7 @@ stdenv.mkDerivation (
       # Move libclang to 'lib' output
       moveToOutput "lib/libclang.*" "$lib"
       moveToOutput "lib/libclang-cpp.*" "$lib"
-    ''
-    + (
-        ''
-          mkdir -p $python/bin $python/share/clang/
-        ''
-    )
-    + ''
+      mkdir -p $python/bin $python/share/clang/
       mv $out/bin/{git-clang-format,scan-view} $python/bin
       if [ -e $out/bin/set-xcode-analyzer ]; then
         mv $out/bin/set-xcode-analyzer $python/bin
