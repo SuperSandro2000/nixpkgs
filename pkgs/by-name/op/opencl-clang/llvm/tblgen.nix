@@ -1,16 +1,14 @@
 {
   cmake,
-  devExtraCmakeFlags ? [ ],
   lib,
   llvm_meta,
-  monorepoSrc ? null,
+  monorepoSrc,
   ninja,
-  patches ? [ ],
+  patches,
   python3,
   updateAutotoolsGnuConfigScriptsHook,
   release_version,
   runCommand,
-  src ? null,
   stdenv,
   version,
   clangPatches,
@@ -36,21 +34,15 @@ let
   # to build.
   pname = "llvm-tblgen";
 
-  src' = runCommand "${pname}-src-${version}" { } (
-    ''
-      mkdir -p "$out"
-    ''
-    + lib.optionalString (lib.versionAtLeast release_version "14") ''
-      cp -r ${monorepoSrc}/cmake "$out"
-      cp -r ${monorepoSrc}/third-party "$out"
-    ''
-    + ''
-      cp -r ${monorepoSrc}/llvm "$out"
-      cp -r ${monorepoSrc}/clang "$out"
-      cp -r ${monorepoSrc}/clang-tools-extra "$out"
-      cp -r ${monorepoSrc}/mlir "$out"
-    ''
-  );
+  src' = runCommand "${pname}-src-${version}" { } (''
+    mkdir -p "$out"
+    cp -r ${monorepoSrc}/cmake "$out"
+    cp -r ${monorepoSrc}/third-party "$out"
+    cp -r ${monorepoSrc}/llvm "$out"
+    cp -r ${monorepoSrc}/clang "$out"
+    cp -r ${monorepoSrc}/clang-tools-extra "$out"
+    cp -r ${monorepoSrc}/mlir "$out"
+  '');
 
   self = stdenv.mkDerivation (finalAttrs: {
     inherit pname version patches;
@@ -82,36 +74,21 @@ let
     cmakeFlags = [
       # Projects with tablegen-like tools.
       "-DLLVM_ENABLE_PROJECTS=${
-        lib.concatStringsSep ";" (
-          [
-            "llvm"
-            "clang"
-            "clang-tools-extra"
-          ]
-          ++ lib.optionals (lib.versionAtLeast release_version "16") [
-            "mlir"
-          ]
-        )
+        lib.concatStringsSep ";" [
+          "llvm"
+          "clang"
+          "clang-tools-extra"
+        ]
       }"
-    ]
-    ++ devExtraCmakeFlags;
+    ];
 
     # List of tablegen targets.
     ninjaFlags = [
       "clang-tblgen"
       "llvm-tblgen"
-    ]
-    ++ lib.optionals (lib.versionAtLeast release_version "15") [
       "clang-tidy-confusable-chars-gen"
-    ]
-    ++ lib.optionals (lib.versionAtLeast release_version "16") [
-      "mlir-tblgen"
-    ]
-    ++
-      lib.optionals ((lib.versionAtLeast release_version "15") && (lib.versionOlder release_version "20"))
-        [
-          "clang-pseudo-gen" # Removed in LLVM 20 @ ed8f78827895050442f544edef2933a60d4a7935.
-        ];
+      "clang-pseudo-gen"
+    ];
 
     installPhase = ''
       mkdir -p $out
