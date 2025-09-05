@@ -136,25 +136,18 @@ stdenv.mkDerivation (
         mv $out/bin/set-xcode-analyzer $python/bin
       fi
       mv $out/share/clang/*.py $python/share/clang
-    ''
-    + ''
       rm $out/bin/c-index-test
       patchShebangs $python/bin
 
       mkdir -p $dev/bin
-    ''
-    + (
-        ''
-          cp bin/{clang-tblgen,clang-tidy-confusable-chars-gen,clang-pseudo-gen} $dev/bin
-        ''
-    );
+      cp bin/{clang-tblgen,clang-tidy-confusable-chars-gen,clang-pseudo-gen} $dev/bin
+    '';
 
     env =
       lib.optionalAttrs
         (
           stdenv.buildPlatform != stdenv.hostPlatform
           && !stdenv.hostPlatform.useLLVM
-          && lib.versionAtLeast release_version "15"
         )
         {
           # The following warning is triggered with (at least) gcc >=
@@ -165,9 +158,7 @@ stdenv.mkDerivation (
     passthru = {
       inherit libllvm;
       isClang = true;
-      hardeningUnsupportedFlagsByTargetPlatform =
-        targetPlatform:
-        [ "fortify3" "pacret" "strictflexarrays3" ];
+      hardeningUnsupportedFlagsByTargetPlatform = _: [ "fortify3" "pacret" "strictflexarrays3" ];
     };
 
     requiredSystemFeatures = [ "big-parallel" ];
