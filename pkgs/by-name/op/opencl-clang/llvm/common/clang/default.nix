@@ -31,10 +31,10 @@ stdenv.mkDerivation (finalAttrs: {
   sourceRoot = "${finalAttrs.src.name}/clang";
 
   patches = [
-    (getVersionFile "clang/purity.patch")
+    ./purity.patch
     # Remove extraneous ".a" suffix from baremetal clang_rt.builtins when compiling for baremetal.
     # https://reviews.llvm.org/D51899
-    (getVersionFile "clang/gnu-install-dirs.patch")
+    ./gnu-install-dirs.patch
 
     # https://github.com/llvm/llvm-project/pull/116476
     # prevent clang ignoring warnings / errors for unsuppored

@@ -35,11 +35,6 @@
   ...
 }@args:
 
-assert lib.assertMsg (lib.xor (gitRelease != null) (officialRelease != null)) (
-  "must specify `gitRelease` or `officialRelease`"
-  + (lib.optionalString (gitRelease != null) " — not both")
-);
-
 let
   metadata = rec {
     # Import releaseInfo separately to avoid infinite recursion
@@ -103,28 +98,17 @@ let
           ln -s "${targetLlvmLibraries.compiler-rt.out}/lib" "$rsrc/lib"
           ln -s "${targetLlvmLibraries.compiler-rt.out}/share" "$rsrc/share"
         '';
-
-      bintools' = if bootBintools == null then tools.bintools else bootBintools;
     in
     {
-      libllvm = callPackage ./llvm {
-      };
+      libllvm = callPackage ./llvm { };
 
       # `llvm` historically had the binaries.  When choosing an output explicitly,
       # we need to reintroduce `outputSpecified` to get the expected behavior e.g. of lib.get*
       llvm = tools.libllvm;
 
-      libclang = callPackage ./clang {
-      };
+      libclang = callPackage ./clang { };
 
       clang-unwrapped = tools.libclang;
-
-      llvm-manpages = lowPrio (
-        tools.libllvm.override {
-          enableManpages = true;
-          inherit (pkgs) python3; # don't use python-boot
-        }
-      );
 
       # pick clang appropriate for package set we are targeting
       clang = tools.libstdcxxClang;
@@ -135,35 +119,6 @@ let
         libcxx = null;
         extraPackages = [ targetLlvmLibraries.compiler-rt ];
         extraBuildCommands = mkExtraBuildCommands cc;
-      };
-
-      # Below, is the LLVM bootstrapping logic. It handles building a
-      # fully LLVM toolchain from scratch. No GCC toolchain should be
-      # pulled in. As a consequence, it is very quick to build different
-      # targets provided by LLVM and we can also build for what GCC
-      # doesn’t support like LLVM. Probably we should move to some other
-      # file.
-
-      clangUseLLVM = wrapCCWith rec {
-        cc = tools.clang-unwrapped;
-        inherit (targetLlvmLibraries) libcxx;
-        bintools = bintools';
-        extraPackages = [
-          targetLlvmLibraries.compiler-rt
-        ]
-        ++ lib.optionals (!stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD) [
-          targetLlvmLibraries.libunwind
-        ];
-        extraBuildCommands = mkExtraBuildCommands cc;
-
-        nixSupport.cc-cflags = [
-          "-rtlib=compiler-rt"
-          "-Wno-unused-command-line-argument"
-          "-B${targetLlvmLibraries.compiler-rt}/lib"
-          "--unwindlib=libunwind"
-          "-lunwind"
-        ];
-        nixSupport.cc-ldflags = [ "-L${targetLlvmLibraries.libunwind}/lib" ];
       };
     }
   );

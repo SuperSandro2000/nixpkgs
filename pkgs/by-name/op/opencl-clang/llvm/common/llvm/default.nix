@@ -3,13 +3,11 @@
   stdenv,
   llvm_meta,
   pkgsBuildBuild,
-  src ? null,
-  monorepoSrc ? null,
+  monorepoSrc,
   runCommand,
   cmake,
   ninja,
   python3,
-  python3Packages,
   libffi,
   libbfd,
   libpfm,
@@ -29,7 +27,7 @@
 }:
 
 let
-  inherit (lib) optional optionals optionalString;
+  inherit (lib) optionals optionalString;
 in
 
 stdenv.mkDerivation (
@@ -71,25 +69,16 @@ stdenv.mkDerivation (
     # Used when creating a version-suffixed symlink of libLLVM.dylib
     shortVersion = lib.concatStringsSep "." (lib.take 1 (lib.splitString "." release_version));
 
-    src =
-      if monorepoSrc != null then
-        runCommand "llvm-src-${version}" { inherit (monorepoSrc) passthru; } (
-          ''
-            mkdir -p "$out"
-            cp -r ${monorepoSrc}/llvm "$out"
-          ''
-          + lib.optionalString (lib.versionAtLeast release_version "14") ''
-            cp -r ${monorepoSrc}/cmake "$out"
-            cp -r ${monorepoSrc}/third-party "$out"
-          ''
-          + ''
-            chmod u+w "$out/llvm/tools"
-            cp -r ${monorepoSrc}/polly "$out/llvm/tools"
-          ''
-        )
-      else
-        src;
-
+    src = runCommand "llvm-src-${version}" { inherit (monorepoSrc) passthru; } (
+      ''
+        mkdir -p "$out"
+        cp -r ${monorepoSrc}/llvm "$out"
+        cp -r ${monorepoSrc}/cmake "$out"
+        cp -r ${monorepoSrc}/third-party "$out"
+        chmod u+w "$out/llvm/tools"
+        cp -r ${monorepoSrc}/polly "$out/llvm/tools"
+      ''
+    );
     sourceRoot = "${finalAttrs.src.name}/llvm";
 
     outputs = [
