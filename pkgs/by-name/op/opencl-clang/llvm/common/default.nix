@@ -75,7 +75,7 @@ let
     src = monorepoSrc;
     versionDir =
       (builtins.toString ../.)
-      + "/${if (gitRelease != null) then "git" else lib.versions.major release_version}";
+      + "/${lib.versions.major release_version}";
     getVersionFile =
       p:
       builtins.path {
@@ -86,17 +86,8 @@ let
 
             constraints = patches."${p}" or null;
             matchConstraint =
-              {
-                before ? null,
-                after ? null,
-                path,
-              }:
-              let
-                check = fn: value: if value == null then true else fn release_version value;
-                matchBefore = check lib.versionOlder before;
-                matchAfter = check lib.versionAtLeast after;
-              in
-              matchBefore && matchAfter;
+              { ... }:
+              true;
 
             patchDir =
               toString
@@ -115,11 +106,7 @@ let
     tools:
     let
       callPackage = newScope (tools // args // metadata);
-      clangVersion =
-        if (lib.versionOlder metadata.release_version "16") then
-          metadata.release_version
-        else
-          lib.versions.major metadata.release_version;
+      clangVersion = metadata.release_version;
       mkExtraBuildCommands0 =
         cc:
         ''
@@ -127,14 +114,7 @@ let
           mkdir "$rsrc"
           echo "-resource-dir=$rsrc" >> $out/nix-support/cc-cflags
         ''
-        # clang standard c headers are incompatible with FreeBSD so we have to put them in -idirafter instead of -resource-dir
-        # see https://github.com/freebsd/freebsd-src/commit/f382bac49b1378da3c2dd66bf721beaa16b5d471
         + (
-          if stdenv.targetPlatform.isFreeBSD then
-            ''
-              echo "-idirafter ${lib.getLib cc}/lib/clang/${clangVersion}/include" >> $out/nix-support/cc-cflags
-            ''
-          else
             ''
               ln -s "${lib.getLib cc}/lib/clang/${clangVersion}/include" "$rsrc"
             ''
@@ -164,25 +144,6 @@ let
       # we need to reintroduce `outputSpecified` to get the expected behavior e.g. of lib.get*
       llvm = tools.libllvm;
 
-      tblgen = callPackage ./tblgen.nix {
-        patches =
-          builtins.filter
-            # Crude method to drop polly patches if present, they're not needed for tblgen.
-            (p: (!lib.hasInfix "-polly" p))
-            tools.libllvm.patches;
-        clangPatches = [
-          # Would take tools.libclang.patches, but this introduces a cycle due
-          # to replacements depending on the llvm outpath (e.g. the LLVMgold patch).
-          # So take the only patch known to be necessary.
-          (metadata.getVersionFile "clang/gnu-install-dirs.patch")
-        ]
-        ++
-          lib.optional (stdenv.isAarch64 && lib.versions.major metadata.release_version == "17")
-            # Fixes llvm17 tblgen builds on aarch64.
-            # https://github.com/llvm/llvm-project/issues/106521#issuecomment-2337175680
-            (metadata.getVersionFile "clang/aarch64-tblgen.patch");
-      };
-
       libclang = callPackage ./clang {
       };
 
@@ -194,16 +155,6 @@ let
           python3 = pkgs.python3; # don't use python-boot
         }
       );
-
-      clang-manpages = lowPrio (
-        tools.libclang.override {
-          enableManpages = true;
-          python3 = pkgs.python3; # don't use python-boot
-        }
-      );
-
-      # Wrapper for standalone command line utilities
-      clang-tools = callPackage ./clang-tools { };
 
       # pick clang appropriate for package set we are targeting
       clang =
@@ -231,40 +182,12 @@ let
         extraBuildCommands = mkExtraBuildCommands cc;
       };
 
-      lld = callPackage ./lld {
-      };
-
-      lldbPlugins = lib.makeExtensible (
-        lldbPlugins:
-        let
-          callPackage = newScope (lldbPlugins // tools // args // metadata);
-        in
-        lib.recurseIntoAttrs { llef = callPackage ./lldb-plugins/llef.nix { }; }
-      );
-
-      lldb = callPackage ./lldb (
-        {
-        }
-        // lib.optionalAttrs (lib.versions.major metadata.release_version == "16") {
-          src = callPackage (
-            { runCommand }:
-            runCommand "lldb-src-${metadata.version}" { } ''
-              mkdir -p "$out"
-              cp -r ${monorepoSrc}/cmake "$out"
-              cp -r ${monorepoSrc}/lldb "$out"
-            ''
-          ) { };
-        }
-      );
-
       # Below, is the LLVM bootstrapping logic. It handles building a
       # fully LLVM toolchain from scratch. No GCC toolchain should be
       # pulled in. As a consequence, it is very quick to build different
       # targets provided by LLVM and we can also build for what GCC
       # doesn’t support like LLVM. Probably we should move to some other
       # file.
-
-      bintools = wrapBintoolsWith { bintools = tools.bintools-unwrapped; };
 
       clangUseLLVM = wrapCCWith (
         rec {
@@ -399,15 +322,6 @@ let
       clangNoCompilerRt = tools.clangNoLibcNoRt;
       clangNoLibc = tools.clangNoLibcWithBasicRt;
       clangNoLibcxx = tools.clangWithLibcAndBasicRt;
-    }
-    // lib.optionalAttrs (lib.versionAtLeast metadata.release_version "15") {
-      # TODO: pre-15: lldb/docs/index.rst:155:toctree contains reference to nonexisting document 'design/structureddataplugins'
-      lldb-manpages = lowPrio (
-        tools.lldb.override {
-          enableManpages = true;
-          python3 = pkgs.python3; # don't use python-boot
-        }
-      );
     }
   );
 
