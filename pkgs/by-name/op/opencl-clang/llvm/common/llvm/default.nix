@@ -97,7 +97,7 @@ stdenv.mkDerivation (
       # Support custom installation dirs
       # Originally based off https://reviews.llvm.org/D99484
       # Latest state: https://github.com/llvm/llvm-project/pull/125376
-      (getVersionFile "llvm/gnu-install-dirs.patch")
+      ./gnu-install-dirs.patch
 
       # Running the tests involves invoking binaries (like `opt`) that depend on
       # the LLVM dylibs and reference them by absolute install path (i.e. their
@@ -125,7 +125,7 @@ stdenv.mkDerivation (
       #     + https://github.com/llvm/llvm-project/blob/4c106cfdf7cf7eec861ad3983a3dd9a9e8f3a8ae/clang-tools-extra/test/Unit/lit.cfg.py#L22-L31
       #
       # !!! TODO: look into upstreaming this patch
-      (getVersionFile "llvm/llvm-lit-cfg-add-libs-to-dylib-path.patch")
+      ./llvm-lit-cfg-add-libs-to-dylib-path.patch
 
       # `lit` has a mode where it executes run lines as a shell script which is
       # constructs; this is problematic for macOS because it means that there's
@@ -138,7 +138,7 @@ stdenv.mkDerivation (
       #
       # It's not clear to me why this isn't an issue for LLVM developers running
       # on macOS (nothing about this _seems_ nix specific)..
-      (getVersionFile "llvm/lit-shell-script-runner-set-dyld-library-path.patch")
+      ./lit-shell-script-runner-set-dyld-library-path.patch
 
       # Add missing include headers to build against gcc-15:
       #   https://github.com/llvm/llvm-project/pull/101761
@@ -156,7 +156,7 @@ stdenv.mkDerivation (
       })
 
       # Fix for Python 3.13
-      (getVersionFile "llvm/no-pipes.patch")
+      ./no-pipes.patch
       # fix RuntimeDyld usage on aarch64-linux (e.g. python312Packages.numba tests)
       # See also: https://github.com/numba/numba/issues/9109
       (fetchpatch {
@@ -166,9 +166,9 @@ stdenv.mkDerivation (
       })
 
       # Just like the `gnu-install-dirs` patch, but for `polly`.
-      (getVersionFile "llvm/gnu-install-dirs-polly.patch")
+      ./gnu-install-dirs-polly.patch
       # Just like the `llvm-lit-cfg` patch, but for `polly`.
-      (getVersionFile "llvm/polly-lit-cfg-add-libs-to-dylib-path.patch")
+      ./polly-lit-cfg-add-libs-to-dylib-path.patch
     ];
 
     nativeBuildInputs = [
