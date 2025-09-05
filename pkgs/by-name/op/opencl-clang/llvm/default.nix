@@ -7,12 +7,6 @@
   stdenv,
   pkgs,
   recurseIntoAttrs,
-  # This is the default binutils, but with *this* version of LLD rather
-  # than the default LLVM version's, if LLD is the choice. We use these for
-  # the `useLLVM` bootstrapping below.
-  bootBintoolsNoLibc ? if stdenv.targetPlatform.linker == "lld" then null else pkgs.bintoolsNoLibc,
-  bootBintools ? if stdenv.targetPlatform.linker == "lld" then null else pkgs.bintools,
-  llvmVersions ? { },
   patchesFn ? lib.id,
   # Allows passthrough to packages via newScope in ./common/default.nix.
   # This makes it possible to do
@@ -23,8 +17,7 @@
 let
   versions = {
     "15.0.7".officialRelease.sha256 = "sha256-wjuZQyXQ/jsmvy6y1aksCcEDXGBjuhpgngF3XQJ/T4s=";
-  }
-  // llvmVersions;
+  };
 
   mkPackage =
     {
@@ -33,7 +26,7 @@ let
       gitRelease ? null,
       monorepoSrc ? null,
       version ? null,
-    }@args:
+    }:
     let
       inherit
         (import ./common-let.nix {
@@ -42,14 +35,12 @@ let
         releaseInfo
         ;
       inherit (releaseInfo) release_version;
-      attrName =
-        args.name or (if (gitRelease != null) then "git" else lib.versions.major release_version);
+      attrName = lib.versions.major release_version;
     in
     lib.nameValuePair attrName (
       recurseIntoAttrs (
         callPackage ./common-default.nix (
           {
-            inherit (stdenvAdapters) overrideCC;
             buildLlvmTools = buildPackages."llvmPackages_${attrName}".tools;
             targetLlvmLibraries =
               # Allow overriding targetLlvmLibraries; this enables custom runtime builds.
