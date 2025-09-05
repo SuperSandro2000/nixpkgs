@@ -49,7 +49,6 @@ let
       (import ./common-let.nix {
         inherit (args)
           lib
-          # gitRelease
           officialRelease
           version
           ;
@@ -63,7 +62,6 @@ let
           lib
           fetchFromGitHub
           release_version
-          # gitRelease
           officialRelease
           monorepoSrc'
           version
