@@ -104,95 +104,83 @@ stdenv.mkDerivation (
       "shadowstack"
     ];
 
-    patches =
+    patches = [
       # Support custom installation dirs
       # Originally based off https://reviews.llvm.org/D99484
       # Latest state: https://github.com/llvm/llvm-project/pull/125376
-      [ (getVersionFile "llvm/gnu-install-dirs.patch") ]
-      ++ lib.optionals (lib.versionAtLeast release_version "15") [
-        # Running the tests involves invoking binaries (like `opt`) that depend on
-        # the LLVM dylibs and reference them by absolute install path (i.e. their
-        # nix store path).
-        #
-        # Because we have not yet run the install phase (we're running these tests
-        # as part of `checkPhase` instead of `installCheckPhase`) these absolute
-        # paths do not exist yet; to work around this we point the loader (`ld` on
-        # unix, `dyld` on macOS) at the `lib` directory which will later become this
-        # package's `lib` output.
-        #
-        # Previously we would just set `LD_LIBRARY_PATH` to include the build `lib`
-        # dir but:
-        #   - this doesn't generalize well to other platforms; `lit` doesn't forward
-        #     `DYLD_LIBRARY_PATH` (macOS):
-        #     + https://github.com/llvm/llvm-project/blob/0d89963df354ee309c15f67dc47c8ab3cb5d0fb2/llvm/utils/lit/lit/TestingConfig.py#L26
-        #   - even if `lit` forwarded this env var, we actually cannot set
-        #     `DYLD_LIBRARY_PATH` in the child processes `lit` launches because
-        #     `DYLD_LIBRARY_PATH` (and `DYLD_FALLBACK_LIBRARY_PATH`) is cleared for
-        #     "protected processes" (i.e. the python interpreter that runs `lit`):
-        #     https://stackoverflow.com/a/35570229
-        #   - other LLVM subprojects deal with this issue by having their `lit`
-        #     configuration set these env vars for us; it makes sense to do the same
-        #     for LLVM:
-        #     + https://github.com/llvm/llvm-project/blob/4c106cfdf7cf7eec861ad3983a3dd9a9e8f3a8ae/clang-tools-extra/test/Unit/lit.cfg.py#L22-L31
-        #
-        # !!! TODO: look into upstreaming this patch
-        (getVersionFile "llvm/llvm-lit-cfg-add-libs-to-dylib-path.patch")
+      (getVersionFile "llvm/gnu-install-dirs.patch")
 
-        # `lit` has a mode where it executes run lines as a shell script which is
-        # constructs; this is problematic for macOS because it means that there's
-        # another process in between `lit` and the binaries being tested. As noted
-        # above, this means that `DYLD_LIBRARY_PATH` is cleared which means that our
-        # tests fail with dyld errors.
-        #
-        # To get around this we patch `lit` to reintroduce `DYLD_LIBRARY_PATH`, when
-        # present in the test configuration.
-        #
-        # It's not clear to me why this isn't an issue for LLVM developers running
-        # on macOS (nothing about this _seems_ nix specific)..
-        (getVersionFile "llvm/lit-shell-script-runner-set-dyld-library-path.patch")
-      ]
-      ++
-        lib.optional (lib.versionAtLeast release_version "12" && lib.versionOlder release_version "19")
-          # Add missing include headers to build against gcc-15:
-          #   https://github.com/llvm/llvm-project/pull/101761
-          (
-            fetchpatch {
-              url = "https://github.com/llvm/llvm-project/commit/7e44305041d96b064c197216b931ae3917a34ac1.patch";
-              hash = "sha256-1htuzsaPHbYgravGc1vrR8sqpQ/NSQ8PUZeAU8ucCFk=";
-              stripLen = 1;
-            }
-          )
-      ++ lib.optionals (lib.versionOlder release_version "16") [
-        # Fix musl build.
-        (fetchpatch {
-          url = "https://github.com/llvm/llvm-project/commit/5cd554303ead0f8891eee3cd6d25cb07f5a7bf67.patch";
-          relative = "llvm";
-          hash = "sha256-XPbvNJ45SzjMGlNUgt/IgEvM2dHQpDOe6woUJY+nUYA=";
-        })
-        # Fix for Python 3.13
-        (getVersionFile "llvm/no-pipes.patch")
-      ]
-      ++
-        lib.optionals
-          (
-            (lib.versionAtLeast (lib.versions.major release_version) "14")
-            && (lib.versionOlder (lib.versions.major release_version) "17")
-          )
-          [
-            # fix RuntimeDyld usage on aarch64-linux (e.g. python312Packages.numba tests)
-            # See also: https://github.com/numba/numba/issues/9109
-            (fetchpatch {
-              url = "https://github.com/llvm/llvm-project/commit/2e1b838a889f9793d4bcd5dbfe10db9796b77143.patch";
-              relative = "llvm";
-              hash = "sha256-Ot45P/iwaR4hkcM3xtLwfryQNgHI6pv6ADjv98tgdZA=";
-            })
-          ]
-      ++ [
-        # Just like the `gnu-install-dirs` patch, but for `polly`.
-        (getVersionFile "llvm/gnu-install-dirs-polly.patch")
-        # Just like the `llvm-lit-cfg` patch, but for `polly`.
-        (getVersionFile "llvm/polly-lit-cfg-add-libs-to-dylib-path.patch")
-      ];
+      # Running the tests involves invoking binaries (like `opt`) that depend on
+      # the LLVM dylibs and reference them by absolute install path (i.e. their
+      # nix store path).
+      #
+      # Because we have not yet run the install phase (we're running these tests
+      # as part of `checkPhase` instead of `installCheckPhase`) these absolute
+      # paths do not exist yet; to work around this we point the loader (`ld` on
+      # unix, `dyld` on macOS) at the `lib` directory which will later become this
+      # package's `lib` output.
+      #
+      # Previously we would just set `LD_LIBRARY_PATH` to include the build `lib`
+      # dir but:
+      #   - this doesn't generalize well to other platforms; `lit` doesn't forward
+      #     `DYLD_LIBRARY_PATH` (macOS):
+      #     + https://github.com/llvm/llvm-project/blob/0d89963df354ee309c15f67dc47c8ab3cb5d0fb2/llvm/utils/lit/lit/TestingConfig.py#L26
+      #   - even if `lit` forwarded this env var, we actually cannot set
+      #     `DYLD_LIBRARY_PATH` in the child processes `lit` launches because
+      #     `DYLD_LIBRARY_PATH` (and `DYLD_FALLBACK_LIBRARY_PATH`) is cleared for
+      #     "protected processes" (i.e. the python interpreter that runs `lit`):
+      #     https://stackoverflow.com/a/35570229
+      #   - other LLVM subprojects deal with this issue by having their `lit`
+      #     configuration set these env vars for us; it makes sense to do the same
+      #     for LLVM:
+      #     + https://github.com/llvm/llvm-project/blob/4c106cfdf7cf7eec861ad3983a3dd9a9e8f3a8ae/clang-tools-extra/test/Unit/lit.cfg.py#L22-L31
+      #
+      # !!! TODO: look into upstreaming this patch
+      (getVersionFile "llvm/llvm-lit-cfg-add-libs-to-dylib-path.patch")
+
+      # `lit` has a mode where it executes run lines as a shell script which is
+      # constructs; this is problematic for macOS because it means that there's
+      # another process in between `lit` and the binaries being tested. As noted
+      # above, this means that `DYLD_LIBRARY_PATH` is cleared which means that our
+      # tests fail with dyld errors.
+      #
+      # To get around this we patch `lit` to reintroduce `DYLD_LIBRARY_PATH`, when
+      # present in the test configuration.
+      #
+      # It's not clear to me why this isn't an issue for LLVM developers running
+      # on macOS (nothing about this _seems_ nix specific)..
+      (getVersionFile "llvm/lit-shell-script-runner-set-dyld-library-path.patch")
+
+      # Add missing include headers to build against gcc-15:
+      #   https://github.com/llvm/llvm-project/pull/101761
+      (fetchpatch {
+        url = "https://github.com/llvm/llvm-project/commit/7e44305041d96b064c197216b931ae3917a34ac1.patch";
+        hash = "sha256-1htuzsaPHbYgravGc1vrR8sqpQ/NSQ8PUZeAU8ucCFk=";
+        stripLen = 1;
+      })
+
+      # Fix musl build.
+      (fetchpatch {
+        url = "https://github.com/llvm/llvm-project/commit/5cd554303ead0f8891eee3cd6d25cb07f5a7bf67.patch";
+        relative = "llvm";
+        hash = "sha256-XPbvNJ45SzjMGlNUgt/IgEvM2dHQpDOe6woUJY+nUYA=";
+      })
+
+      # Fix for Python 3.13
+      (getVersionFile "llvm/no-pipes.patch")
+      # fix RuntimeDyld usage on aarch64-linux (e.g. python312Packages.numba tests)
+      # See also: https://github.com/numba/numba/issues/9109
+      (fetchpatch {
+        url = "https://github.com/llvm/llvm-project/commit/2e1b838a889f9793d4bcd5dbfe10db9796b77143.patch";
+        relative = "llvm";
+        hash = "sha256-Ot45P/iwaR4hkcM3xtLwfryQNgHI6pv6ADjv98tgdZA=";
+      })
+
+      # Just like the `gnu-install-dirs` patch, but for `polly`.
+      (getVersionFile "llvm/gnu-install-dirs-polly.patch")
+      # Just like the `llvm-lit-cfg` patch, but for `polly`.
+      (getVersionFile "llvm/polly-lit-cfg-add-libs-to-dylib-path.patch")
+    ];
 
     nativeBuildInputs = [
       cmake
@@ -248,13 +236,12 @@ stdenv.mkDerivation (
         #
         # Some flags don't need to be repassed because LLVM already does so (like
         # CMAKE_BUILD_TYPE), others are irrelevant to the result.
-        flagsForLlvmConfig =
-          [
-            (lib.cmakeFeature "LLVM_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/llvm")
-            (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
-            (lib.cmakeBool "LLVM_LINK_LLVM_DYLIB" enableSharedLibraries)
-            (lib.cmakeFeature "LLVM_TABLEGEN" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
-          ];
+        flagsForLlvmConfig = [
+          (lib.cmakeFeature "LLVM_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/llvm")
+          (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
+          (lib.cmakeBool "LLVM_LINK_LLVM_DYLIB" enableSharedLibraries)
+          (lib.cmakeFeature "LLVM_TABLEGEN" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
+        ];
       in
       flagsForLlvmConfig
       ++ [
