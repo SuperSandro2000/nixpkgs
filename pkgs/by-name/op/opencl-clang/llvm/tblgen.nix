@@ -1,7 +1,6 @@
 {
   cmake,
   lib,
-  llvm_meta,
   monorepoSrc,
   ninja,
   patches,

@@ -1,12 +1,9 @@
 {
   lib,
   callPackage,
-  stdenvAdapters,
   buildPackages,
   targetPackages,
   opencl-clang,
-  stdenv,
-  pkgs,
   recurseIntoAttrs,
   patchesFn ? lib.id,
   # Allows passthrough to packages via newScope in ./common/default.nix.
@@ -22,7 +19,6 @@ let
 
   mkPackage =
     {
-      name ? null,
       officialRelease ? null,
       gitRelease ? null,
       monorepoSrc ? null,

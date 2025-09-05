@@ -1,7 +1,6 @@
 {
   lib,
   fetchFromGitHub ? null,
-  release_version ? null,
   officialRelease ? null,
   version ? null,
 }:

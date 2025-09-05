@@ -1,28 +1,15 @@
 {
-  lowPrio,
   newScope,
-  pkgs,
-  targetPackages,
   lib,
   stdenv,
   libxcrypt,
-  substitute,
-  replaceVars,
   fetchFromGitHub,
-  fetchpatch,
-  fetchpatch2,
-  overrideCC,
   wrapCCWith,
-  wrapBintoolsWith,
   buildPackages,
   buildLlvmTools, # tools, but from the previous stage, for cross
   targetLlvmLibraries, # libraries, but from the next stage, for cross
-  targetLlvm,
-  gitRelease ? null,
-  officialRelease ? null,
-  monorepoSrc ? null,
-  version ? null,
-  patchesFn ? lib.id,
+  officialRelease,
+  version,
   # Allows passthrough to packages via newScope. This makes it possible to
   # do `(llvmPackages.override { <someLlvmDependency> = bar; }).clang` and get
   # an llvmPackages whose packages are overridden in an internally consistent way.
@@ -44,16 +31,6 @@ let
       monorepoSrc
       ;
     src = monorepoSrc;
-    getVersionFile =
-      p:
-      builtins.path {
-        name = builtins.baseNameOf p;
-        path =
-          let
-            patchDir = toString { path = metadata.versionDir; }.path;
-          in
-          "${patchDir}/${p}";
-      };
   };
 
   tools = lib.makeExtensible (
