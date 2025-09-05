@@ -41,8 +41,6 @@ assert lib.assertMsg (lib.xor (gitRelease != null) (officialRelease != null)) (
 );
 
 let
-  monorepoSrc' = monorepoSrc;
-
   metadata = rec {
     # Import releaseInfo separately to avoid infinite recursion
     inherit
@@ -79,20 +77,10 @@ let
         name = builtins.baseNameOf p;
         path =
           let
-            patches = args.patchesFn (import ./patches.nix);
-
-            constraints = patches."${p}" or null;
-            matchConstraint =
-              { ... }:
-              true;
-
             patchDir =
               toString
                 (
-                  if constraints == null then
                     { path = metadata.versionDir; }
-                  else
-                    (lib.findFirst matchConstraint { path = metadata.versionDir; } constraints)
                 ).path;
           in
           "${patchDir}/${p}";
