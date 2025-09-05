@@ -93,7 +93,7 @@ let
     in
     {
       libllvm = callPackage ./llvm {
-        tblgen = buildPackages.opencl-clang.llvmPkgs.tblgen;
+        inherit (buildPackages.opencl-clang.llvmPkgs) tblgen;
       };
 
       tblgen = callPackage ./tblgen.nix {
@@ -110,7 +110,7 @@ let
       };
 
       libclang = callPackage ./clang {
-        tblgen = buildPackages.opencl-clang.llvmPkgs.tblgen;
+        inherit (buildPackages.opencl-clang.llvmPkgs) tblgen;
       };
 
       clang-unwrapped = tools.libclang;
