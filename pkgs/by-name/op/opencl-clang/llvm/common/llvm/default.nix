@@ -640,13 +640,6 @@ stdenv.mkDerivation (
         # https://github.com/ClangBuiltLinux/tc-build/issues/150#issuecomment-845418812
         (lib.cmakeBool "LLVM_ENABLE_LIBXML2" false)
       ]
-      ++ optionals enableManpages [
-        (lib.cmakeBool "LLVM_BUILD_DOCS" true)
-        (lib.cmakeBool "LLVM_ENABLE_SPHINX" true)
-        (lib.cmakeBool "SPHINX_OUTPUT_MAN" true)
-        (lib.cmakeBool "SPHINX_OUTPUT_HTML" false)
-        (lib.cmakeBool "SPHINX_WARNINGS_AS_ERRORS" false)
-      ]
       ++ optionals (libbfd != null) [
         # LLVM depends on binutils only through libbfd/include/plugin-api.h, which
         # is meant to be a stable interface. Depend on that file directly rather
@@ -654,10 +647,6 @@ stdenv.mkDerivation (
         # triple. The result of this is that a single clang build can be used for
         # multiple targets.
         (lib.cmakeFeature "LLVM_BINUTILS_INCDIR" "${libbfd.plugin-api-header}/include")
-      ]
-      ++ optionals stdenv.hostPlatform.isDarwin [
-        (lib.cmakeBool "LLVM_ENABLE_LIBCXX" true)
-        (lib.cmakeBool "CAN_TARGET_i386" false)
       ]
       ++
         optionals
@@ -709,22 +698,11 @@ stdenv.mkDerivation (
         --replace-fail "$out/bin/llvm-config" "$dev/bin/llvm-config"
     ''
     + (
-      if lib.versionOlder release_version "15" then
-        ''
-          substituteInPlace "$dev/lib/cmake/llvm/LLVMConfig.cmake" \
-            --replace-fail 'set(LLVM_BINARY_DIR "''${LLVM_INSTALL_PREFIX}")' 'set(LLVM_BINARY_DIR "''${LLVM_INSTALL_PREFIX}'"$lib"'")'
-        ''
-      else
         ''
           substituteInPlace "$dev/lib/cmake/llvm/LLVMConfig.cmake" \
             --replace-fail 'set(LLVM_BINARY_DIR "''${LLVM_INSTALL_PREFIX}")' 'set(LLVM_BINARY_DIR "'"$lib"'")'
         ''
     )
-    + optionalString (stdenv.hostPlatform.isDarwin && enableSharedLibraries) ''
-      ln -s $lib/lib/libLLVM.dylib $lib/lib/libLLVM-${
-        if lib.versionOlder release_version "18" then "$shortVersion" else release_version
-      }.dylib
-    ''
     + optionalString (stdenv.buildPlatform != stdenv.hostPlatform) (
       if stdenv.buildPlatform.canExecute stdenv.hostPlatform then
         ''
@@ -772,24 +750,6 @@ stdenv.mkDerivation (
       '';
     };
   }
-  // lib.optionalAttrs enableManpages (
-    {
-      pname = "llvm-manpages";
-
-      propagatedBuildInputs = [ ];
-
-      postPatch = null;
-      postInstall = null;
-
-      outputs = [ "out" ];
-
-      doCheck = false;
-
-      meta = llvm_meta // {
-        description = "man pages for LLVM ${version}";
-      };
-    }
-  )
   // lib.optionalAttrs (lib.versionAtLeast release_version "13") {
     nativeCheckInputs = [
       which
