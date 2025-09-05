@@ -789,32 +789,11 @@ stdenv.mkDerivation (
         description = "man pages for LLVM ${version}";
       };
     }
-    // (
-      if lib.versionOlder release_version "15" then
-        {
-          buildPhase = ''
-            make docs-llvm-man
-          '';
-
-          installPhase = ''
-            make -C docs install
-          '';
-        }
-      else
-        {
-          ninjaFlags = [ "docs-llvm-man" ];
-          installTargets = [ "install-docs-llvm-man" ];
-
-          postPatch = null;
-          postInstall = null;
-        }
-    )
   )
   // lib.optionalAttrs (lib.versionAtLeast release_version "13") {
     nativeCheckInputs = [
       which
-    ]
-    ++ lib.optional (stdenv.hostPlatform.isDarwin && lib.versionAtLeast release_version "15") sysctl;
+    ];
   }
   // lib.optionalAttrs (lib.versionOlder release_version "15") {
     # hacky fix: created binaries need to be run before installation
