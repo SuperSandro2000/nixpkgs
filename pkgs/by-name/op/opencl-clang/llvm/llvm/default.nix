@@ -14,7 +14,6 @@
   libxml2,
   ncurses,
   version,
-  release_version,
   zlib,
   which,
   tblgen,
@@ -63,7 +62,7 @@ stdenv.mkDerivation (
     inherit version;
 
     # Used when creating a version-suffixed symlink of libLLVM.dylib
-    shortVersion = lib.concatStringsSep "." (lib.take 1 (lib.splitString "." release_version));
+    shortVersion = lib.concatStringsSep "." (lib.take 1 (lib.splitString "." version));
 
     src = runCommand "llvm-src-${version}" { inherit (monorepoSrc) passthru; } ''
       mkdir -p "$out"
@@ -344,9 +343,9 @@ stdenv.mkDerivation (
     postConfigure =
       let
         v = lib.versions;
-        major = v.major release_version;
-        minor = v.minor release_version;
-        patch = v.patch release_version;
+        major = v.major version;
+        minor = v.minor version;
+        patch = v.patch version;
       in
       ''
         # $1: part, $2: expected
@@ -356,7 +355,7 @@ stdenv.mkDerivation (
 
           if [[ "$part" != "$2" ]]; then
             echo >&2 \
-              "mismatch in the $1 version! we have version ${release_version}" \
+              "mismatch in the $1 version! we have version ${version}" \
               "and expected the $1 version to be '$2'; the source has '$part' instead"
             exit 3
           fi

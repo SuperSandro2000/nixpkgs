@@ -7,7 +7,6 @@
   patches,
   python3,
   updateAutotoolsGnuConfigScriptsHook,
-  release_version,
   runCommand,
   stdenv,
   version,

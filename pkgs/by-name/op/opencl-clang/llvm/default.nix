@@ -29,14 +29,7 @@ let
       version ? null,
     }:
     let
-      inherit
-        (import ./common-let.nix {
-          inherit lib officialRelease version;
-        })
-        releaseInfo
-        ;
-      inherit (releaseInfo) release_version;
-      attrName = lib.versions.major release_version;
+      attrName = lib.versions.major version;
     in
     lib.nameValuePair attrName (
       recurseIntoAttrs (

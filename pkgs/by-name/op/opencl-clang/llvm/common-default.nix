@@ -31,24 +31,11 @@
 
 let
   metadata = rec {
-    # Import releaseInfo separately to avoid infinite recursion
-    inherit
-      (import ./common-let.nix {
-        inherit (args)
-          lib
-          officialRelease
-          version
-          ;
-      })
-      releaseInfo
-      ;
-    inherit (releaseInfo) release_version version;
     inherit
       (import ./common-let.nix {
         inherit
           lib
           fetchFromGitHub
-          release_version
           officialRelease
           version
           ;
@@ -73,7 +60,6 @@ let
     tools:
     let
       callPackage = newScope (tools // args // metadata);
-      clangVersion = metadata.release_version;
       mkExtraBuildCommands0 =
         cc:
         ''
@@ -82,7 +68,7 @@ let
           echo "-resource-dir=$rsrc" >> $out/nix-support/cc-cflags
         ''
         + ''
-          ln -s "${lib.getLib cc}/lib/clang/${clangVersion}/include" "$rsrc"
+          ln -s "${lib.getLib cc}/lib/clang/${version}/include" "$rsrc"
         '';
       mkExtraBuildCommands =
         cc:
@@ -160,7 +146,7 @@ let
 in
 {
   inherit tools libraries;
-  inherit (metadata) release_version;
+  inherit (metadata) version;
 }
 // (noExtend libraries)
 // (noExtend tools)
