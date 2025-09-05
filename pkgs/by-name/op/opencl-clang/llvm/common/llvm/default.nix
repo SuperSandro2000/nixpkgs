@@ -337,8 +337,6 @@ stdenv.mkDerivation (
       moveToOutput "bin/llvm-config*" "$dev"
       substituteInPlace "$dev/lib/cmake/llvm/LLVMExports-${lib.toLower finalAttrs.finalPackage.cmakeBuildType}.cmake" \
         --replace-fail "$out/bin/llvm-config" "$dev/bin/llvm-config"
-    ''
-    + ''
       substituteInPlace "$dev/lib/cmake/llvm/LLVMConfig.cmake" \
         --replace-fail 'set(LLVM_BINARY_DIR "''${LLVM_INSTALL_PREFIX}")' 'set(LLVM_BINARY_DIR "'"$lib"'")'
     ''
@@ -354,19 +352,12 @@ stdenv.mkDerivation (
     );
 
     doCheck =
-      !stdenv.hostPlatform.isAarch32
-      && (if lib.versionOlder release_version "15" then stdenv.hostPlatform.isLinux else true)
-      && (
+      (
         !stdenv.hostPlatform.isx86_32 # TODO: why
       )
-      && (!stdenv.hostPlatform.isMusl)
-      && !(stdenv.hostPlatform.isPower64 && stdenv.hostPlatform.isBigEndian)
       && (stdenv.hostPlatform == stdenv.buildPlatform);
 
     checkTarget = "check-all";
-
-    # For the update script:
-    passthru.monorepoSrc = monorepoSrc;
 
     requiredSystemFeatures = [ "big-parallel" ];
     meta = llvm_meta // {
@@ -387,28 +378,11 @@ stdenv.mkDerivation (
         under the "Apache 2.0 License with LLVM exceptions".
       '';
     };
-  }
-  // lib.optionalAttrs (lib.versionAtLeast release_version "13") {
+
     nativeCheckInputs = [
       which
     ];
-  }
-  // lib.optionalAttrs (lib.versionOlder release_version "15") {
-    # hacky fix: created binaries need to be run before installation
-    preBuild = ''
-      mkdir -p $out/
-      ln -sv $PWD/lib $out
-    '';
 
-    postBuild = ''
-      rm -fR $out
-    '';
-
-    preCheck = ''
-      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH''${LD_LIBRARY_PATH:+:}$PWD/lib
-    '';
-  }
-  // lib.optionalAttrs (lib.versionAtLeast release_version "15") {
     # Defensive check: some paths (that we make symlinks to) depend on the release
     # version, for example:
     #  - https://github.com/llvm/llvm-project/blob/406bde9a15136254f2b10d9ef3a42033b3cb1b16/clang/lib/Headers/CMakeLists.txt#L185
