@@ -340,59 +340,6 @@ stdenv.mkDerivation (
       ++ [ zlib ];
 
     postPatch =
-      optionalString stdenv.hostPlatform.isDarwin (
-        ''
-          substituteInPlace cmake/modules/AddLLVM.cmake \
-            --replace-fail 'set(_install_name_dir INSTALL_NAME_DIR "@rpath")' "set(_install_name_dir)"
-        ''
-        +
-          # As of LLVM 15, marked as XFAIL on arm64 macOS but lit doesn't seem to pick
-          # this up: https://github.com/llvm/llvm-project/blob/c344d97a125b18f8fed0a64aace73c49a870e079/llvm/test/MC/ELF/cfi-version.ll#L7
-          (optionalString (lib.versionAtLeast release_version "15") (
-            ''
-              rm test/MC/ELF/cfi-version.ll
-
-            ''
-            +
-              # This test tries to call `sw_vers` by absolute path (`/usr/bin/sw_vers`)
-              # and thus fails under the sandbox:
-              (
-                if lib.versionAtLeast release_version "16" then
-                  ''
-                    substituteInPlace unittests/TargetParser/Host.cpp \
-                      --replace-fail '/usr/bin/sw_vers' "${(builtins.toString darwin.DarwinTools) + "/bin/sw_vers"}"
-                  ''
-                else
-                  ''
-                    substituteInPlace unittests/Support/Host.cpp \
-                      --replace-fail '/usr/bin/sw_vers' "${(builtins.toString darwin.DarwinTools) + "/bin/sw_vers"}"
-                  ''
-              )
-            +
-              # This test tries to call the intrinsics `@llvm.roundeven.f32` and
-              # `@llvm.roundeven.f64` which seem to (incorrectly?) lower to `roundevenf`
-              # and `roundeven` on macOS and FreeBSD.
-              #
-              # However these functions are glibc specific so the test fails:
-              #   - https://www.gnu.org/software/gnulib/manual/html_node/roundevenf.html
-              #   - https://www.gnu.org/software/gnulib/manual/html_node/roundeven.html
-              #
-              # TODO(@rrbutani): this seems to run fine on `aarch64-darwin`, why does it
-              # pass there?
-              optionalString (lib.versionAtLeast release_version "16") ''
-                substituteInPlace test/ExecutionEngine/Interpreter/intrinsics.ll \
-                  --replace-fail "%roundeven32 = call float @llvm.roundeven.f32(float 0.000000e+00)" "" \
-                  --replace-fail "%roundeven64 = call double @llvm.roundeven.f64(double 0.000000e+00)" ""
-              ''
-            +
-              # fails when run in sandbox
-              optionalString (!stdenv.hostPlatform.isx86 && lib.versionAtLeast release_version "18") ''
-                substituteInPlace unittests/Support/VirtualFileSystemTest.cpp \
-                  --replace-fail "PhysicalFileSystemWorkingDirFailure" "DISABLED_PhysicalFileSystemWorkingDirFailure"
-              ''
-          ))
-      )
-      +
         # dup of above patch with different conditions
         optionalString
           (
@@ -408,11 +355,6 @@ stdenv.mkDerivation (
             +
               # fails when run in sandbox
               (
-                (optionalString (lib.versionAtLeast release_version "18") ''
-                  substituteInPlace unittests/Support/VirtualFileSystemTest.cpp \
-                    --replace-fail "PhysicalFileSystemWorkingDirFailure" "DISABLED_PhysicalFileSystemWorkingDirFailure"
-                '')
-                +
                   # This test fails on darwin x86_64 because `sw_vers` reports a different
                   # macOS version than what LLVM finds by reading
                   # `/System/Library/CoreServices/SystemVersion.plist` (which is passed into
@@ -442,12 +384,6 @@ stdenv.mkDerivation (
                   #
                   # TODO(@rrbutani): fix/follow-up
                   (
-                    if lib.versionAtLeast release_version "16" then
-                      ''
-                        substituteInPlace unittests/TargetParser/Host.cpp \
-                          --replace-fail "getMacOSHostVersion" "DISABLED_getMacOSHostVersion"
-                      ''
-                    else
                       ''
                         substituteInPlace unittests/Support/Host.cpp \
                           --replace-fail "getMacOSHostVersion" "DISABLED_getMacOSHostVersion"
@@ -474,21 +410,6 @@ stdenv.mkDerivation (
       + lib.optionalString (lib.versionAtLeast release_version "13") ''
         rm test/tools/llvm-objcopy/ELF/mirror-permissions-unix.test
       ''
-      + lib.optionalString (lib.versionOlder release_version "13") ''
-        # TODO: Fix failing tests:
-        rm test/DebugInfo/X86/vla-multi.ll
-      ''
-      +
-        # Fails in the presence of anti-virus software or other intrusion-detection software that
-        # modifies the atime when run. See #284056.
-        lib.optionalString (lib.versionAtLeast release_version "16") (
-          ''
-            rm test/tools/llvm-objcopy/ELF/strip-preserve-atime.test
-          ''
-          + lib.optionalString (lib.versionOlder release_version "17") ''
-
-          ''
-        )
       +
         # timing-based tests are trouble
         lib.optionalString
@@ -496,88 +417,9 @@ stdenv.mkDerivation (
           ''
             rm utils/lit/tests/googletest-timeout.py
           ''
-      +
-        # valgrind unhappy with musl or glibc, but fails w/musl only
-        optionalString stdenv.hostPlatform.isMusl ''
-          patch -p1 -i ${./TLI-musl.patch}
-          substituteInPlace unittests/Support/CMakeLists.txt \
-            --replace-fail "add_subdirectory(DynamicLibrary)" ""
-          rm unittests/Support/DynamicLibrary/DynamicLibraryTest.cpp
-          rm test/CodeGen/AArch64/wineh4.mir
-        ''
-      + optionalString stdenv.hostPlatform.isAarch32 ''
-        # skip failing X86 test cases on 32-bit ARM
-        rm test/DebugInfo/X86/convert-debugloc.ll
-        rm test/DebugInfo/X86/convert-inlined.ll
-        rm test/DebugInfo/X86/convert-linked.ll
-        rm test/tools/dsymutil/X86/op-convert.test
-        rm test/tools/gold/X86/split-dwarf.ll
-        rm test/tools/llvm-objcopy/MachO/universal-object.test
-      ''
-      +
-        # Seems to require certain floating point hardware (NEON?)
-        optionalString (stdenv.hostPlatform.system == "armv6l-linux") ''
-          rm test/ExecutionEngine/frem.ll
-        ''
-      +
-        # 1. TODO: Why does this test fail on FreeBSD?
-        # It seems to reference /usr/local/lib/libfile.a, which is clearly a problem.
-        # 2. This test fails for the same reason it fails on MacOS, but the fix is
-        # not trivial to apply.
-        optionalString stdenv.hostPlatform.isFreeBSD ''
-          rm test/tools/llvm-libtool-darwin/L-and-l.test
-          rm test/ExecutionEngine/Interpreter/intrinsics.ll
-          # Fails in sandbox
-          substituteInPlace unittests/Support/LockFileManagerTest.cpp --replace-fail "Basic" "DISABLED_Basic"
-        ''
-      +
-        # https://github.com/llvm/llvm-project/issues/149616
-        optionalString stdenv.hostPlatform.isLoongArch64 ''
-          substituteInPlace unittests/tools/llvm-exegesis/X86/SnippetRepetitorTest.cpp \
-            --replace-fail \
-              "TEST_F(X86SnippetRepetitorTest, Loop)" \
-              "TEST_F(X86SnippetRepetitorTest, DISABLED_Loop)"
-        ''
       + ''
         patchShebangs test/BugPoint/compile-custom.ll.py
-      ''
-      +
-        # Tweak tests to ignore namespace part of type to support
-        # gcc-12: https://gcc.gnu.org/PR103598.
-        # The change below mangles strings like:
-        #    CHECK-NEXT: Starting llvm::Function pass manager run.
-        # to:
-        #    CHECK-NEXT: Starting {{.*}}Function pass manager run.
-        (lib.optionalString (lib.versionOlder release_version "13") (
-          ''
-            for f in \
-              test/Other/new-pass-manager.ll \
-              test/Other/new-pm-O0-defaults.ll \
-              test/Other/new-pm-defaults.ll \
-              test/Other/new-pm-lto-defaults.ll \
-              test/Other/new-pm-thinlto-defaults.ll \
-              test/Other/pass-pipeline-parsing.ll \
-              test/Transforms/Inline/cgscc-incremental-invalidate.ll \
-              test/Transforms/Inline/clear-analyses.ll \
-              test/Transforms/LoopUnroll/unroll-loop-invalidation.ll \
-              test/Transforms/SCCP/ipsccp-preserve-analysis.ll \
-              test/Transforms/SCCP/preserve-analysis.ll \
-              test/Transforms/SROA/dead-inst.ll \
-              test/tools/gold/X86/new-pm.ll \
-              ; do
-              echo "PATCH: $f"
-              substituteInPlace $f \
-                --replace-quiet 'Starting llvm::' 'Starting {{.*}}' \
-                --replace-quiet 'Finished llvm::' 'Finished {{.*}}'
-            done
-          ''
-          +
-            # gcc-13 fix
-            ''
-              sed -i '/#include <string>/i#include <cstdint>' \
-                include/llvm/DebugInfo/Symbolize/DIPrinter.h
-            ''
-        ));
+      '';
 
     # Workaround for configure flags that need to have spaces
     preConfigure = ''
