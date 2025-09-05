@@ -206,16 +206,6 @@ stdenv.mkDerivation (
     postInstall = ''
       ln -sv $out/bin/clang $out/bin/cpp
     ''
-    + (lib.optionalString (lib.versions.major release_version == "17") ''
-      mkdir -p $lib/lib/clang
-      mv $lib/lib/17 $lib/lib/clang/17
-    '')
-    + (lib.optionalString
-      ((lib.versionAtLeast release_version "19") && !(lib.versionAtLeast release_version "21"))
-      ''
-        mv $out/lib/clang $lib/lib/clang
-      ''
-    )
     + ''
 
       # Move libclang to 'lib' output
@@ -223,11 +213,6 @@ stdenv.mkDerivation (
       moveToOutput "lib/libclang-cpp.*" "$lib"
     ''
     + (
-      if lib.versionOlder release_version "15" then
-        ''
-          mkdir -p $python/bin $python/share/{clang,scan-view}
-        ''
-      else
         ''
           mkdir -p $python/bin $python/share/clang/
         ''
@@ -239,9 +224,6 @@ stdenv.mkDerivation (
       fi
       mv $out/share/clang/*.py $python/share/clang
     ''
-    + (lib.optionalString (lib.versionOlder release_version "15") ''
-      mv $out/share/scan-view/*.py $python/share/scan-view
-    '')
     + ''
       rm $out/bin/c-index-test
       patchShebangs $python/bin
@@ -249,17 +231,8 @@ stdenv.mkDerivation (
       mkdir -p $dev/bin
     ''
     + (
-      if lib.versionOlder release_version "15" then
-        ''
-          cp bin/clang-tblgen $dev/bin
-        ''
-      else if lib.versionOlder release_version "20" then
         ''
           cp bin/{clang-tblgen,clang-tidy-confusable-chars-gen,clang-pseudo-gen} $dev/bin
-        ''
-      else
-        ''
-          cp bin/{clang-tblgen,clang-tidy-confusable-chars-gen} $dev/bin
         ''
     );
 
@@ -281,31 +254,7 @@ stdenv.mkDerivation (
       isClang = true;
       hardeningUnsupportedFlagsByTargetPlatform =
         targetPlatform:
-        [ "fortify3" ]
-        ++ lib.optional (
-          (lib.versionOlder release_version "7") || !targetPlatform.isLinux || !targetPlatform.isx86_64
-        ) "shadowstack"
-        ++ lib.optional (
-          (lib.versionOlder release_version "8") || !targetPlatform.isAarch64 || !targetPlatform.isLinux
-        ) "pacret"
-        ++ lib.optional (
-          (lib.versionOlder release_version "11")
-          || (targetPlatform.isAarch64 && (lib.versionOlder release_version "18.1"))
-          || (targetPlatform.isFreeBSD && (lib.versionOlder release_version "15"))
-          || !(targetPlatform.isLinux || targetPlatform.isFreeBSD)
-          || !(
-            targetPlatform.isx86
-            || targetPlatform.isPower64
-            || targetPlatform.isS390x
-            || targetPlatform.isAarch64
-          )
-        ) "stackclashprotection"
-        ++ lib.optional (
-          (lib.versionOlder release_version "15") || !(targetPlatform.isx86_64 || targetPlatform.isAarch64)
-        ) "zerocallusedregs"
-        ++ lib.optional (lib.versionOlder release_version "15") "strictflexarrays1"
-        ++ lib.optional (lib.versionOlder release_version "16") "strictflexarrays3"
-        ++ (finalAttrs.passthru.hardeningUnsupportedFlags or [ ]);
+        [ "fortify3" "pacret" "strictflexarrays3" ];
     };
 
     requiredSystemFeatures = [ "big-parallel" ];
@@ -326,35 +275,4 @@ stdenv.mkDerivation (
       mainProgram = "clang";
     };
   }
-  // lib.optionalAttrs enableManpages (
-    {
-      pname = "clang-manpages";
-
-      installPhase = ''
-        mkdir -p $out/share/man/man1
-        # Manually install clang manpage
-        cp docs/man/*.1 $out/share/man/man1/
-      '';
-
-      outputs = [ "out" ];
-
-      doCheck = false;
-
-      meta = llvm_meta // {
-        description = "man page for Clang ${version}";
-      };
-    }
-    // (
-      if lib.versionOlder release_version "15" then
-        {
-          buildPhase = ''
-            make docs-clang-man
-          '';
-        }
-      else
-        {
-          ninjaFlags = [ "docs-clang-man" ];
-        }
-    )
-  )
 )

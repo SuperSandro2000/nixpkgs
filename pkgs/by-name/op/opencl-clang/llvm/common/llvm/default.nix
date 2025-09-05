@@ -40,11 +40,6 @@
 
 let
   inherit (lib) optional optionals optionalString;
-
-  # Is there a better way to do this? Darwin wants to disable tests in the first
-  # LLVM rebuild, but overriding doesn’t work when building libc++, libc++abi,
-  # and libunwind. It also wants to disable LTO in the first rebuild.
-  isDarwinBootstrap = lib.getName stdenv == "bootstrap-stage-xclang-stdenv-darwin";
 in
 
 stdenv.mkDerivation (
@@ -68,7 +63,7 @@ stdenv.mkDerivation (
     # So, we "manually" assemble one python derivation for the package to depend
     # on, taking into account whether checks are enabled or not:
     python =
-      if finalAttrs.finalPackage.doCheck && !isDarwinBootstrap then
+      if finalAttrs.finalPackage.doCheck then
         # Note that we _explicitly_ ask for a python interpreter for our host
         # platform here; the splicing that would ordinarily take care of this for
         # us does not seem to work once we use `withPackages`.
@@ -101,9 +96,6 @@ stdenv.mkDerivation (
             chmod u+w "$out/llvm/tools"
             cp -r ${monorepoSrc}/polly "$out/llvm/tools"
           ''
-          + lib.optionalString (lib.versionAtLeast release_version "21") ''
-            cp -r ${monorepoSrc}/libc "$out"
-          ''
         )
       else
         src;
@@ -123,28 +115,10 @@ stdenv.mkDerivation (
     ];
 
     patches =
-      lib.optional (lib.versionOlder release_version "14")
-        # When cross-compiling we configure llvm-config-native with an approximation
-        # of the flags used for the normal LLVM build. To avoid the need for building
-        # a native libLLVM.so (which would fail) we force llvm-config to be linked
-        # statically against the necessary LLVM components always.
-        ./llvm-config-link-static.patch
-      ++ lib.optionals (lib.versions.major release_version == "12") [
-        # Fix llvm being miscompiled by some gccs. See https://github.com/llvm/llvm-project/issues/49955
-        (getVersionFile "llvm/fix-llvm-issue-49955.patch")
-
-        # On older CPUs (e.g. Hydra/wendy) we'd be getting an error in this test.
-        (fetchpatch {
-          name = "uops-CMOV16rm-noreg.diff";
-          url = "https://github.com/llvm/llvm-project/commit/9e9f991ac033.diff";
-          sha256 = "sha256:12s8vr6ibri8b48h2z38f3afhwam10arfiqfy4yg37bmc054p5hi";
-          stripLen = 1;
-        })
-      ]
       # Support custom installation dirs
       # Originally based off https://reviews.llvm.org/D99484
       # Latest state: https://github.com/llvm/llvm-project/pull/125376
-      ++ [ (getVersionFile "llvm/gnu-install-dirs.patch") ]
+      [ (getVersionFile "llvm/gnu-install-dirs.patch") ]
       ++ lib.optionals (lib.versionAtLeast release_version "15") [
         # Running the tests involves invoking binaries (like `opt`) that depend on
         # the LLVM dylibs and reference them by absolute install path (i.e. their
@@ -473,8 +447,7 @@ stdenv.mkDerivation (
     );
 
     doCheck =
-      !isDarwinBootstrap
-      && !stdenv.hostPlatform.isAarch32
+      !stdenv.hostPlatform.isAarch32
       && (if lib.versionOlder release_version "15" then stdenv.hostPlatform.isLinux else true)
       && (
         !stdenv.hostPlatform.isx86_32 # TODO: why
