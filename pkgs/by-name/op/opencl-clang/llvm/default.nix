@@ -36,7 +36,7 @@ let
     }@args:
     let
       inherit
-        (import ./common/common-let.nix {
+        (import ./common-let.nix {
           inherit lib officialRelease version;
         })
         releaseInfo
@@ -47,7 +47,7 @@ let
     in
     lib.nameValuePair attrName (
       recurseIntoAttrs (
-        callPackage ./common (
+        callPackage ./common-default.nix (
           {
             inherit (stdenvAdapters) overrideCC;
             buildLlvmTools = buildPackages."llvmPackages_${attrName}".tools;
