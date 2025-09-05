@@ -68,20 +68,14 @@ let
       monorepoSrc
       ;
     src = monorepoSrc;
-    versionDir =
-      (builtins.toString ../.)
-      + "/${lib.versions.major release_version}";
+    versionDir = (builtins.toString ../.) + "/${lib.versions.major release_version}";
     getVersionFile =
       p:
       builtins.path {
         name = builtins.baseNameOf p;
         path =
           let
-            patchDir =
-              toString
-                (
-                    { path = metadata.versionDir; }
-                ).path;
+            patchDir = toString ({ path = metadata.versionDir; }).path;
           in
           "${patchDir}/${p}";
       };
@@ -99,11 +93,9 @@ let
           mkdir "$rsrc"
           echo "-resource-dir=$rsrc" >> $out/nix-support/cc-cflags
         ''
-        + (
-            ''
-              ln -s "${lib.getLib cc}/lib/clang/${clangVersion}/include" "$rsrc"
-            ''
-        );
+        + (''
+          ln -s "${lib.getLib cc}/lib/clang/${clangVersion}/include" "$rsrc"
+        '');
       mkExtraBuildCommands =
         cc:
         mkExtraBuildCommands0 cc
@@ -152,40 +144,33 @@ let
       # doesn’t support like LLVM. Probably we should move to some other
       # file.
 
-      clangUseLLVM = wrapCCWith (
-        rec {
-          cc = tools.clang-unwrapped;
-          libcxx = targetLlvmLibraries.libcxx;
-          bintools = bintools';
-          extraPackages = [
-            targetLlvmLibraries.compiler-rt
-          ]
-          ++ lib.optionals (!stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD) [
-            targetLlvmLibraries.libunwind
-          ];
-          extraBuildCommands = mkExtraBuildCommands cc;
+      clangUseLLVM = wrapCCWith (rec {
+        cc = tools.clang-unwrapped;
+        libcxx = targetLlvmLibraries.libcxx;
+        bintools = bintools';
+        extraPackages = [
+          targetLlvmLibraries.compiler-rt
+        ]
+        ++ lib.optionals (!stdenv.targetPlatform.isWasm && !stdenv.targetPlatform.isFreeBSD) [
+          targetLlvmLibraries.libunwind
+        ];
+        extraBuildCommands = mkExtraBuildCommands cc;
 
-          nixSupport.cc-cflags = [
-            "-rtlib=compiler-rt"
-            "-Wno-unused-command-line-argument"
-            "-B${targetLlvmLibraries.compiler-rt}/lib"
-            "--unwindlib=libunwind"
-            "-lunwind"
-          ];
-          nixSupport.cc-ldflags = [ "-L${targetLlvmLibraries.libunwind}/lib" ];
-        }
-      );
+        nixSupport.cc-cflags = [
+          "-rtlib=compiler-rt"
+          "-Wno-unused-command-line-argument"
+          "-B${targetLlvmLibraries.compiler-rt}/lib"
+          "--unwindlib=libunwind"
+          "-lunwind"
+        ];
+        nixSupport.cc-ldflags = [ "-L${targetLlvmLibraries.libunwind}/lib" ];
+      });
     }
   );
 
-  libraries = lib.makeExtensible (
-    libraries:
-    (
-      {
-        stdenv = overrideCC stdenv buildLlvmTools.clang;
-      }
-    )
-  );
+  libraries = lib.makeExtensible (libraries: ({
+    stdenv = overrideCC stdenv buildLlvmTools.clang;
+  }));
 
   noExtend = extensible: lib.attrsets.removeAttrs extensible [ "extend" ];
 in

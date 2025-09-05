@@ -16,10 +16,10 @@ rec {
   };
 
   releaseInfo = rec {
-      original = officialRelease;
-      release_version = args.version;
-      version = release_version;
-    };
+    original = officialRelease;
+    release_version = args.version;
+    version = release_version;
+  };
 
   monorepoSrc = fetchFromGitHub rec {
     owner = "llvm";

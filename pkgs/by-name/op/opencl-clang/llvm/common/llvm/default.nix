@@ -194,8 +194,7 @@ stdenv.mkDerivation (
       ++
         lib.optional (lib.versionAtLeast release_version "15")
           # Just like the `llvm-lit-cfg` patch, but for `polly`.
-          (getVersionFile "llvm/polly-lit-cfg-add-libs-to-dylib-path.patch")
-      ;
+          (getVersionFile "llvm/polly-lit-cfg-add-libs-to-dylib-path.patch");
 
     nativeBuildInputs = [
       cmake
@@ -212,12 +211,12 @@ stdenv.mkDerivation (
       libpfm
     ];
 
-    propagatedBuildInputs =
-      (lib.optional (stdenv.buildPlatform == stdenv.hostPlatform) ncurses)
-      ++ [ zlib ];
+    propagatedBuildInputs = (lib.optional (stdenv.buildPlatform == stdenv.hostPlatform) ncurses) ++ [
+      zlib
+    ];
 
     postPatch =
-        # FileSystem permissions tests fail with various special bits
+      # FileSystem permissions tests fail with various special bits
       ''
         substituteInPlace unittests/Support/CMakeLists.txt \
           --replace-fail "Path.cpp" ""
@@ -339,12 +338,10 @@ stdenv.mkDerivation (
       substituteInPlace "$dev/lib/cmake/llvm/LLVMExports-${lib.toLower finalAttrs.finalPackage.cmakeBuildType}.cmake" \
         --replace-fail "$out/bin/llvm-config" "$dev/bin/llvm-config"
     ''
-    + (
-        ''
-          substituteInPlace "$dev/lib/cmake/llvm/LLVMConfig.cmake" \
-            --replace-fail 'set(LLVM_BINARY_DIR "''${LLVM_INSTALL_PREFIX}")' 'set(LLVM_BINARY_DIR "'"$lib"'")'
-        ''
-    )
+    + (''
+      substituteInPlace "$dev/lib/cmake/llvm/LLVMConfig.cmake" \
+        --replace-fail 'set(LLVM_BINARY_DIR "''${LLVM_INSTALL_PREFIX}")' 'set(LLVM_BINARY_DIR "'"$lib"'")'
+    '')
     + optionalString (stdenv.buildPlatform != stdenv.hostPlatform) (
       if stdenv.buildPlatform.canExecute stdenv.hostPlatform then
         ''

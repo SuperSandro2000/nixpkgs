@@ -17,50 +17,40 @@
   getVersionFile,
   fetchpatch,
 }:
-stdenv.mkDerivation (
-  finalAttrs:
-  {
-    pname = "clang";
-    inherit version;
+stdenv.mkDerivation (finalAttrs: {
+  pname = "clang";
+  inherit version;
 
-    src =
-        runCommand "clang-src-${version}" { inherit (monorepoSrc) passthru; } (
-          ''
-            mkdir -p "$out"
-            cp -r ${monorepoSrc}/cmake "$out"
-            cp -r ${monorepoSrc}/clang "$out"
-            cp -r ${monorepoSrc}/clang-tools-extra "$out"
-          ''
-        );
+  src = runCommand "clang-src-${version}" { inherit (monorepoSrc) passthru; } (''
+    mkdir -p "$out"
+    cp -r ${monorepoSrc}/cmake "$out"
+    cp -r ${monorepoSrc}/clang "$out"
+    cp -r ${monorepoSrc}/clang-tools-extra "$out"
+  '');
 
-    sourceRoot = "${finalAttrs.src.name}/clang";
+  sourceRoot = "${finalAttrs.src.name}/clang";
 
-    patches = [
-      (getVersionFile "clang/purity.patch")
-      # Remove extraneous ".a" suffix from baremetal clang_rt.builtins when compiling for baremetal.
-      # https://reviews.llvm.org/D51899
-      (getVersionFile "clang/gnu-install-dirs.patch")
+  patches = [
+    (getVersionFile "clang/purity.patch")
+    # Remove extraneous ".a" suffix from baremetal clang_rt.builtins when compiling for baremetal.
+    # https://reviews.llvm.org/D51899
+    (getVersionFile "clang/gnu-install-dirs.patch")
 
-      # https://github.com/llvm/llvm-project/pull/116476
-      # prevent clang ignoring warnings / errors for unsuppored
-      # options when building & linking a source file with trailing
-      # libraries. eg: `clang -munsupported hello.c -lc`
-      ./clang-unsupported-option.patch
-      (fetchpatch {
-        name = "ignore-nostd-link.patch";
-        url = "https://github.com/llvm/llvm-project/commit/5b77e752dcd073846b89559d6c0e1a7699e58615.patch";
-        relative = "clang";
-        hash = "sha256-qzSAmoGY+7POkDhcGgQRPaNQ3+7PIcIc9cZuiE/eLkc=";
-      })
+    # https://github.com/llvm/llvm-project/pull/116476
+    # prevent clang ignoring warnings / errors for unsuppored
+    # options when building & linking a source file with trailing
+    # libraries. eg: `clang -munsupported hello.c -lc`
+    ./clang-unsupported-option.patch
+    (fetchpatch {
+      name = "ignore-nostd-link.patch";
+      url = "https://github.com/llvm/llvm-project/commit/5b77e752dcd073846b89559d6c0e1a7699e58615.patch";
+      relative = "clang";
+      hash = "sha256-qzSAmoGY+7POkDhcGgQRPaNQ3+7PIcIc9cZuiE/eLkc=";
+    })
     # Pass the correct path to libllvm
-      (replaceVars
-        (
-          ./clang-11-15-LLVMgold-path.patch
-        )
-        {
-          libllvmLibdir = "${libllvm.lib}/lib";
-        }
-      )
+    (replaceVars (./clang-11-15-LLVMgold-path.patch) {
+      libllvmLibdir = "${libllvm.lib}/lib";
+    })
 
     # Backport version logic from Clang 16. This is needed by the following patch.
     (fetchpatch {
@@ -81,102 +71,101 @@ stdenv.mkDerivation (
     })
   ];
 
-    nativeBuildInputs = [
-      cmake
-      python3
-      ninja
+  nativeBuildInputs = [
+    cmake
+    python3
+    ninja
+  ];
+
+  buildInputs = [
+    libxml2
+    libllvm
+  ];
+
+  cmakeFlags = [
+    (lib.cmakeFeature "CLANG_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/clang")
+    (lib.cmakeBool "CLANGD_BUILD_XPC" false)
+    (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
+    (lib.cmakeFeature "LLVM_TABLEGEN_EXE" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
+    (lib.cmakeFeature "CLANG_TABLEGEN" "${buildLlvmTools.tblgen}/bin/clang-tblgen")
+    # Added in LLVM15:
+    # `clang-tidy-confusable-chars-gen`: https://github.com/llvm/llvm-project/commit/c3574ef739fbfcc59d405985a3a4fa6f4619ecdb
+    # `clang-pseudo-gen`: https://github.com/llvm/llvm-project/commit/cd2292ef824591cc34cc299910a3098545c840c7
+    (lib.cmakeFeature "CLANG_TIDY_CONFUSABLE_CHARS_GEN" "${buildLlvmTools.tblgen}/bin/clang-tidy-confusable-chars-gen")
+
+    # clang-pseudo removed in LLVM20: https://github.com/llvm/llvm-project/commit/ed8f78827895050442f544edef2933a60d4a7935
+    (lib.cmakeFeature "CLANG_PSEUDO_GEN" "${buildLlvmTools.tblgen}/bin/clang-pseudo-gen")
+  ]
+  ++ devExtraCmakeFlags;
+
+  postPatch = ''
+    # Make sure clang passes the correct location of libLTO to ld64
+    substituteInPlace lib/Driver/ToolChains/Darwin.cpp \
+      --replace-fail 'StringRef P = llvm::sys::path::parent_path(D.Dir);' 'StringRef P = "${lib.getLib libllvm}";'
+    (cd tools && ln -s ../../clang-tools-extra extra)
+  '';
+
+  outputs = [
+    "out"
+    "lib"
+    "dev"
+    "python"
+  ];
+
+  separateDebugInfo = stdenv.buildPlatform.is64bit; # OOMs on 32 bit
+
+  postInstall = ''
+    ln -sv $out/bin/clang $out/bin/cpp
+
+    # Move libclang to 'lib' output
+    moveToOutput "lib/libclang.*" "$lib"
+    moveToOutput "lib/libclang-cpp.*" "$lib"
+    mkdir -p $python/bin $python/share/clang/
+    mv $out/bin/{git-clang-format,scan-view} $python/bin
+    if [ -e $out/bin/set-xcode-analyzer ]; then
+      mv $out/bin/set-xcode-analyzer $python/bin
+    fi
+    mv $out/share/clang/*.py $python/share/clang
+    rm $out/bin/c-index-test
+    patchShebangs $python/bin
+
+    mkdir -p $dev/bin
+    cp bin/{clang-tblgen,clang-tidy-confusable-chars-gen,clang-pseudo-gen} $dev/bin
+  '';
+
+  env =
+    lib.optionalAttrs (stdenv.buildPlatform != stdenv.hostPlatform && !stdenv.hostPlatform.useLLVM)
+      {
+        # The following warning is triggered with (at least) gcc >=
+        # 12, but appears to occur only for cross compiles.
+        NIX_CFLAGS_COMPILE = "-Wno-maybe-uninitialized";
+      };
+
+  passthru = {
+    inherit libllvm;
+    isClang = true;
+    hardeningUnsupportedFlagsByTargetPlatform = _: [
+      "fortify3"
+      "pacret"
+      "strictflexarrays3"
     ];
+  };
 
-    buildInputs = [
-      libxml2
-      libllvm
-    ];
-
-    cmakeFlags = [
-      (lib.cmakeFeature "CLANG_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/clang")
-      (lib.cmakeBool "CLANGD_BUILD_XPC" false)
-      (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
-      (lib.cmakeFeature "LLVM_TABLEGEN_EXE" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
-      (lib.cmakeFeature "CLANG_TABLEGEN" "${buildLlvmTools.tblgen}/bin/clang-tblgen")
-      # Added in LLVM15:
-      # `clang-tidy-confusable-chars-gen`: https://github.com/llvm/llvm-project/commit/c3574ef739fbfcc59d405985a3a4fa6f4619ecdb
-      # `clang-pseudo-gen`: https://github.com/llvm/llvm-project/commit/cd2292ef824591cc34cc299910a3098545c840c7
-      (lib.cmakeFeature "CLANG_TIDY_CONFUSABLE_CHARS_GEN" "${buildLlvmTools.tblgen}/bin/clang-tidy-confusable-chars-gen")
-
-      # clang-pseudo removed in LLVM20: https://github.com/llvm/llvm-project/commit/ed8f78827895050442f544edef2933a60d4a7935
-      (lib.cmakeFeature "CLANG_PSEUDO_GEN" "${buildLlvmTools.tblgen}/bin/clang-pseudo-gen")
-    ]
-    ++ devExtraCmakeFlags;
-
-    postPatch = ''
-      # Make sure clang passes the correct location of libLTO to ld64
-      substituteInPlace lib/Driver/ToolChains/Darwin.cpp \
-        --replace-fail 'StringRef P = llvm::sys::path::parent_path(D.Dir);' 'StringRef P = "${lib.getLib libllvm}";'
-      (cd tools && ln -s ../../clang-tools-extra extra)
+  requiredSystemFeatures = [ "big-parallel" ];
+  meta = llvm_meta // {
+    homepage = "https://clang.llvm.org/";
+    description = "C language family frontend for LLVM";
+    longDescription = ''
+      The Clang project provides a language front-end and tooling
+      infrastructure for languages in the C language family (C, C++, Objective
+      C/C++, OpenCL, CUDA, and RenderScript) for the LLVM project.
+      It aims to deliver amazingly fast compiles, extremely useful error and
+      warning messages and to provide a platform for building great source
+      level tools. The Clang Static Analyzer and clang-tidy are tools that
+      automatically find bugs in your code, and are great examples of the sort
+      of tools that can be built using the Clang frontend as a library to
+      parse C/C++ code.
     '';
-
-    outputs = [
-      "out"
-      "lib"
-      "dev"
-      "python"
-    ];
-
-    separateDebugInfo = stdenv.buildPlatform.is64bit; # OOMs on 32 bit
-
-    postInstall = ''
-      ln -sv $out/bin/clang $out/bin/cpp
-
-      # Move libclang to 'lib' output
-      moveToOutput "lib/libclang.*" "$lib"
-      moveToOutput "lib/libclang-cpp.*" "$lib"
-      mkdir -p $python/bin $python/share/clang/
-      mv $out/bin/{git-clang-format,scan-view} $python/bin
-      if [ -e $out/bin/set-xcode-analyzer ]; then
-        mv $out/bin/set-xcode-analyzer $python/bin
-      fi
-      mv $out/share/clang/*.py $python/share/clang
-      rm $out/bin/c-index-test
-      patchShebangs $python/bin
-
-      mkdir -p $dev/bin
-      cp bin/{clang-tblgen,clang-tidy-confusable-chars-gen,clang-pseudo-gen} $dev/bin
-    '';
-
-    env =
-      lib.optionalAttrs
-        (
-          stdenv.buildPlatform != stdenv.hostPlatform
-          && !stdenv.hostPlatform.useLLVM
-        )
-        {
-          # The following warning is triggered with (at least) gcc >=
-          # 12, but appears to occur only for cross compiles.
-          NIX_CFLAGS_COMPILE = "-Wno-maybe-uninitialized";
-        };
-
-    passthru = {
-      inherit libllvm;
-      isClang = true;
-      hardeningUnsupportedFlagsByTargetPlatform = _: [ "fortify3" "pacret" "strictflexarrays3" ];
-    };
-
-    requiredSystemFeatures = [ "big-parallel" ];
-    meta = llvm_meta // {
-      homepage = "https://clang.llvm.org/";
-      description = "C language family frontend for LLVM";
-      longDescription = ''
-        The Clang project provides a language front-end and tooling
-        infrastructure for languages in the C language family (C, C++, Objective
-        C/C++, OpenCL, CUDA, and RenderScript) for the LLVM project.
-        It aims to deliver amazingly fast compiles, extremely useful error and
-        warning messages and to provide a platform for building great source
-        level tools. The Clang Static Analyzer and clang-tidy are tools that
-        automatically find bugs in your code, and are great examples of the sort
-        of tools that can be built using the Clang frontend as a library to
-        parse C/C++ code.
-      '';
-      mainProgram = "clang";
-    };
-  }
-)
+    mainProgram = "clang";
+  };
+})
