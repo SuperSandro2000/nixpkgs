@@ -19,8 +19,6 @@
   which,
   buildLlvmTools,
   updateAutotoolsGnuConfigScriptsHook,
-  enableSharedLibraries ? !stdenv.hostPlatform.isStatic,
-  enableTerminfo ? true,
   fetchpatch,
 }:
 
@@ -184,7 +182,7 @@ stdenv.mkDerivation (
       libpfm
     ];
 
-    propagatedBuildInputs = (lib.optional (stdenv.buildPlatform == stdenv.hostPlatform) ncurses) ++ [
+    propagatedBuildInputs = lib.optional (stdenv.buildPlatform == stdenv.hostPlatform) ncurses ++ [
       zlib
     ];
 
@@ -226,7 +224,7 @@ stdenv.mkDerivation (
         flagsForLlvmConfig = [
           (lib.cmakeFeature "LLVM_INSTALL_PACKAGE_DIR" "${placeholder "dev"}/lib/cmake/llvm")
           (lib.cmakeBool "LLVM_ENABLE_RTTI" true)
-          (lib.cmakeBool "LLVM_LINK_LLVM_DYLIB" enableSharedLibraries)
+          (lib.cmakeBool "LLVM_LINK_LLVM_DYLIB" true)
           (lib.cmakeFeature "LLVM_TABLEGEN" "${buildLlvmTools.tblgen}/bin/llvm-tblgen")
         ];
       in
@@ -238,7 +236,7 @@ stdenv.mkDerivation (
         (lib.cmakeFeature "LLVM_HOST_TRIPLE" stdenv.hostPlatform.config)
         (lib.cmakeFeature "LLVM_DEFAULT_TARGET_TRIPLE" stdenv.hostPlatform.config)
         (lib.cmakeBool "LLVM_ENABLE_DUMP" true)
-        (lib.cmakeBool "LLVM_ENABLE_TERMINFO" enableTerminfo)
+        (lib.cmakeBool "LLVM_ENABLE_TERMINFO" true)
         (lib.cmakeBool "LLVM_INCLUDE_TESTS" finalAttrs.finalPackage.doCheck)
 
         # LLVM depends on binutils only through libbfd/include/plugin-api.h, which
