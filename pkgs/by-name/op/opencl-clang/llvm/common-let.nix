@@ -1,7 +1,7 @@
 {
   lib,
   fetchFromGitHub ? null,
-  officialRelease ? null,
+  sha256 ? null,
   version ? null,
 }:
 
@@ -18,7 +18,6 @@
     owner = "llvm";
     repo = "llvm-project";
     rev = "llvmorg-${version}";
-    inherit (officialRelease) sha256;
-    passthru = { inherit owner repo rev; };
+    inherit sha256;
   };
 }

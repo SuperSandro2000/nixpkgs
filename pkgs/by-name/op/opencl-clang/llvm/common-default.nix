@@ -1,18 +1,13 @@
 {
   newScope,
   lib,
-  stdenv,
-  libxcrypt,
   fetchFromGitHub,
   wrapCCWith,
   buildPackages,
   buildLlvmTools, # tools, but from the previous stage, for cross
   targetLlvmLibraries, # libraries, but from the next stage, for cross
-  officialRelease,
+  sha256,
   version,
-  # Allows passthrough to packages via newScope. This makes it possible to
-  # do `(llvmPackages.override { <someLlvmDependency> = bar; }).clang` and get
-  # an llvmPackages whose packages are overridden in an internally consistent way.
   ...
 }@args:
 
@@ -23,7 +18,7 @@ let
         inherit
           lib
           fetchFromGitHub
-          officialRelease
+          sha256
           version
           ;
       })
@@ -86,8 +81,6 @@ let
 
       libstdcxxClang = wrapCCWith rec {
         cc = tools.clang-unwrapped;
-        # libstdcxx is taken from gcc in an ad-hoc way in cc-wrapper.
-        libcxx = null;
         extraPackages = [ targetLlvmLibraries.compiler-rt ];
         extraBuildCommands = mkExtraBuildCommands cc;
       };
@@ -100,20 +93,7 @@ let
       callPackage = newScope (libraries // buildLlvmTools // args // metadata);
     in
     {
-      compiler-rt-libc = callPackage ./compiler-rt (
-        let
-          # temp rename to avoid infinite recursion
-          stdenv = args.stdenv;
-        in
-        {
-          inherit stdenv;
-        }
-        // lib.optionalAttrs (stdenv.hostPlatform.useLLVM or false) {
-          libxcrypt = (libxcrypt.override { inherit stdenv; }).overrideAttrs (old: {
-            configureFlags = old.configureFlags ++ [ "--disable-symvers" ];
-          });
-        }
-      );
+      compiler-rt-libc = callPackage ./compiler-rt { };
 
       compiler-rt = libraries.compiler-rt-libc;
     }
