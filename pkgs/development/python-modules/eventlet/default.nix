@@ -20,7 +20,7 @@
   libredirect,
 }:
 
-buildPythonPackage rec {
+buildPythonPackage (rec {
   pname = "eventlet";
   version = "0.40.0";
   pyproject = true;
@@ -31,6 +31,8 @@ buildPythonPackage rec {
     tag = version;
     hash = "sha256-fzCN+idYQ97nuDVfYn6VYQFBaaMxmnjWzFrmn+Aj+u4=";
   };
+
+  ##### see below
 
   nativeBuildInputs = [
     hatch-vcs
@@ -82,4 +84,6 @@ buildPythonPackage rec {
     license = licenses.mit;
     maintainers = with maintainers; [ SuperSandro2000 ];
   };
-}
+} // lib.optionalAttrs isPyPy {
+  pythonRelaxDeps = [ "greenlet" ];
+})
