@@ -4,9 +4,11 @@
   buildPythonPackage,
   pythonOlder,
   fetchFromGitHub,
+  fetchpatch,
   cmake,
   ninja,
   setuptools,
+  isPyPy,
   boost,
   eigen,
   python,
@@ -38,6 +40,18 @@ buildPythonPackage rec {
     tag = "v${version}";
     hash = "sha256-SNLdtrOjaC3lGHN9MAqTf51U9EzNKQLyTMNPe0GcdrU=";
   };
+
+  patches = if isPyPy then [
+    # Fix test compilation with pypy3
+    (fetchpatch {
+      url = "https://github.com/pybind/pybind11/pull/5508.patch";
+      hash = "sha256-do/gacxNXgFl6ns7Yc5OVw4Uj/b7UMjBZYRTTax6sGM=";
+    })
+    (fetchpatch {
+      url = "https://github.com/pybind/pybind11/pull/5537.patch";
+      hash = "sha256-usxg6UNyAKTaetWLfxzxKIK3Z2ZpcuDCZQEFj3JFHAc=";
+    })
+  ] else [ ];
 
   build-system = [
     cmake
