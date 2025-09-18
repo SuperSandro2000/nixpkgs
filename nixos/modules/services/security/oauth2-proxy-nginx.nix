@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.services.oauth2-proxy.nginx;
 in
@@ -80,13 +85,23 @@ in
     lib.mkMerge (
       [
         {
-          virtualHosts.${cfg.domain}.locations."/oauth2/" = {
-            proxyPass = cfg.proxy;
-            extraConfig = ''
-              auth_request off;
-              proxy_set_header X-Scheme                $scheme;
-              proxy_set_header X-Auth-Request-Redirect $scheme://$host$request_uri;
-            '';
+          virtualHosts.${cfg.domain}.locations = {
+            "/oauth2/" = {
+              proxyPass = cfg.proxy;
+              extraConfig = ''
+                auth_request off;
+                proxy_set_header X-Scheme                $scheme;
+                proxy_set_header X-Auth-Request-Redirect $scheme://$host$request_uri;
+              '';
+            };
+            "/oauth2/static/" = {
+              root = pkgs.runCommand "oauth2-proxy-static-files" { } ''
+                cp -r ${config.services.oauth2-proxy.package.src}/static/ $out
+              '';
+              extraConfig = ''
+                auth_request off;
+              '';
+            };
           };
         }
       ]
