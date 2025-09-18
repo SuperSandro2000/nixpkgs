@@ -103,6 +103,12 @@ buildPythonPackage rec {
     substituteInPlace pyproject.toml \
       --replace-fail "meson-python>=0.13.1,<0.17.0" meson-python
 
+  ''
+  + lib.optionalString isPyPy ''
+    substituteInPlace tools/generate_matplotlibrc.py \
+      --replace-fail "/usr/bin/env python3" "/usr/bin/env pypy3"
+  ''
+  + ''
     patchShebangs tools
   ''
   + lib.optionalString (stdenv.hostPlatform.isLinux && interactive) ''
