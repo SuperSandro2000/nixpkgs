@@ -8,6 +8,9 @@
   cacert ? null,
   rewriteURL,
   hashedMirrors,
+
+  # Used in `pkgs/build-support/prefer-remote-fetch/default.nix`
+  preferLocalBuild ? true,
 }:
 
 let
@@ -28,6 +31,7 @@ let
     warn
     ;
   nixpkgsVersion = lib.trivial.release;
+  cpPreferLocalBuild = preferLocalBuild;
 
   mirrors = import ./mirrors.nix // {
     inherit hashedMirrors;
@@ -205,7 +209,7 @@ lib.extendMkDerivation {
 
       # Doing the download on a remote machine just duplicates network
       # traffic, so don't do that by default
-      preferLocalBuild ? true,
+      preferLocalBuild ? cpPreferLocalBuild,
 
       # Additional packages needed as part of a fetch
       nativeBuildInputs ? [ ],
