@@ -68,10 +68,11 @@ buildGoModule rec {
   # go-modules derivation doesn't provide $data
   # so we need to wait until it is built, and then
   # at that time we can then apply the substituteInPlace
-  overrideModAttrs = _: { postPatch = null; };
+  overrideModAttrs = _: { postPatch = ''substituteInPlace go.mod --replace-fail "go 1.25.3" "go 1.25"''; };
 
   postPatch = ''
     substituteInPlace modules/setting/server.go --subst-var data
+    substituteInPlace go.mod --replace-fail "go 1.25.3" "go 1.25"
   '';
 
   subPackages = [ "." ];
