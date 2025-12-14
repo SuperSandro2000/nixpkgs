@@ -161,7 +161,7 @@ in
       serviceConfig.ExecStart = [
         # override upstream default with an empty ExecStart
         ""
-        (pkgs.writers.writeDash "getty" autologinScript)
+        (pkgs.writers.writeBash "getty" autologinScript)
       ];
       environment.TTY = "%I";
       restartIfChanged = false;
