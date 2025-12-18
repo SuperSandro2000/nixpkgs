@@ -52,7 +52,7 @@ stdenv.mkDerivation (finalAttrs: {
   buildInputs = [
     (python3.withPackages (ps: [
       ps.dbus-python
-      ps.pygobject3
+      (ps.pygobject3.override { withCairo = false; })
     ]))
   ];
 
