@@ -2,6 +2,8 @@
   lib,
   fetchFromGitHub,
   buildPythonPackage,
+  isPyPy,
+  pycparser,
   pythonOlder,
   cffi,
   # overridden as pkgs.brotli
@@ -30,7 +32,7 @@ buildPythonPackage rec {
 
   propagatedNativeBuildInputs = [ cffi ];
 
-  dependencies = [ cffi ];
+  dependencies = [ cffi ] ++ lib.optionals isPyPy [ pycparser ];
 
   preBuild = ''
     export USE_SHARED_BROTLI=1
