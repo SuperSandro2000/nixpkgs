@@ -11649,8 +11649,6 @@ with pkgs;
     stdenv = gccStdenv;
   };
 
-  pear-desktop = callPackage ../applications/audio/pear-desktop { };
-
   pianoteq = callPackage ../applications/audio/pianoteq { };
 
   pidginPackages = recurseIntoAttrs (
