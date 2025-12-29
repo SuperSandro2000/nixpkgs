@@ -41,7 +41,7 @@ in
   fetchipfs = preferLocal super.fetchipfs;
   fetchrepoproject = preferLocal super.fetchrepoproject;
   fetchs3 = preferLocal super.fetchs3;
-  fetchsvn = preferLocal super.fetchsvn;
+  fetchsvn = args: super.fetchsvn ({ preferLocalBuild = false; } // args);
   fetchurl = preferLocal super.fetchurl;
   mkNugetSource = preferLocal super.mkNugetSource;
 }
