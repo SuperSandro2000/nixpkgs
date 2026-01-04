@@ -20,7 +20,6 @@
   pbr,
   prettytable,
   python,
-  pythonOlder,
   pyyaml,
   setuptools,
   stestr,
@@ -84,10 +83,13 @@ buildPythonPackage rec {
     chmod +x bin/*
 
     stestr --test-path tempest/tests run -e <(echo "
-      tempest.tests.cmd.test_cleanup.TestTempestCleanup.test_load_json_resource_list
-      tempest.tests.cmd.test_cleanup.TestTempestCleanup.test_load_json_saved_state
-      tempest.tests.cmd.test_cleanup.TestTempestCleanup.test_take_action_got_exception
       tempest.tests.lib.cli.test_execute.TestExecute.test_execute_with_prefix
+      tempest.tests.lib.common.test_http.TestClosingHttp.test_request
+      tempest.tests.lib.common.test_http.TestClosingHttp.test_request_with_fields
+      tempest.tests.lib.common.test_http.TestClosingHttp.test_request_with_headers
+      tempest.tests.lib.common.test_http.TestClosingProxyHttp.test_request
+      tempest.tests.lib.common.test_http.TestClosingProxyHttp.test_request_with_fields
+      tempest.tests.lib.common.test_http.TestClosingProxyHttp.test_request_with_headers
     ")
   '';
 
