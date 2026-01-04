@@ -89,6 +89,12 @@ buildPythonPackage rec {
 
     stestr --test-path tempest/tests run -e <(echo "
       tempest.tests.lib.cli.test_execute.TestExecute.test_execute_with_prefix
+      tempest.tests.lib.common.test_http.TestClosingHttp.test_request
+      tempest.tests.lib.common.test_http.TestClosingHttp.test_request_with_fields
+      tempest.tests.lib.common.test_http.TestClosingHttp.test_request_with_headers
+      tempest.tests.lib.common.test_http.TestClosingProxyHttp.test_request
+      tempest.tests.lib.common.test_http.TestClosingProxyHttp.test_request_with_fields
+      tempest.tests.lib.common.test_http.TestClosingProxyHttp.test_request_with_headers
     ")
   '';
 
