@@ -11,13 +11,13 @@
 }:
 buildGoModule (finalAttrs: {
   pname = "headscale";
-  version = "0.27.1";
+  version = "0.28.0-beta.2";
 
   src = fetchFromGitHub {
     owner = "juanfont";
     repo = "headscale";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-eMqGJL+dxBThtW+0uMvnP5n2gk2kwOao6SukA38OMOE=";
+    hash = "sha256-9PXHBk4I1HzYgzGZN6XtkkoxKnPrK9u1Fci2075sURE=";
   };
 
   postPatch = ''
@@ -26,7 +26,7 @@ buildGoModule (finalAttrs: {
       --replace-fail 'Commit:    "unknown"' 'Commit: "${finalAttrs.src.tag}"'
   '';
 
-  vendorHash = "sha256-VOi4PGZ8I+2MiwtzxpKc/4smsL5KcH/pHVkjJfAFPJ0=";
+  vendorHash = "sha256-dWsDgI5K+8mFw4PA5gfFBPCSqBJp5RcZzm0ML1+HsWw=";
 
   subPackages = [ "cmd/headscale" ];
 
