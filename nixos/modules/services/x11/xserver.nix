@@ -735,7 +735,8 @@ in
 
     services.xserver.videoDrivers = mkIf (cfg.videoDriver != null) [ cfg.videoDriver ];
 
-    # FIXME: somehow check for unknown driver names.
+    # We ignore unknown drivers here because they may be resolved by other modules (e.g., the Nvidia
+    # module). We assert that all specified drivers were eventually found in the assertions below.
     services.xserver.drivers = flip concatMap cfg.videoDrivers (
       name:
       lib.optional (videoDrivers ? ${name}) (
@@ -767,7 +768,11 @@ in
         assertion = cfg.upscaleDefaultCursor -> cfg.dpi != null;
         message = "Specify `config.services.xserver.dpi` to upscale the default cursor.";
       }
-    ];
+    ]
+    ++ map (driver: {
+      assertion = builtins.elem driver (builtins.catAttrs "name" cfg.drivers);
+      message = "Unknown X11 driver ‘${driver}’ specified in `videoDriver(s)`.";
+    }) cfg.videoDrivers;
 
     environment.etc =
       (optionalAttrs cfg.exportConfiguration {
