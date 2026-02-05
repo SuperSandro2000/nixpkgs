@@ -256,9 +256,7 @@ let
         specialMount "${mount.device}" "${mount.mountPoint}" "${concatStringsSep "," mount.options}" "${mount.fsType}"
       '') mounts;
     }).overrideAttrs
-      {
-        __contentAddressed = true;
-      };
+      { };
 
   makeFstabEntries =
     let
