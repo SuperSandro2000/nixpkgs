@@ -116,7 +116,6 @@ in
       restartTriggers = [
         (pkgs.runCommand "polkit-paths"
           {
-            __contentAddressed = true;
           }
           ''
             mkdir -p $out/etc $out/share

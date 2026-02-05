@@ -145,7 +145,6 @@ let
             filteredModules
             pkgsLibPath
           ];
-          __contentAddressed = true;
           __structuredAttrs = true;
         }
         ''
