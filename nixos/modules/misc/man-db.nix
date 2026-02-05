@@ -87,7 +87,6 @@ in
                   {
                     nativeBuildInputs = [ buildPackage ];
                     preferLocalBuild = true;
-                    __contentAddressed = true;
                   }
                   ''
                     cp -prL ${cfg.manualPages}/share/man man
