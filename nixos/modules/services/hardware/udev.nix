@@ -172,7 +172,6 @@ let
       {
         preferLocalBuild = true;
         allowSubstitutes = false;
-        __contentAddressed = true;
         packages = lib.unique (map toString ([ udev ] ++ cfg.packages));
       }
       ''

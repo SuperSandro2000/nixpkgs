@@ -78,7 +78,6 @@ rec {
         {
           preferLocalBuild = true;
           allowSubstitutes = false;
-          __contentAddressed = true;
           # unit.text can be null. But variables that are null listed in
           # passAsFile are ignored by nix, resulting in no file being created,
           # making the mv operation fail.
@@ -95,7 +94,6 @@ rec {
         {
           preferLocalBuild = true;
           allowSubstitutes = false;
-          __contentAddressed = true;
         }
         ''
           name=${shellEscape name}
@@ -401,7 +399,6 @@ rec {
       {
         preferLocalBuild = true;
         allowSubstitutes = false;
-        __contentAddressed = true;
       }
       ''
         mkdir -p $out

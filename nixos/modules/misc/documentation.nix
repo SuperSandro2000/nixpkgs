@@ -145,7 +145,6 @@ let
             libPath
             pkgsLibPath
           ];
-          __contentAddressed = true;
           __structuredAttrs = true;
         }
         ''
