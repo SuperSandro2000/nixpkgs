@@ -78,7 +78,6 @@ rec {
           preferLocalBuild = true;
           allowSubstitutes = false;
           text = unit.text or "";
-          __contentAddressed = true;
           __structuredAttrs = true;
         }
         ''
@@ -91,7 +90,6 @@ rec {
         {
           preferLocalBuild = true;
           allowSubstitutes = false;
-          __contentAddressed = true;
         }
         ''
           name=${shellEscape name}
@@ -400,7 +398,6 @@ rec {
       {
         preferLocalBuild = true;
         allowSubstitutes = false;
-        __contentAddressed = true;
       }
       ''
         mkdir -p $out
