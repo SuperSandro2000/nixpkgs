@@ -74,9 +74,7 @@ in
 
     systemd.services.polkit.restartTriggers = [
       (pkgs.runCommand "polkit-paths"
-        {
-          __contentAddressed = true;
-        }
+        { }
         ''
           mkdir -p $out/etc $out/share
           cp -r ${config.system.path}/etc/polkit-1/ $out/etc

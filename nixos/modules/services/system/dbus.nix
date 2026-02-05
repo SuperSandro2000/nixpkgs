@@ -136,9 +136,7 @@ in
       services.dbus.packages = [
         cfg.dbusPackage
         (pkgs.runCommandLocal "system-path-dbus"
-          {
-            __contentAddressed = true;
-          }
+          { }
           ''
             mkdir -p $out/etc $out/share
             cp -r ${config.system.path}/etc/dbus-1 $out/etc
