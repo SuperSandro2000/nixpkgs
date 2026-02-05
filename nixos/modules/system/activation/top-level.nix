@@ -58,7 +58,6 @@ let
   baseSystem = pkgs.stdenvNoCC.mkDerivation (
     {
       name = "nixos-system-${config.system.name}-${config.system.nixos.label}";
-      __contentAddressed = true;
       preferLocalBuild = true;
       allowSubstitutes = false;
       # We handle assertions here so that merely evaluating the name attribute (e.g. in `nix flake show`) doesn't trigger heavy instantiations.
