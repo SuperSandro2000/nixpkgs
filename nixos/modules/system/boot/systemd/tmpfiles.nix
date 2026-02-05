@@ -293,7 +293,6 @@ in
           pkgs.runCommandLocal "tmpfiles.d"
             {
               paths = map (p: p + "/lib/tmpfiles.d") cfg.packages;
-              __contentAddressed = true;
             }
             ''
               mkdir -p $out
