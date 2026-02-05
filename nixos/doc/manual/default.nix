@@ -289,7 +289,6 @@ rec {
           buildPackages.nixos-render-docs
         ];
         allowedReferences = [ "out" ];
-        __contentAddressed = true;
       }
       ''
         # Generate manpages.
