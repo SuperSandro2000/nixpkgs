@@ -95,16 +95,6 @@ let
         ];
       });
 
-      google-genai = super.google-genai.overridePythonAttrs rec {
-        version = "1.38.0";
-        src = fetchFromGitHub {
-          owner = "googleapis";
-          repo = "python-genai";
-          tag = "v${version}";
-          hash = "sha256-gJaLEpNKHl6n1MvQDIUW7ynsHYH2eEPGsYso5jSysNg=";
-        };
-      };
-
       gspread = super.gspread.overridePythonAttrs (oldAttrs: rec {
         version = "5.12.4";
         src = fetchFromGitHub {
@@ -206,16 +196,6 @@ let
         };
       });
 
-      pydexcom = super.pydexcom.overridePythonAttrs (oldAttrs: rec {
-        version = "0.2.3";
-        src = fetchFromGitHub {
-          owner = "gagebenne";
-          repo = "pydexcom";
-          tag = version;
-          hash = "sha256-ItDGnUUUTwCz4ZJtFVlMYjjoBPn2h8QZgLzgnV2T/Qk=";
-        };
-      });
-
       pyflume = super.pyflume.overridePythonAttrs (oldAttrs: rec {
         version = "0.6.5";
         src = fetchFromGitHub {
@@ -293,7 +273,7 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2026.1.3";
+  hassVersion = "2026.2.0";
 
 in
 python.pkgs.buildPythonApplication rec {
@@ -314,13 +294,13 @@ python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     tag = version;
-    hash = "sha256-zmS5OZaUFe45rbCil7sbVlhy0wwA+F9tBO10KvBM2PY=";
+    hash = "sha256-SZv5UVB62nwRjaemVZpxj8ZUpOzFGp/RsvOYm6uWiNc=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-gs5YyR1MofSMV8TDeBGp9keIREcszZGcLvtnHOYR7uc=";
+    hash = "sha256-ArCk9UrObDLmcmcS8/xT0ADPLzw/DUs3vKyX/fKCeU8=";
   };
 
   build-system = with python.pkgs; [
@@ -451,6 +431,8 @@ python.pkgs.buildPythonApplication rec {
       beautifulsoup4
       # Used in tests/scripts/test_check_config.py
       colorlog
+      # Used in tests/helpers/test_httpx_client.py
+      h2
     ])
     ++ lib.concatMap (component: getPackages component python.pkgs) [
       # some components are needed even if tests in tests/components are disabled
