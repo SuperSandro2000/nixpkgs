@@ -13,29 +13,19 @@ in
 python.pkgs.toPythonModule (
   python.pkgs.buildPythonApplication rec {
     pname = "searxng";
-    version = "0-unstable-2026-01-30";
+    version = "0-unstable-2026-02-06";
     pyproject = true;
 
     src = fetchFromGitHub {
       owner = "searxng";
       repo = "searxng";
-      rev = "ad42b553bf80e645f4a5cddf7d9391a501d12371";
-      hash = "sha256-ZHMJ3Ns27tiF/ez4XVNVOkdMw7Rc6xCaJphewttM914=";
+      rev = "b5bb27f231e5f24b3985cd7cbd3f371486c21a11";
+      hash = "sha256-y52R+MzPCa0zo52hZ/wnBacLLbF9k6P8UeVFobR+uUQ=";
     };
 
     nativeBuildInputs = with python.pkgs; [ pythonRelaxDepsHook ];
 
-    pythonRelaxDeps = [
-      "certifi"
-      "flask"
-      "flask-babel"
-      "httpx-socks"
-      "lxml"
-      "markdown-it-py"
-      "msgspec"
-      "typer-slim"
-      "whitenoise"
-    ];
+    pythonRelaxDeps = true;
 
     preBuild =
       let
