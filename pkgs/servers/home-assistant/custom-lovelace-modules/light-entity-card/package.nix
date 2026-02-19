@@ -2,6 +2,7 @@
   lib,
   buildNpmPackage,
   fetchFromGitHub,
+  fetchpatch,
 }:
 
 buildNpmPackage rec {
@@ -14,6 +15,14 @@ buildNpmPackage rec {
     tag = version;
     hash = "sha256-DtpNKcnxMWbKwfIwo9R2g2Vux9oAjTI0URixGC41qeA=";
   };
+
+  patches = [
+    # Fix spacing
+    (fetchpatch {
+      url = "https://github.com/ljmerza/light-entity-card/pull/134.patch";
+      hash = "sha256-YBsf3N2yLdHmLLR/R/Qdn9r0RdL/7BNadnn5Ka9/EzU=";
+    })
+  ];
 
   npmDepsHash = "sha256-EZDTWtn3joikwiC5Kfn94+tXRDpBhMDHqHozfIkfbJ0=";
 
