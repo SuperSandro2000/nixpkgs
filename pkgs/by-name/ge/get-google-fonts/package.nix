@@ -23,6 +23,12 @@ buildNpmPackage {
       url = "https://github.com/MrMaxie/get-google-fonts/commit/f2c818fc7c9ee228db020305f432fd08eda7dc5f.patch";
       hash = "sha256-BszZdAZWpnkNETKYvSElg0lCjgcP7BNeXfMvePKAio4=";
     })
+
+    # fix italic fonts
+    (fetchpatch {
+      url = "https://github.com/MrMaxie/get-google-fonts/commit/2eeeedb7cd1d73372aa45fddebcbf66a4ac03231.patch";
+      hash = "sha256-Sp9UZ0qquPGOT7cZP0sdAE4pN0O/mM7t/j0eHsJkyW0=";
+    })
   ];
 
   npmDepsHash = "sha256-VUphB0Qq94rlcGrrsO2Nat/bD2IZTtdevGKsXFu/YdQ=";
