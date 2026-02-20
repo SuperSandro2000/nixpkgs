@@ -1,0 +1,32 @@
+diff --git a/music_assistant/providers/airplay_receiver/helpers.py b/music_assistant/providers/airplay_receiver/helpers.py
+index 6f2b35df..dd839b73 100644
+--- a/music_assistant/providers/airplay_receiver/helpers.py
++++ b/music_assistant/providers/airplay_receiver/helpers.py
+@@ -10,7 +9,7 @@
+ 
+ 
+ async def get_shairport_sync_binary() -> str:
+-    """Find the shairport-sync binary (bundled or system-installed)."""
++    """Find the shairport-sync binary (system-installed)."""
+ 
+     async def check_shairport_sync(shairport_path: str) -> str | None:
+         """Check if shairport-sync binary is valid."""
+@@ -22,17 +21,10 @@ async def check_shairport_sync(shairport_path: str) -> str | None:
+         except OSError:
+             return None
+ 
+-    # First, check if bundled binary exists
+-    base_path = os.path.join(os.path.dirname(__file__), "bin")
+     system = platform.system().lower().replace("darwin", "macos")
+     architecture = platform.machine().lower()
+ 
+-    if shairport_binary := await check_shairport_sync(
+-        os.path.join(base_path, f"shairport-sync-{system}-{architecture}")
+-    ):
+-        return shairport_binary
+-
+-    # If no bundled binary, check system PATH
++    # Check system PATH
+     if system_binary := shutil.which("shairport-sync"):
+         if shairport_binary := await check_shairport_sync(system_binary):
+             return shairport_binary

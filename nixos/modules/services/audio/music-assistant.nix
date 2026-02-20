@@ -87,6 +87,9 @@ in
         [
           lsof
         ]
+        ++ lib.optionals (lib.elem "airplay_receiver" cfg.providers) [
+          finalPackage.passthru.shairport-sync
+        ]
         ++ lib.optionals (lib.elem "spotify" cfg.providers) [
           librespot-ma
         ]

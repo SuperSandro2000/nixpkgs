@@ -3,6 +3,7 @@
   python3,
   fetchFromGitHub,
   ffmpeg_7-headless,
+  shairport-sync,
   nixosTests,
   replaceVars,
   providers ? [ ],
@@ -66,6 +67,9 @@ python.pkgs.buildPythonApplication rec {
     # Look up librespot from PATH at runtime
     ./librespot.patch
 
+    # Look up shairport-sync from PATH at runtime
+    ./shairport-sync.patch
+
     # Disable interactive dependency resolution, which clashes with the immutable Python environment
     ./dont-install-deps.patch
 
@@ -91,7 +95,9 @@ python.pkgs.buildPythonApplication rec {
     substituteInPlace pyproject.toml \
       --replace-fail "get-mac" "getmac"
 
-    rm -rv music_assistant/providers/spotify/bin
+    rm -rv \
+      music_assistant/providers/airplay_receiver/bin/{build_binaries.sh,shairport-sync-*} \
+      music_assistant/providers/spotify/bin
   '';
 
   build-system = with python.pkgs; [
@@ -203,6 +209,30 @@ python.pkgs.buildPythonApplication rec {
       providerPackages
       providerNames
       ;
+    # with features described in https://github.com/music-assistant/server/blob/dev/music_assistant/providers/airplay_receiver/bin/build_binaries.sh#L50-L58
+    shairport-sync = shairport-sync.override {
+      # explicit in the build script
+      enableAvahi = false;
+      enableDbus = true;
+      enableMetadata = true;
+      enablePipe = true;
+      enableStdout = true;
+      enableTinySVCmDNS = true;
+
+      # turn off the features enabled by default in nixpkgs
+      enableAlac = false;
+      enableAlsa = false;
+      enableAo = false;
+      enableConvolution = false;
+      enableJack = false;
+      enableMpris = false;
+      enableMqttClient = false;
+      enablePipewire = false;
+      enablePulse = false;
+      enableSndio = false;
+      enableSoundio = false;
+      enableSoxr = false;
+    };
     tests = nixosTests.music-assistant;
   };
 
