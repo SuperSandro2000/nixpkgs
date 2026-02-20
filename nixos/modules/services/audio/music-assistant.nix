@@ -87,6 +87,10 @@ in
         [
           lsof
         ]
+        ++ lib.optionals (lib.elem "airplay" cfg.providers) [
+          cliairplay
+          libraop
+        ]
         ++ lib.optionals (lib.elem "airplay_receiver" cfg.providers) [
           finalPackage.passthru.shairport-sync
         ]
