@@ -783,8 +783,8 @@ in
       after = [
         "network.target"
       ]
-      ++ optional usePostgresql "postgresql.target"
-      ++ optional useMysql "mysql.service";
+      ++ optional (cfg.database.createDatabase && usePostgresql) "postgresql.target"
+      ++ optional (cfg.database.createDatabase && useMysql) "mysql.service";
       requires =
         optional (cfg.database.createDatabase && usePostgresql) "postgresql.target"
         ++ optional (cfg.database.createDatabase && useMysql) "mysql.service";
