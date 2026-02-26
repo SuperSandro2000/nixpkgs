@@ -2,6 +2,7 @@
   lib,
   buildPythonPackage,
   fetchPypi,
+  isPyPy,
   setuptools-scm,
   zopfli,
   pytestCheckHook,
@@ -16,6 +17,11 @@ buildPythonPackage (finalAttrs: {
     inherit (finalAttrs) pname version;
     hash = "sha256-qO6ZKyVJ4JDNPwF4v2Bt1Bop4GE6BM31BUIkZixy3OY=";
   };
+
+  postPatch = if isPyPy then ''
+    substituteInPlace pyproject.toml \
+      --replace-fail "setuptools<72.2.0" "setuptools"
+  '' else null;
 
   build-system = [ setuptools-scm ];
 
