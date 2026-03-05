@@ -7,15 +7,15 @@
   python3,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "phonetisaurus";
-  version = "0.9.1";
+  version = "0.9.1-unstable-2026-01-05";
 
   src = fetchFromGitHub {
-    owner = "AdolfVonKleist";
-    repo = "phonetisaurus";
-    rev = version;
-    sha256 = "1b18s5zz0l0fhqh9n9jnmgjz2hzprwzf6hx5a12zibmmam3qyriv";
+    owner = "danijel3";
+    repo = "Phonetisaurus";
+    tag = "kaldi";
+    sha256 = "sha256-dPAVasGSD2j8xmUQsWE0tjAXvCBNOuXLq+ayttA5r2Q=";
   };
 
   enableParallelBuilding = true;
@@ -29,7 +29,7 @@ stdenv.mkDerivation rec {
 
   meta = {
     description = "Framework for Grapheme-to-phoneme models for speech recognition using the OpenFst framework";
-    inherit (src.meta) homepage;
+    homepage = "https://github.com/AdolfVonKleist/Phonetisaurus";
     license = lib.licenses.bsd3;
     maintainers = with lib.maintainers; [ mic92 ];
     platforms = lib.platforms.unix;
