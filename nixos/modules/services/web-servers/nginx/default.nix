@@ -1440,51 +1440,51 @@ in
               attrValues host.locations
             )
           ) (attrValues virtualHosts);
-          message = ''
-            Options services.nginx.service.virtualHosts.<name>.proxyPass and
-            services.nginx.virtualHosts.<name>.uwsgiPass are mutually exclusive.
-          '';
-        }
+        message = ''
+          Options services.nginx.service.virtualHosts.<name>.proxyPass and
+          services.nginx.virtualHosts.<name>.uwsgiPass are mutually exclusive.
+        '';
+      }
 
-        {
-          # The idea is to understand whether there is a virtual host with a listen configuration
-          # that requires ACME configuration but has no HTTP listener which will make deterministically fail
-          # this operation.
-          # Options' priorities are the following at the moment:
-          # listen (vhost) > defaultListen (server) > listenAddresses (vhost) > defaultListenAddresses (server)
-          assertion =
+      {
+        # The idea is to understand whether there is a virtual host with a listen configuration
+        # that requires ACME configuration but has no HTTP listener which will make deterministically fail
+        # this operation.
+        # Options' priorities are the following at the moment:
+        # listen (vhost) > defaultListen (server) > listenAddresses (vhost) > defaultListenAddresses (server)
+        assertion =
+          let
+            hasAtLeastHttpListener =
+              listenOptions:
+              any (
+                listenLine: if listenLine ? proxyProtocol then !listenLine.proxyProtocol else true
+              ) listenOptions;
+            hasAtLeastDefaultHttpListener =
+              if cfg.defaultListen != [ ] then
+                hasAtLeastHttpListener cfg.defaultListen
+              else
+                (cfg.defaultListenAddresses != [ ]);
+          in
+          all (
+            host:
             let
-              hasAtLeastHttpListener =
-                listenOptions:
-                any (
-                  listenLine: if listenLine ? proxyProtocol then !listenLine.proxyProtocol else true
-                ) listenOptions;
-              hasAtLeastDefaultHttpListener =
-                if cfg.defaultListen != [ ] then
-                  hasAtLeastHttpListener cfg.defaultListen
-                else
-                  (cfg.defaultListenAddresses != [ ]);
+              hasAtLeastVhostHttpListener =
+                if host.listen != [ ] then hasAtLeastHttpListener host.listen else (host.listenAddresses != [ ]);
+              vhostAuthority = host.listen != [ ] || (cfg.defaultListen == [ ] && host.listenAddresses != [ ]);
             in
-            all (
-              host:
-              let
-                hasAtLeastVhostHttpListener =
-                  if host.listen != [ ] then hasAtLeastHttpListener host.listen else (host.listenAddresses != [ ]);
-                vhostAuthority = host.listen != [ ] || (cfg.defaultListen == [ ] && host.listenAddresses != [ ]);
-              in
-              # Either vhost has precedence and we need a vhost specific http listener
-              # Either vhost set nothing and inherit from server settings
-              host.enableACME
-              -> (
-                (vhostAuthority && hasAtLeastVhostHttpListener)
-                || (!vhostAuthority && hasAtLeastDefaultHttpListener)
-              )
-            ) (attrValues virtualHosts);
-          message = ''
-            services.nginx.virtualHosts.<name>.enableACME requires a HTTP listener
-            to answer to ACME requests.
-          '';
-        }
+            # Either vhost has precedence and we need a vhost specific http listener
+            # Either vhost set nothing and inherit from server settings
+            host.enableACME
+            -> (
+              (vhostAuthority && hasAtLeastVhostHttpListener)
+              || (!vhostAuthority && hasAtLeastDefaultHttpListener)
+            )
+          ) (attrValues virtualHosts);
+        message = ''
+          services.nginx.virtualHosts.<name>.enableACME requires a HTTP listener
+          to answer to ACME requests.
+        '';
+      }
 
       {
         assertion = cfg.resolver.ipv4 || cfg.resolver.ipv6;

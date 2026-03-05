@@ -147,14 +147,11 @@ in
 
       services.dbus.packages = [
         cfg.dbusPackage
-        (pkgs.runCommandLocal "system-path-dbus"
-          { }
-          ''
-            mkdir -p $out/etc $out/share
-            cp -r ${config.system.path}/etc/dbus-1 $out/etc
-            cp -r ${config.system.path}/share/dbus-1 $out/share
-          ''
-        )
+        (pkgs.runCommandLocal "system-path-dbus" { } ''
+          mkdir -p $out/etc $out/share
+          cp -r ${config.system.path}/etc/dbus-1 $out/etc
+          cp -r ${config.system.path}/share/dbus-1 $out/share
+        '')
       ];
 
       systemd.user.sockets.dbus.wantedBy = [

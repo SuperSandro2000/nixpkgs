@@ -585,7 +585,7 @@ in
                   type = lib.types.bool;
                   default =
                     if cfg.configureNginx then nginx.virtualHosts.${cfg.settings.server.DOMAIN}.forceSSL else false;
-                  defaultText = lib.literalExpression ''if config.${opt.configureNginx} then config.services.nginx.virtualHosts.''${cfg.settings.server.DOMAIN}.forceSSL else false'';
+                  defaultText = lib.literalExpression "if config.${opt.configureNginx} then config.services.nginx.virtualHosts.\${cfg.settings.server.DOMAIN}.forceSSL else false";
                   description = ''
                     Marks session cookies as "secure" as a hint for browsers to only send
                     them via HTTPS. This option is recommend, if gitea is being served over HTTPS.
