@@ -10,23 +10,24 @@
   opengrm-ngram,
   perl,
   phonetisaurus,
-  python3Packages,
   runCommand,
 }:
 
 let
-tools = runCommand "speech-to-phrase-tools" { }
-  ''
-    mkdir -p $out/kaldi
-    ln -s ${kaldi}/{bin,lib} $out/kaldi
-    cp -r ${kaldi}/share/kaldi/egs/wsj/s5/{steps,utils} $out/kaldi
-    ln -s ${kaldi} $out/openfst
+  python3Packages = home-assistant.python.pkgs;
 
-    ln -s ${opengrm-ngram} $out/opengrm
-    # The binary phonetisaurus in the download identifies itself as phonetisaurus-g2pfst when run with --help
-    ln -s ${lib.getExe' phonetisaurus "phonetisaurus-g2pfst"} $out/phonetisaurus
-  '';
-# stt_onlyprobs
+  tools = runCommand "speech-to-phrase-tools" { }
+    ''
+      mkdir -p $out/kaldi
+      ln -s ${kaldi}/{bin,lib} $out/kaldi
+      cp -r ${kaldi}/share/kaldi/egs/wsj/s5/{steps,utils} $out/kaldi
+      ln -s ${kaldi} $out/openfst
+
+      ln -s ${opengrm-ngram} $out/opengrm
+      # The binary phonetisaurus in the download identifies itself as phonetisaurus-g2pfst when run with --help
+      ln -s ${lib.getExe' phonetisaurus "phonetisaurus-g2pfst"} $out/phonetisaurus
+    '';
+  # stt_onlyprobs
 in
 python3Packages.buildPythonApplication (finalAttrs: {
   pname = "speech-to-phrase";
