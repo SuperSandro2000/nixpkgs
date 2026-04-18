@@ -86,6 +86,9 @@ wrap() {
   # quite same in appimageTools
   export APPIMAGE_SILENT_INSTALL=1
 
+  # required for Music Assistant to load
+  export LD_PRELOAD=/usr/lib/libwayland-client.so
+
   if [ -n "$APPIMAGE_DEBUG_EXEC" ]; then
     cd "$APPDIR" || true
     exec "$APPIMAGE_DEBUG_EXEC"
