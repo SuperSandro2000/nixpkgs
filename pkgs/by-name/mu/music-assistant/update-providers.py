@@ -28,9 +28,19 @@ TEMPLATE = """# Do not edit manually, run ./update-providers.py
 {%- for provider in providers | sort(attribute='domain') %}
     {{ provider.domain }} = {% if provider.available %}ps: with ps;{% else %}ps:{% endif %} [
 {%- for requirement in provider.available | sort %}
-      {{ requirement }}
+  {%- if ".optional-dependencies." not in requirement %}
+    {{ requirement }}
+  {%- endif %}
 {%- endfor %}
-    ];{% if provider.missing %} # missing {{ ", ".join(provider.missing) }}{% endif %}
+    ]
+{%- if ".optional-dependencies." in provider.available | join("|") %}
+{%- for requirement in provider.available | sort %}
+  {%- if ".optional-dependencies." in requirement %}
+    ++ {{ requirement }}
+  {%- endif %}
+{%- endfor %}
+{%- endif %}
+;{% if provider.missing %} # missing {{ ", ".join(provider.missing) }}{% endif %}
 {%- endfor %}
   };
 }
@@ -53,10 +63,16 @@ ROOT: Final = (
 PACKAGE_SET = "music-assistant.python.pkgs"
 PACKAGE_MAP = {
     "git+https://github.com/MarvinSchenkel/pytube.git": "pytube",
+    "python-mpd2": "mpd2",
 }
 
 
 EXTRA_DEPS = {
+    # Those providers cannot guard pydantic behind TYPE_CHECKING
+    "msx_bridge": ["pydantic"],
+    "nicovideo": ["pydantic"],
+
+    "sendspin": ["aiosendspin.optional-dependencies.server"],
     "ytmusic": [
         # https://github.com/music-assistant/server/blob/2.5.8/music_assistant/providers/ytmusic/__init__.py#L120
         "bgutil-ytdlp-pot-provider",
@@ -202,11 +218,14 @@ async def resolve_providers(manifests) -> Set:
     providers = set()
     for manifest in manifests:
         provider = Provider(manifest.domain)
-        requirements = manifest.requirements + EXTRA_DEPS.get(manifest.domain, [])
+        requirements = manifest.requirements
         for requirement in requirements:
             # allow substituting requirement specifications that packaging cannot parse
-            if requirement in PACKAGE_MAP:
-                requirement = PACKAGE_MAP[requirement]
+            matched_key = next(
+                (k for k in PACKAGE_MAP if requirement.startswith(k)), None
+            )
+            if matched_key:
+                requirement = PACKAGE_MAP[matched_key]
 
             requirement = Requirement(requirement)
             try:
@@ -223,6 +242,9 @@ async def resolve_providers(manifests) -> Set:
             version = await get_package_version(attr)
             if version not in requirement.specifier:
                 errors.append(f"{requirement} not satisfied by version {version}")
+        if manifest.domain in EXTRA_DEPS:
+            for requirement in EXTRA_DEPS[manifest.domain]:
+                provider.available.append(requirement)
         providers.add(provider)
     if errors:
         print("\n - ", end="")

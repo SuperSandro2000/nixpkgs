@@ -1,0 +1,23 @@
+From 66b822addc3fa508e3d36980ff93de159883aa1a Mon Sep 17 00:00:00 2001
+From: Sandro <sandro.jaeckel@gmail.com>
+Date: Mon, 25 May 2026 05:12:34 +0200
+Subject: [PATCH] Only set torch preference for engined that actually work
+
+qnnpack does not work on x86 and fbgemm uses x86 specific instructions.
+---
+ music_assistant/providers/smart_fades/provider.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/music_assistant/providers/smart_fades/provider.py b/music_assistant/providers/smart_fades/provider.py
+index 8ed764b760..0772514acd 100644
+--- a/music_assistant/providers/smart_fades/provider.py
++++ b/music_assistant/providers/smart_fades/provider.py
+@@ -87,7 +87,7 @@ def _initialize_models(self) -> tuple[Any, ...]:
+         beat_this_model = Spect2Frames(checkpoint_path="small0", device=self._device)
+         # torch aarch64 wheels advertise fbgemm in supported_engines but its kernels are x86-only.
+         is_arm = platform.machine().lower() in ("arm64", "aarch64", "armv8l", "armv7l")
+-        preference = ("qnnpack", "fbgemm") if is_arm else ("fbgemm", "qnnpack")
++        preference = ("qnnpack") if is_arm else ("fbgemm")
+         supported_engines = torch.backends.quantized.supported_engines
+         quantized_engine = next((e for e in preference if e in supported_engines), None)
+         if quantized_engine is not None and torch.backends.quantized.engine != quantized_engine:

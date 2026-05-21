@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.8.7";
+  version = "2.9.0b13";
   providers = {
     airplay =
       ps: with ps; [
@@ -89,9 +89,13 @@
       ps: with ps; [
         pyheos
       ];
+    hue_entertainment = ps: [
+    ];
     ibroadcast = ps: [
     ]; # missing ibroadcastaio
     internet_archive = ps: [
+    ];
+    itunes_artwork = ps: [
     ];
     itunes_podcasts = ps: [
     ];
@@ -101,6 +105,8 @@
       ];
     kion_music = ps: [
     ]; # missing yandex-music
+    lastfm_recommendations = ps: [
+    ];
     lastfm_scrobble =
       ps: with ps; [
         pylast
@@ -109,16 +115,40 @@
       ps: with ps; [
         liblistenbrainz
       ];
+    local_audio =
+      ps: with ps; [
+        sounddevice
+      ];
+    loudness_analysis = ps: [
+    ];
     lrclib = ps: [
     ];
+    motherearthradio = ps: [
+    ];
+    mpd =
+      ps: with ps; [
+        mpd2
+      ];
+    msx_bridge =
+      ps: with ps; [
+        pydantic
+      ];
     musicbrainz = ps: [
     ];
     musiccast =
       ps: with ps; [
         aiomusiccast
       ];
-    nicovideo = ps: [
-    ]; # missing niconico.py-ma
+    musicme = ps: [
+    ];
+    neteasecloudmusic = ps: [
+    ];
+    nicovideo =
+      ps: with ps; [
+        pydantic
+      ]; # missing niconico.py-ma
+    nts = ps: [
+    ];
     nugs = ps: [
     ];
     opensubsonic =
@@ -147,6 +177,8 @@
     ];
     qobuz = ps: [
     ];
+    qqmusic = ps: [
+    ]; # missing qqmusic-api-python
     radiobrowser =
       ps: with ps; [
         radios
@@ -158,13 +190,23 @@
         async-upnp-client
         rokuecp
       ];
+    samsung_wam = ps: [
+    ]; # missing pywam
     sendspin =
-      ps: with ps; [
+      ps:
+      with ps;
+      [
         aiosendspin
         av
-      ];
+      ]
+      ++ aiosendspin.optional-dependencies.server;
     siriusxm = ps: [
     ]; # missing sxm
+    smart_fades =
+      ps: with ps; [
+        beat-this
+        nnaudio
+      ];
     snapcast =
       ps: with ps; [
         bidict
@@ -173,6 +215,13 @@
       ];
     somafm = ps: [
     ];
+    sonic_analysis =
+      ps: with ps; [
+        huggingface-hub
+        pyyaml
+        torchlibrosa
+        transformers
+      ];
     sonos =
       ps: with ps; [
         aiosonos
@@ -220,8 +269,18 @@
       ps: with ps; [
         aiovban
       ];
+    webdav = ps: [
+    ];
+    wiim =
+      ps: with ps; [
+        wiim
+      ];
     yandex_music = ps: [
-    ]; # missing yandex-music
+    ]; # missing yandex-music, ya-passport-auth
+    yandex_smarthome = ps: [
+    ]; # missing ya-passport-auth
+    yandex_ynison = ps: [
+    ]; # missing ya-passport-auth
     yousee = ps: [
     ];
     ytmusic =
@@ -232,6 +291,7 @@
         ytmusicapi
       ]; # missing deno
     zvuk_music = ps: [
-    ]; # missing zvuk-music
+    ];
+    # missing zvuk-music
   };
 }

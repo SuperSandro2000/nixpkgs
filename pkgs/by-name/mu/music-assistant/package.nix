@@ -6,6 +6,7 @@
   ffmpeg_7-headless,
   nixosTests,
   replaceVars,
+  writableTmpDirAsHomeHook,
   providers ? [ ],
 }:
 
@@ -15,10 +16,10 @@ let
       music-assistant-frontend = prev.callPackage ./frontend.nix { };
 
       music-assistant-models = final.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.115";
+        version = "1.1.119";
 
         src = oldAttrs.src.override {
-          hash = "sha256-oEXL0B8JNH4PcltpES375ov7QGs+gtYKlMGr1B7BlKY=";
+          hash = "sha256-+0yOpUZnH4KahRp0kJHabi/rBegcLZMmFjOKC5T/smw=";
         };
       });
     }
@@ -38,14 +39,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.8.7";
+  version = "2.9.0b13";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-m91q/8XYoZ5Azu79fKD0euRCuf29w3vj5cxdFheDsmI=";
+    hash = "sha256-+jUwqg73FXgSS3kQuiNyoeXa0Rj+z7Ki2wGtv29PTjM=";
   };
 
   patches = [
@@ -78,6 +79,9 @@ pythonPackages.buildPythonApplication rec {
     #                          ^^^^^^^^^^^^^^^
     # E   IndexError: tuple index out of range
     ./fix-webserver-tests-in-sandbox.patch
+
+    # https://github.com/music-assistant/server/pull/3979
+    ./do-not-try-to-use-quantized-engine-that-does-not-work.patch
   ];
 
   postPatch = ''
@@ -139,6 +143,7 @@ pythonPackages.buildPythonApplication rec {
       ifaddr
       librosa
       mashumaro
+      modern-colorthief
       music-assistant-frontend
       music-assistant-models
       mutagen
@@ -150,6 +155,8 @@ pythonPackages.buildPythonApplication rec {
       pyjwt
       python-slugify
       shortuuid
+      torch
+      torchaudio
       unidecode
       xmltodict
       zeroconf
@@ -174,17 +181,29 @@ pythonPackages.buildPythonApplication rec {
     with pythonPackages;
     [
       pytestCheckHook
+      writableTmpDirAsHomeHook
     ]
     ++ lib.concatAttrValues optional-dependencies
-    ++ (lib.concatMap (provider: providerPackages.${provider} python.pkgs) [
+    ++ (lib.concatMap (provider: providerPackages.${provider} python3Packages) [
       "audible"
       "dlna"
       "jellyfin"
+      "mpd"
+      "msx_bridge"
       "opensubsonic"
       "sendspin"
+      "smart_fades"
       "snapcast"
+      "sonic_analysis"
       "tidal"
+      "wiim"
     ]);
+
+  preCheck = ''
+    export NUMBA_CACHE_DIR=$(mktemp -d)
+    mkdir -p $HOME/.cache/torch/hub/checkpoints/
+    cp ${python3Packages.beat-this.passthru.small0Ckpt} $HOME/.cache/torch/hub/checkpoints/beat_this-small0.ckpt
+  '';
 
   disabledTestPaths = [
     # no multicast support in build sandbox:
@@ -195,10 +214,14 @@ pythonPackages.buildPythonApplication rec {
     "tests/providers/bandcamp"
     "tests/providers/kion_music"
     "tests/providers/nicovideo"
+    "tests/providers/qqmusic"
     "tests/providers/yandex_music"
+    "tests/providers/yandex_ynison"
     "tests/providers/zvuk_music"
     # mocking music_assistant.providers.airplay.pairing.AirPlayPairing does not work
     "tests/providers/airplay/test_player.py::test_start_pairing__pin_decision"
+    # scan concurrency is 4, probably a mocking issue
+    "tests/controllers/streams/test_audio_analysis.py::test_get_scan_concurrency_clamps_to_min"
   ];
 
   pythonImportsCheck = [ "music_assistant" ];
