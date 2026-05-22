@@ -71,6 +71,7 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
 
   buildInputs = [
     ffmpeg_8
+    torch
   ]
   ++ lib.optionals cudaSupport (
     with cudaPackages;
@@ -92,7 +93,7 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
   dontUseCmakeConfigure = true;
 
   dependencies = [
-    torch
+    torch.out
   ];
 
   env = {
