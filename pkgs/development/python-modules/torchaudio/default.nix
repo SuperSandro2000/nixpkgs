@@ -89,12 +89,15 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
     cudaPackages.cuda_nvcc
   ];
 
-  buildInputs = lib.optionals cudaSupport [
+  buildInputs = [
+    torch
+  ]
+  ++ lib.optionals cudaSupport [
     cudaPackages.cuda_cudart
   ];
 
   dependencies = [
-    torch
+    torch.out
     torchcodec
   ];
 
