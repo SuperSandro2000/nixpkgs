@@ -96,6 +96,7 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
     libjpeg
     libpng
     libwebp
+    torch
   ]
   ++ lib.optionals cudaSupport (
     with cudaPackages;
@@ -120,7 +121,7 @@ buildPythonPackage.override { inherit (torch) stdenv; } (finalAttrs: {
   dontUseCmakeConfigure = true;
 
   dependencies = [
-    torch
+    torch.out
   ];
 
   env = {
