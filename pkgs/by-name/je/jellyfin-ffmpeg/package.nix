@@ -17,6 +17,8 @@ in
     rev = "v${version}";
     hash = "sha256-0dUQ/3843wWpb10XZl3ddCbjjbFGWh3eoNH4EuWSQiQ=";
   };
+  buildFfplay = false; # requires SDL2 which gets disabled by headless
+  withHeadlessDeps = false;
 }).overrideAttrs
   (old: {
     pname = "jellyfin-ffmpeg";
