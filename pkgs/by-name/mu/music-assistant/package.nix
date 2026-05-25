@@ -25,11 +25,12 @@ let
     }
   );
 
-  providerPackages = (import ./providers.nix).providers;
+  providersMeta = import ./providers.nix;
+  providerPackages = providersMeta.providers;
   providerNames = lib.attrNames providerPackages;
-  providerDependencies = lib.concatMap (
-    provider: (providerPackages.${provider} pythonPackages)
-  ) providers;
+  providerDependencies = lib.concatMap (provider: (providerPackages.${provider} pythonPackages)) (
+    providersMeta.builtins ++ providers
+  );
 
   pythonPath = pythonPackages.makePythonPath providerDependencies;
 in

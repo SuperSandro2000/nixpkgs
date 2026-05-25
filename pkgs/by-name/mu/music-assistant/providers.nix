@@ -2,6 +2,20 @@
 
 {
   version = "2.9.0b13";
+  builtins = [
+    "builtin"
+    "coverartarchive"
+    "fanarttv"
+    "itunes_artwork"
+    "local_audio"
+    "loudness_analysis"
+    "lrclib"
+    "musicbrainz"
+    "sendspin"
+    "sync_group"
+    "theaudiodb"
+    "universal_player"
+  ];
   providers = {
     airplay =
       ps: with ps; [
