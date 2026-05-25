@@ -160,6 +160,9 @@ in
           ]
           ++ cfg.extraOptions
         );
+        BindReadOnlyPaths = [
+          "${cfg.package}/${cfg.package.pythonPackages.python.sitePackages}/music_assistant/:/music-assistant/"
+        ];
         DynamicUser = true;
         StateDirectory = "music-assistant";
         AmbientCapabilities = "";

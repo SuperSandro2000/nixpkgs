@@ -90,6 +90,12 @@ pythonPackages.buildPythonApplication rec {
       --replace-fail "0.0.0" "${version}" \
       --replace-fail "==" ">="
 
+    # Fallback svg images that exist in GENRE_ICONS_DIR are saved with absolute paths and are never updated.
+    # To not serve a 404 with the next update, because the path is no longer valid, we must use an absolute path.
+    substituteInPlace music_assistant/constants.py \
+      --replace-fail 'pathlib.Path(__file__).parent.resolve().joinpath("helpers/resources")' \
+      '(p if (p := pathlib.Path("/music-assistant").resolve()).exists() else pathlib.Path(__file__).parent.resolve()).joinpath("helpers/resources")'
+
     rm -rv \
       music_assistant/providers/airplay/bin/{cliap2-*,cliraop-*} \
       music_assistant/providers/airplay_receiver/bin/{build_binaries.sh,shairport-sync-*} \
