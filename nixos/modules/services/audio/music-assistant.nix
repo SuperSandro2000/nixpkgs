@@ -169,7 +169,10 @@ in
         # breaks pyopenssl's cffi calls, used in remote access feature
         # not compatible with llvmlite which is required by numba -> librosa
         MemoryDenyWriteExecute = false;
-        ProcSubset = "pid";
+        # required for torch to properly detect the supported engines
+        # also allow warn_if_missing_x86_64_v2 function to display a deprecation warning on to old CPUs
+        ProcSubset = "all";
+        ProtectProc = "default";
         ProtectClock = true;
         ProtectControlGroups = true;
         ProtectHome = true;
@@ -177,7 +180,6 @@ in
         ProtectKernelLogs = true;
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
-        ProtectProc = "invisible";
         RestrictAddressFamilies = [
           "AF_INET"
           "AF_INET6"
