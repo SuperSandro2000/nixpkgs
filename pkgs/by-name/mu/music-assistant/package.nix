@@ -16,10 +16,10 @@ let
       music-assistant-frontend = prev.callPackage ./frontend.nix { };
 
       music-assistant-models = final.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.119";
+        version = "1.1.125";
 
         src = oldAttrs.src.override {
-          hash = "sha256-+0yOpUZnH4KahRp0kJHabi/rBegcLZMmFjOKC5T/smw=";
+          hash = "sha256-SUr40in9mXCmnw7quX8MUVtsZTG45vygr0iBGaSFI8Q=";
         };
       });
     }
@@ -40,14 +40,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.9.0b13";
+  version = "2.9.0b14";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-+jUwqg73FXgSS3kQuiNyoeXa0Rj+z7Ki2wGtv29PTjM=";
+    hash = "sha256-ZifRaMcZDEbxJ6xeyJ4z5u5yFN8X49iGO5y7GOIXrsM=";
   };
 
   patches = [
@@ -192,8 +192,10 @@ pythonPackages.buildPythonApplication rec {
     ]
     ++ lib.concatAttrValues optional-dependencies
     ++ (lib.concatMap (provider: providerPackages.${provider} python3Packages) [
+      "acoustid_lookup"
       "audible"
       "dlna"
+      "fastmcp_server"
       "jellyfin"
       "mpd"
       "msx_bridge"
@@ -227,8 +229,10 @@ pythonPackages.buildPythonApplication rec {
     "tests/providers/zvuk_music"
     # mocking music_assistant.providers.airplay.pairing.AirPlayPairing does not work
     "tests/providers/airplay/test_player.py::test_start_pairing__pin_decision"
-    # scan concurrency is 4, probably a mocking issue
-    "tests/controllers/streams/test_audio_analysis.py::test_get_scan_concurrency_clamps_to_min"
+    # types are wrong, revisit when our fastmcp version is closer to what upstream expects
+    "tests/providers/fastmcp_server/test_elicitation.py::test_clear_queue_runs_when_user_accepts"
+    "tests/providers/fastmcp_server/test_elicitation.py::test_remove_from_library_confirms"
+    "tests/providers/fastmcp_server/test_resources.py::test_library_artist_resource_returns_null_for_missing"
   ];
 
   pythonImportsCheck = [ "music_assistant" ];

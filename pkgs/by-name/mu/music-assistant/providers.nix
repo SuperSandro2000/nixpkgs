@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.9.0b13";
+  version = "2.9.0b14";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -17,6 +17,10 @@
     "universal_player"
   ];
   providers = {
+    acoustid_lookup =
+      ps: with ps; [
+        pyacoustid
+      ];
     airplay =
       ps: with ps; [
         srptools
@@ -79,6 +83,10 @@
     ];
     fanarttv = ps: [
     ];
+    fastmcp_server =
+      ps: with ps; [
+        fastmcp
+      ];
     filesystem_local = ps: [
     ];
     filesystem_nfs = ps: [
@@ -221,6 +229,8 @@
         beat-this
         nnaudio
       ];
+    smart_playlist = ps: [
+    ];
     snapcast =
       ps: with ps; [
         bidict
