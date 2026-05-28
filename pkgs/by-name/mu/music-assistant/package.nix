@@ -16,10 +16,10 @@ let
       music-assistant-frontend = prev.callPackage ./frontend.nix { };
 
       music-assistant-models = final.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.125";
+        version = "1.1.126";
 
         src = oldAttrs.src.override {
-          hash = "sha256-SUr40in9mXCmnw7quX8MUVtsZTG45vygr0iBGaSFI8Q=";
+          hash = "sha256-x7vrvUPvUVxb9hSyQY3LAn5vUMhlFP8UbBs0BXgyWBA=";
         };
       });
     }
@@ -40,14 +40,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.9.0b14";
+  version = "2.9.0b15";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-ZifRaMcZDEbxJ6xeyJ4z5u5yFN8X49iGO5y7GOIXrsM=";
+    hash = "sha256-C6ch9ErLR1R0IbV3d0G25TlSDU0HXV78waINpuEsrO4=";
   };
 
   patches = [
@@ -204,6 +204,7 @@ pythonPackages.buildPythonApplication rec {
       "smart_fades"
       "snapcast"
       "sonic_analysis"
+      "sonic_similarity"
       "tidal"
       "wiim"
     ]);
@@ -232,7 +233,7 @@ pythonPackages.buildPythonApplication rec {
     # types are wrong, revisit when our fastmcp version is closer to what upstream expects
     "tests/providers/fastmcp_server/test_elicitation.py::test_clear_queue_runs_when_user_accepts"
     "tests/providers/fastmcp_server/test_elicitation.py::test_remove_from_library_confirms"
-    "tests/providers/fastmcp_server/test_resources.py::test_library_artist_resource_returns_null_for_missing"
+    "tests/providers/fastmcp_server/test_resources.py"
   ];
 
   pythonImportsCheck = [ "music_assistant" ];

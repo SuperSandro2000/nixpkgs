@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.9.0b14";
+  version = "2.9.0b15";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -15,6 +15,7 @@
     "sync_group"
     "theaudiodb"
     "universal_player"
+    "wikipedia"
   ];
   providers = {
     acoustid_lookup =
@@ -246,6 +247,12 @@
         torchlibrosa
         transformers
       ];
+    sonic_similarity =
+      ps: with ps; [
+        huggingface-hub
+        transformers
+        usearch
+      ];
     sonos =
       ps: with ps; [
         aiosonos
@@ -299,6 +306,8 @@
       ps: with ps; [
         wiim
       ];
+    wikipedia = ps: [
+    ];
     yandex_music = ps: [
     ]; # missing yandex-music, ya-passport-auth
     yandex_smarthome = ps: [
