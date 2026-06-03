@@ -5,19 +5,18 @@
   setuptools,
   aiohttp,
   mashumaro,
-  requests,
 }:
 
 buildPythonPackage rec {
   pname = "py-opensonic";
-  version = "9.2.0";
+  version = "10.0.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "khers";
     repo = "py-opensonic";
     tag = "v${version}";
-    hash = "sha256-R5o2dG7g8Qlpuw3oxfLGzWpdSB7LwXX17hoUfTEKp9k=";
+    hash = "sha256-LT6pTtXCUMhk6uV9Y2inlAuP8osWUwsWOH7/yOW2OXI=";
   };
 
   build-system = [ setuptools ];
@@ -25,7 +24,10 @@ buildPythonPackage rec {
   dependencies = [
     aiohttp
     mashumaro
-    requests
+  ];
+
+  pythonRelaxDeps = [
+    "mashumaro"
   ];
 
   doCheck = false; # no tests
