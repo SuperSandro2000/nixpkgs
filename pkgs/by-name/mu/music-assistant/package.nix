@@ -16,10 +16,10 @@ let
       music-assistant-frontend = prev.callPackage ./frontend.nix { };
 
       music-assistant-models = final.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.126";
+        version = "1.1.128";
 
         src = oldAttrs.src.override {
-          hash = "sha256-x7vrvUPvUVxb9hSyQY3LAn5vUMhlFP8UbBs0BXgyWBA=";
+          hash = "sha256-/nORVoVD8kigYz6sTO0hVbieYIibEdUQUD2qy1NXkKc=";
         };
       });
     }
@@ -40,14 +40,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.9.0b15";
+  version = "2.9.0b16";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-C6ch9ErLR1R0IbV3d0G25TlSDU0HXV78waINpuEsrO4=";
+    hash = "sha256-7ypo/+wqMOrZK3MX9fWxyE6CCflFtbo1mvdQMNJkdOw=";
   };
 
   patches = [
@@ -120,6 +120,7 @@ pythonPackages.buildPythonApplication rec {
     "mashumaro"
     "orjson"
     "xmltodict"
+    "zeroconf"
   ];
 
   pythonRemoveDeps = [
@@ -231,6 +232,9 @@ pythonPackages.buildPythonApplication rec {
     # mocking music_assistant.providers.airplay.pairing.AirPlayPairing does not work
     "tests/providers/airplay/test_player.py::test_start_pairing__pin_decision"
     # types are wrong, revisit when our fastmcp version is closer to what upstream expects
+    "tests/providers/fastmcp_server/test_debug_events.py::test_e2e_event_buffer_stats"
+    "tests/providers/fastmcp_server/test_debug_inspect.py"
+    "tests/providers/fastmcp_server/test_debug_providers.py::test_list_package_versions_includes_fastmcp"
     "tests/providers/fastmcp_server/test_elicitation.py::test_clear_queue_runs_when_user_accepts"
     "tests/providers/fastmcp_server/test_elicitation.py::test_remove_from_library_confirms"
     "tests/providers/fastmcp_server/test_resources.py"
