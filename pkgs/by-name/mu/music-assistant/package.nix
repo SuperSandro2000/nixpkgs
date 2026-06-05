@@ -40,14 +40,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.9.0rc1";
+  version = "2.9.0rc2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-tKpbXsV+F1nIqgSu63Jm4dIFk+WWUqT4YRcy2OE8EGg=";
+    hash = "sha256-Ekjtca2PmhpJGHVnDp14eVf1BLXHvBf7B1t8zOfCv9U=";
   };
 
   patches = [
