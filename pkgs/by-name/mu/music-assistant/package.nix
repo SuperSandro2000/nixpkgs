@@ -40,14 +40,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.9.0rc2";
+  version = "2.9.0rc3";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-Ekjtca2PmhpJGHVnDp14eVf1BLXHvBf7B1t8zOfCv9U=";
+    hash = "sha256-8J52hOJOyp5uWoaxRqha+Bsh3kH5yZH4GagtF0LZgr0=";
   };
 
   patches = [
@@ -208,6 +208,7 @@ pythonPackages.buildPythonApplication rec {
       "sonic_similarity"
       "tidal"
       "wiim"
+      "ytmusic"
     ]);
 
   preCheck = ''
