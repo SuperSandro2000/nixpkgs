@@ -40,14 +40,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.9.0rc3";
+  version = "2.9.0rc5";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-8J52hOJOyp5uWoaxRqha+Bsh3kH5yZH4GagtF0LZgr0=";
+    hash = "sha256-qyTrnCKHygx/rpclQB1+wH5XzA//nN2bfa/XXPAWznE=";
   };
 
   patches = [
@@ -224,6 +224,7 @@ pythonPackages.buildPythonApplication rec {
     # provider is missing dependencies
     "tests/providers/apple_music"
     "tests/providers/bandcamp"
+    "tests/providers/hue_entertainment"
     "tests/providers/kion_music"
     "tests/providers/nicovideo"
     "tests/providers/qqmusic"

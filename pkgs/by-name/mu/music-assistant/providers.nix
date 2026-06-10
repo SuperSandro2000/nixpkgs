@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.9.0rc3";
+  version = "2.9.0rc5";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -113,7 +113,7 @@
         pyheos
       ];
     hue_entertainment = ps: [
-    ];
+    ]; # missing hue-entertainment
     ibroadcast = ps: [
     ]; # missing ibroadcastaio
     internet_archive = ps: [
