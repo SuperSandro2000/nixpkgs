@@ -40,14 +40,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.9.1";
+  version = "2.9.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-K2iY5AG1wexZwz0c+0cq/rfkaM0+QEvaKzEG+1pbTGI=";
+    hash = "sha256-UpBjzVmlfYFGdENftpu45K9rwVmvlO1AVrNOS03rDNE=";
   };
 
   patches = [
@@ -81,8 +81,9 @@ pythonPackages.buildPythonApplication rec {
     # E   IndexError: tuple index out of range
     ./fix-webserver-tests-in-sandbox.patch
 
-    # https://github.com/music-assistant/server/pull/3979
-    ./do-not-try-to-use-quantized-engine-that-does-not-work.patch
+    # As providers must be configured through the nixos module, there is no gain
+    # if Music Assistant tries to enable some of them without the proper dependencies.
+    ./disable-default-provider.diff
   ];
 
   postPatch = ''

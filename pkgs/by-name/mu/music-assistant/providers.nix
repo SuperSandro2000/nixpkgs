@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.9.1";
+  version = "2.9.2";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -229,6 +229,7 @@
       ps: with ps; [
         beat-this
         nnaudio
+        threadpoolctl
       ];
     smart_playlist = ps: [
     ];
@@ -244,6 +245,7 @@
       ps: with ps; [
         huggingface-hub
         pyyaml
+        threadpoolctl
         torchlibrosa
         transformers
       ];
