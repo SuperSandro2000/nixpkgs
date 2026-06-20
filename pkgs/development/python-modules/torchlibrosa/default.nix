@@ -22,10 +22,12 @@ buildPythonPackage (finalAttrs: {
 
   build-system = [ setuptools ];
 
+  buildInputs = [ torch ];
+
   dependencies = [
     librosa
     numpy
-    torch
+    torch.out
   ];
 
   # Project has no tests.
