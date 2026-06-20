@@ -4,23 +4,28 @@
   fetchPypi,
   librosa,
   numpy,
+  setuptools,
   torch,
 }:
 
 buildPythonPackage rec {
   pname = "torchlibrosa";
   version = "0.1.0";
-  format = "setuptools";
+  pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
     hash = "sha256-Yqi+7fnJtBQaBiNN8/ECKfe6huZ2eMzuAkiexO8EQCg=";
   };
 
-  propagatedBuildInputs = [
+  build-system = [ setuptools ];
+
+  buildInputs = [ torch ];
+
+  dependencies = [
     librosa
     numpy
-    torch
+    torch.out
   ];
 
   # Project has no tests.
