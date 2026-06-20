@@ -37,10 +37,12 @@ buildPythonPackage (finalAttrs: {
 
   build-system = [ setuptools ];
 
+  buildInputs = [ torch ];
+
   dependencies = [
     numpy
     scipy
-    torch
+    torch.out
   ];
 
   nativeCheckInputs = [
