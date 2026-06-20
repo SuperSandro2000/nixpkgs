@@ -29,12 +29,14 @@ buildPythonPackage (finalAttrs: {
 
   build-system = [ setuptools ];
 
+  buildInputs = [ torch ];
+
   dependencies = [
     einops
     numpy
     rotary-embedding-torch
     soxr
-    torch
+    torch.out
     torchaudio
   ];
 
