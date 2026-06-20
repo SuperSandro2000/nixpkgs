@@ -47,13 +47,15 @@ buildPythonPackage (finalAttrs: {
 
   build-system = [ setuptools ];
 
+  buildInputs = [ torch ];
+
   dependencies = [
     huggingface-hub
     numpy
     scikit-learn
     scipy
     tokenizers
-    torch
+    torch.out
     tqdm
     transformers
     typing-extensions
