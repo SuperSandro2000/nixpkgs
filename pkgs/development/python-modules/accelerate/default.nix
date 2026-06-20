@@ -44,7 +44,10 @@ buildPythonPackage (finalAttrs: {
     hash = "sha256-IfKePiU38fUd5HefaS7J1s8Mb6hVmldINemxAJY+83o=";
   };
 
-  buildInputs = [ llvmPackages.openmp ];
+  buildInputs = [
+    llvmPackages.openmp
+    torch
+  ];
 
   build-system = [ setuptools ];
 
@@ -55,7 +58,7 @@ buildPythonPackage (finalAttrs: {
     psutil
     pyyaml
     safetensors
-    torch
+    torch.out
   ];
 
   nativeCheckInputs = [
