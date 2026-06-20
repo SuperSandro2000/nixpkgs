@@ -42,6 +42,10 @@ buildPythonPackage (finalAttrs: {
     hash = "sha256-dvixYS/j+ZiTpRjuo5q3jY6x9MrWWnpMJz3fuJoAYh0=";
   };
 
+  buildInputs = [
+    torch
+  ];
+
   build-system = [ setuptools ];
 
   dependencies = [
@@ -51,7 +55,7 @@ buildPythonPackage (finalAttrs: {
     psutil
     pyyaml
     safetensors
-    torch
+    torch.out
   ];
 
   nativeCheckInputs = [
