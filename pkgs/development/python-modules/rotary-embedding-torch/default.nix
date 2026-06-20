@@ -25,15 +25,16 @@ buildPythonPackage rec {
     hash = "sha256-mPiOtEmRtn73KGoYMum80q0iETJa9zZW9KIWL8O0dnM=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     setuptools
-    wheel
   ];
 
-  propagatedBuildInputs = [
+  buildInputs = [ torch ];
+
+  dependencies = [
     beartype
     einops
-    torch
+    torch.out
   ];
 
   pythonImportsCheck = [ "rotary_embedding_torch" ];
