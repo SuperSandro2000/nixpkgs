@@ -40,14 +40,14 @@ assert
 
 pythonPackages.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.9.2";
+  version = "2.9.3";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-UpBjzVmlfYFGdENftpu45K9rwVmvlO1AVrNOS03rDNE=";
+    hash = "sha256-zc9+g5FNj6BFeZqQNuWB+06a6DLjcbmDjN/B2MK6reE=";
   };
 
   patches = [
@@ -87,6 +87,11 @@ pythonPackages.buildPythonApplication rec {
   ];
 
   postPatch = ''
+    # Undo Python 3.14 only syntax
+    substituteInPlace music_assistant/controllers/streams/controller.py \
+      --replace-fail "except BrokenPipeError, ConnectionResetError, ConnectionError:" "except (BrokenPipeError, ConnectionResetError, ConnectionError):" \
+      --replace-fail "except BrokenPipeError, ConnectionResetError:" "except (BrokenPipeError, ConnectionResetError):"
+
     substituteInPlace pyproject.toml \
       --replace-fail "0.0.0" "${version}" \
       --replace-fail "==" ">="
