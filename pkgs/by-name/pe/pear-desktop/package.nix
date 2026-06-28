@@ -7,7 +7,7 @@
   python3,
   copyDesktopItems,
   nodejs,
-  pnpm_10,
+  pnpm_11,
   fetchPnpmDeps,
   pnpmConfigHook,
   makeDesktopItem,
@@ -15,13 +15,13 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "pear-desktop";
-  version = "3.11.0";
+  version = "3.12.0";
 
   src = fetchFromGitHub {
     owner = "pear-devs";
     repo = "pear-desktop";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-M8YFpeauM55fpNyHSGQm8iZieV0oWqOieVThhglKKPE=";
+    hash = "sha256-RSQPwsED3YK5VScVAXH3f8Lz74v1b2448gro1Vo22hg=";
   };
 
   patches = [
@@ -31,9 +31,9 @@ stdenv.mkDerivation (finalAttrs: {
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
-    pnpm = pnpm_10;
+    pnpm = pnpm_11;
     fetcherVersion = 4;
-    hash = "sha256-BNvAGM9ECtptDwxWsmJVq82Bky1AxslYt51FyvOBEvs=";
+    hash = "sha256-y4eLjikf9X/682RdK0ZvW7+GR1Ei82UJ5SVop09B9wg=";
   };
 
   nativeBuildInputs = [
@@ -41,7 +41,7 @@ stdenv.mkDerivation (finalAttrs: {
     python3
     nodejs
     pnpmConfigHook
-    pnpm_10
+    pnpm_11
   ]
   ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [ copyDesktopItems ];
 
@@ -61,11 +61,11 @@ stdenv.mkDerivation (finalAttrs: {
 
   desktopItems = [
     (makeDesktopItem {
-      name = "com.github.th_ch.youtube_music";
+      name = "com.github.th-ch.youtube_music";
       exec = "pear-desktop %u";
       icon = "pear-desktop";
       desktopName = "Pear Desktop";
-      startupWMClass = "com.github.th_ch.youtube_music";
+      startupWMClass = "com.github.th-ch.youtube_music";
       categories = [ "AudioVideo" ];
     })
   ];
