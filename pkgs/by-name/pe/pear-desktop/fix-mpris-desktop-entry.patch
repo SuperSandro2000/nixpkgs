@@ -2,13 +2,12 @@ diff --git a/src/plugins/shortcuts/mpris.ts b/src/plugins/shortcuts/mpris.ts
 index 064a1187..6b9ef7d8 100644
 --- a/src/plugins/shortcuts/mpris.ts
 +++ b/src/plugins/shortcuts/mpris.ts
-@@ -73,8 +73,7 @@ function setupMPRIS() {
-   instance.canQuit = false;
+@@ -74,7 +74,7 @@ function setupMPRIS() {
    instance.canUsePlayerControls = true;
    instance.supportedUriSchemes = ['http', 'https'];
--  instance.desktopEntry =
+   instance.desktopEntry =
 -    '\u0079\u006f\u0075\u0074\u0075\u0062\u0065\u002d\u006d\u0075\u0073\u0069\u0063';
-+  instance.desktopEntry = 'com.github.th-ch.youtube_music';
++    'com.github.th-ch.\u0079\u006f\u0075\u0074\u0075\u0062\u0065\u002d\u006d\u0075\u0073\u0069\u0063';
    return instance;
  }
  

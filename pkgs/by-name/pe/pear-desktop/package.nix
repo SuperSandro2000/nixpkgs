@@ -3,7 +3,7 @@
   stdenv,
   fetchFromGitHub,
   makeWrapper,
-  electron,
+  electron_42,
   python3,
   copyDesktopItems,
   nodejs,
@@ -50,22 +50,22 @@ stdenv.mkDerivation (finalAttrs: {
   postBuild = ''
     pnpm build
 
-    cp -r ${electron.dist} electron-dist
+    cp -r ${electron_42.dist} electron-dist
     chmod -R u+w electron-dist
 
     ./node_modules/.bin/electron-builder \
       --dir \
       -c.electronDist=electron-dist \
-      -c.electronVersion=${electron.version}
+      -c.electronVersion=${electron_42.version}
   '';
 
   desktopItems = [
     (makeDesktopItem {
-      name = "com.github.th-ch.youtube_music";
+      name = "com.github.th-ch.youtube-music";
       exec = "pear-desktop %u";
       icon = "pear-desktop";
       desktopName = "Pear Desktop";
-      startupWMClass = "com.github.th-ch.youtube_music";
+      startupWMClass = "com.github.th-ch.youtube-music";
       categories = [ "AudioVideo" ];
     })
   ];
@@ -95,7 +95,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   postFixup = lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
-    makeWrapper ${electron}/bin/electron $out/bin/pear-desktop \
+    makeWrapper ${electron_42}/bin/electron $out/bin/pear-desktop \
       --add-flags $out/share/pear-desktop/resources/app.asar \
       --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true --wayland-text-input-version=3}}" \
       --set-default ELECTRON_FORCE_IS_PACKAGED 1 \
