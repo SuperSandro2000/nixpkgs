@@ -11,13 +11,13 @@
 }:
 
 let
-  version = "0.22.0";
+  version = "0.22.1";
 
   src = fetchFromGitHub {
     owner = "f-koehler";
     repo = "KTailctl";
     rev = "v${version}";
-    hash = "sha256-20hR/N3m1BsbMGiaWVV/SH/OHgfk7ZC1+WWhYqQpIls=";
+    hash = "sha256-BRkjVZaoxiMW8JltIkYDiCCE2kNGLDpRJd0iclQMcGY=";
   };
 
   goDeps =
