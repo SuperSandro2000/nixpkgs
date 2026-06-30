@@ -473,6 +473,10 @@ stdenv.mkDerivation (finalAttrs: {
     + optionalString mimetypesSupport ''
       substituteInPlace Lib/mimetypes.py \
         --replace-fail "@mime-types@" "${mailcap}"
+    ''
+    + optionalString (tzdataSupport && stdenv.hostPlatform.isDarwin) ''
+      substituteInPlace Lib/test/datetimetester.py \
+        --replace-fail "/usr/share/zoneinfo" "${tzdata}/share/zoneinfo"
     '';
 
   env = {
