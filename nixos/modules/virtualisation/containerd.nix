@@ -59,8 +59,12 @@ in
       `virtualisation.containerd.configFile` is deprecated. use `virtualisation.containerd.settings` instead.
     '';
 
+    environment.etc = {
+      "containerd/config.toml".source = containerdConfigChecked;
+    };
+
     virtualisation.containerd = {
-      args.config = toString containerdConfigChecked;
+      args.config = "/etc/containerd/config.toml";
       settings = {
         version = 2;
         plugins."io.containerd.grpc.v1.cri" = {
