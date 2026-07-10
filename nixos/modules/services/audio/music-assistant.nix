@@ -84,6 +84,7 @@ in
         ++ lib.optional (lib.elem "airplay" cfg.providers) 7000
         ++ lib.optional (lib.elem "sendspin" cfg.providers) 8927
         ++ lib.optional (lib.elem "snapcast" cfg.providers) 1780
+        ++ lib.optional (lib.elem "spotify_connect" cfg.providers) 39033
         ++ lib.optionals (lib.elem "squeezelite" cfg.providers) [
           # https://lyrion.org/reference/slimproto-protocol/
           3483 # Slimproto control
