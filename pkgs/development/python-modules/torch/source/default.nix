@@ -301,6 +301,8 @@ buildPythonPackage.override { inherit stdenv; } (finalAttrs: {
     "cxxdev" # propagated deps for the cmake consumers of torch
   ];
   cudaPropagateToOutput = "cxxdev";
+  # Avoid that the propagated python dependencies are moved, the headers are moved by hand in postInstall
+  moveToDev = false;
 
   src = callPackage ./src.nix {
     inherit
@@ -714,6 +716,8 @@ buildPythonPackage.override { inherit stdenv; } (finalAttrs: {
   '';
 
   postFixup = ''
+    mv $dev/nix-support $out/
+
     mkdir -p "$cxxdev/nix-support"
     printWords "''${propagatedCxxBuildInputs[@]}" >> "$cxxdev/nix-support/propagated-build-inputs"
   ''
