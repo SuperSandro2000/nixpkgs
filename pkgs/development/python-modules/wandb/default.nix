@@ -6,7 +6,7 @@
 
   ## wandb-core
   buildGo127Module,
-  gitMinimal,
+  git,
   writableTmpDirAsHomeHook,
   versionCheckHook,
 
@@ -178,7 +178,7 @@ let
     vendorHash = null;
 
     nativeBuildInputs = [
-      gitMinimal
+      git
       writableTmpDirAsHomeHook
     ];
 
@@ -230,7 +230,7 @@ buildPythonPackage (finalAttrs: {
       substituteInPlace wandb/cli/cli.py \
         --replace-fail \
           '["git", "apply",' \
-          '["${lib.getExe gitMinimal}", "apply",' \
+          '["${lib.getExe git}", "apply",' \
     '';
 
   env = {
@@ -278,7 +278,7 @@ buildPythonPackage (finalAttrs: {
     cloudpickle
     cwsandbox
     flask
-    gitMinimal
+    git
     google-cloud-artifact-registry
     google-cloud-compute
     google-cloud-storage
