@@ -30,7 +30,6 @@ let
     "less"
     "libcap"
     "ncurses"
-    "netcat"
     "mkpasswd"
     "procps"
     "su"
@@ -47,8 +46,13 @@ let
       in
       lib.setPrio ((pkg.meta.priority or lib.meta.defaultPriority) + 3) pkg
     ) corePackageNames)
-    ++ [ pkgs.stdenv.cc.libc ];
-  corePackagesText = "[ ${lib.concatMapStringsSep " " (n: "pkgs.${n}") corePackageNames} ]";
+    ++ [
+      pkgs.pkgsStatic.netcat
+      pkgs.stdenv.cc.libc
+    ];
+  corePackagesText = "[ ${
+    lib.concatMapStringsSep " " (n: "pkgs.${n}") corePackageNames
+  } pkgs.pkgsStatic.netcat ]";
 
   defaultPackageNames = [
     "perl"
