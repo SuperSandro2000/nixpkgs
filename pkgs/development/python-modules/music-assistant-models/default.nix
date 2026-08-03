@@ -11,6 +11,7 @@
   anyascii,
   mashumaro,
   orjson,
+  unidecode,
 
   # tests
   pytestCheckHook,
@@ -43,6 +44,8 @@ buildPythonPackage (finalAttrs: {
     anyascii
     mashumaro
     orjson
+    # TODO: remove when home-assistant updated to at least this version, too
+    (if lib.versionAtLeast finalAttrs.version "1.1.189" then anyascii else unidecode)
   ];
 
   nativeCheckInputs = [
