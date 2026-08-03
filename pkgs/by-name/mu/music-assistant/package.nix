@@ -13,13 +13,16 @@
 let
   pythonPackages = python3Packages.overrideScope (
     prev: final: {
+      # TODO: package properly when no longer using a fork
+      aiolibdatachannel = prev.callPackage ./aiolibdatachannel.nix { };
+
       music-assistant-frontend = prev.callPackage ./frontend.nix { };
 
       music-assistant-models = final.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.129.post1";
+        version = "1.1.173";
 
         src = oldAttrs.src.override {
-          hash = "sha256-86BmUmduNcSbEHxK+/he78b5fAM/XBhnNEc28Uv74GI=";
+          hash = "sha256-HjlZmNbqOtRiyh9TtmCQkG7Hj5Tli5Iu8xhE/Y6UUA0=";
         };
       });
     }
@@ -40,7 +43,7 @@ assert
 
 pythonPackages.buildPythonApplication (finalAttrs: {
   pname = "music-assistant";
-  version = "2.9.13";
+  version = "2.10.0b9";
   pyproject = true;
   __structuredAttrs = true;
 
@@ -48,7 +51,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     owner = "music-assistant";
     repo = "server";
     tag = finalAttrs.version;
-    hash = "sha256-HCqd8++PKdbuzyeztkcLUXhTivTLJEl749VD2oCsHZA=";
+    hash = "sha256-dMhvWSqlF4q+gdhcuohta4TSl4BRCSxwm/g82Fj7+0A=";
   };
 
   patches = [
@@ -63,8 +66,8 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     # Look up shairport-sync from PATH at runtime
     ./shairport-sync.patch
 
-    # Look up cliraop/cliap2 from PATH at runtime
-    ./cliraop-cliap2.patch
+    # Look up cliairplay from PATH at runtime
+    ./cliairplay.patch
 
     # Disable interactive dependency resolution, which clashes with the immutable Python environment
     ./dont-install-deps.patch
@@ -93,9 +96,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       --replace-fail "==" ">="
 
     rm -rv \
-      music_assistant/providers/airplay/bin/{cliap2-*,cliraop-*} \
       music_assistant/providers/airplay_receiver/bin/{build_binaries.sh,shairport-sync-*} \
-      music_assistant/providers/ariacast_receiver/bin/ariacast_* \
       music_assistant/providers/spotify/bin/librespot-*
 
     found_bins=$(find music_assistant/ -wholename '*/bin/*' -type f -executable -print0 | tr '\0' ' ')
@@ -110,13 +111,8 @@ pythonPackages.buildPythonApplication (finalAttrs: {
   ];
 
   pythonRelaxDeps = [
-    "aiohttp"
     "aiosqlite"
-    "cryptography"
-    "mashumaro"
-    "orjson"
-    "xmltodict"
-    "zeroconf"
+    "torch"
   ];
 
   pythonRemoveDeps = [
@@ -134,7 +130,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       aiohttp-asyncmdnsresolver
       aiohttp-fast-zlib
       aiohttp-socks
-      aiortc
+      aiolibdatachannel
       aiosqlite
       awesomeversion
       brotli
@@ -185,21 +181,32 @@ pythonPackages.buildPythonApplication (finalAttrs: {
   nativeCheckInputs =
     with pythonPackages;
     [
+      ffmpeg_7-headless
       pytest9_0CheckHook
       writableTmpDirAsHomeHook
     ]
     ++ lib.concatAttrValues finalAttrs.passthru.optional-dependencies
     ++ (lib.concatMap (provider: providerPackages.${provider} pythonPackages) [
       "acoustid_lookup"
+      "airplay"
       "apple_music"
       "audible"
+      "audiobookshelf"
+      "chromecast"
       "dlna"
       "fastmcp_server"
-      "jellyfin"
+      "filesystem_google_drive"
+      "filesystem_onedrive"
+      "fully_kiosk"
       "heos"
+      "jellyfin"
       "mpd"
       "msx_bridge"
       "opensubsonic"
+      "plex"
+      "plex_connect"
+      "profiler"
+      "sendspin"
       "sendspin"
       "smart_fades"
       "snapcast"
@@ -207,7 +214,10 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       "sonic_similarity"
       "sonos"
       "sonos_s1"
+      "soundcloud"
+      "squeezelite"
       "tidal"
+      "vban_receiver"
       "wiim"
       "ytmusic"
     ]);
@@ -221,21 +231,30 @@ pythonPackages.buildPythonApplication (finalAttrs: {
   '';
 
   disabledTestPaths = [
-    # no multicast support in build sandbox:
-    # "OSError: [Errno 19] No such device"
-    "tests/core/test_genres.py"
     # provider is missing dependencies
+    "tests/providers/amplipi"
     "tests/providers/bandcamp"
+    "tests/providers/bbc_sounds"
+    "tests/providers/deezer"
     "tests/providers/hue_entertainment"
     "tests/providers/kion_music"
     "tests/providers/nicovideo"
     "tests/providers/qqmusic"
     "tests/providers/siriusxm"
     "tests/providers/yandex_music"
+    "tests/providers/yandex_smarthome"
+    "tests/providers/yandex_station"
     "tests/providers/yandex_ynison"
     "tests/providers/zvuk_music"
-    # mocking music_assistant.providers.airplay.pairing.AirPlayPairing does not work
-    "tests/providers/airplay/test_player.py::test_start_pairing__pin_decision"
+    # hue_entertainment is not packaged
+    "tests/controllers/config/test_setup_flows.py::test_hue_pairing_flow_retry_then_success"
+    # Our patches break this test
+    "tests/helpers/test_util.py::TestLoadProviderModule"
+    "tests/providers/airplay/test_helpers.py::test_get_cli_binary_uses_release_asset_name"
+    # We do not have a full git repo to work with
+    "tests/scripts/test_release_workflow.py"
+    # save compute
+    "tests/benchmarks/test_bench_helpers.py"
   ];
 
   disabledTests = lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64) [
@@ -249,6 +268,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
   pythonImportsCheck = [ "music_assistant" ];
 
   passthru = {
+    ffmpeg = ffmpeg_7-headless;
     inherit
       pythonPackages
       pythonPath
