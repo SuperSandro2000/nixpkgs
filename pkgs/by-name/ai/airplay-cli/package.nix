@@ -16,7 +16,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "airplay-cli";
-  version = "0.3.6";
+  version = "0.4.4";
 
   __structuredAttrs = true;
   strictDeps = true;
@@ -28,13 +28,8 @@ stdenv.mkDerivation (finalAttrs: {
     # https://github.com/music-assistant/server/blob/stable/Dockerfile#L7
     tag = "v${finalAttrs.version}";
     fetchSubmodules = true;
-    hash = "sha256-qv2b/VbavSsXELnje+jFdtwostH19VM8vCTzVa07Xdo=";
+    hash = "sha256-iGQqazNW9/yBw/FliGJjof0PEqbRvT6ztuHwoRgY5R0=";
   };
-
-  patches = [
-    # https://github.com/music-assistant/airplay-cli/pull/27
-    ./link-libssl.diff
-  ];
 
   postPatch = ''
     # the most security critical part we build ourself
@@ -70,8 +65,12 @@ stdenv.mkDerivation (finalAttrs: {
   meta = {
     description = "Unified command-line binary for streaming to AirPlay 1 (RAOP) and AirPlay 2 devices";
     homepage = "https://github.com/music-assistant/airplay-cli";
-    # https://github.com/music-assistant/airplay-cli/issues/26
-    license = lib.licenses.unfree;
+    license =
+      with lib.licenses;
+      AND [
+        gpl2Plus
+        asl20
+      ];
     maintainers = with lib.maintainers; [ SuperSandro2000 ];
     mainProgram = "cliairplay";
     platforms = with lib.platforms; linux ++ darwin;
