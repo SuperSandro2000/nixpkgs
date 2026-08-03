@@ -140,8 +140,7 @@ in
           lsof
         ]
         ++ lib.optionals (lib.elem "airplay" cfg.providers) [
-          cliairplay
-          libraop
+          airplay-cli
         ]
         ++ lib.optionals (lib.elem "airplay_receiver" cfg.providers) [
           shairport-sync
