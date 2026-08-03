@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0b9";
+  version = "2.10.0b10";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -168,8 +168,6 @@
     loudness_analysis = ps: [
     ];
     lrclib = ps: [
-    ];
-    motherearthradio = ps: [
     ];
     mpd =
       ps: with ps; [
