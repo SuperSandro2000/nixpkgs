@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0b10";
+  version = "2.10.0b11";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -20,6 +20,8 @@
     "wikipedia"
   ];
   providers = {
+    abc_radio_network = ps: [
+    ];
     acoustid_lookup =
       ps: with ps; [
         pyacoustid
@@ -198,11 +200,17 @@
     ];
     nugs = ps: [
     ];
+    openai_compatible = ps: [
+    ];
+    openai_tts = ps: [
+    ];
     opensubsonic =
       ps: with ps; [
         py-opensonic
       ];
     orf_radiothek = ps: [
+    ];
+    overcast = ps: [
     ];
     pandora = ps: [
     ];

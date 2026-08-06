@@ -19,10 +19,10 @@ let
       music-assistant-frontend = prev.callPackage ./frontend.nix { };
 
       music-assistant-models = final.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.177";
+        version = "1.1.180";
 
         src = oldAttrs.src.override {
-          hash = "sha256-aruGEWN1z27sNqkkC/dJOnQ58mZNnoCwnC8izIgoj9s=";
+          hash = "sha256-8jQFkDmj/sZxx86iVLSI0GPBd9uVcjMko1ZbTUeYmiE=";
         };
       });
     }
@@ -43,7 +43,7 @@ assert
 
 pythonPackages.buildPythonApplication (finalAttrs: {
   pname = "music-assistant";
-  version = "2.10.0b10";
+  version = "2.10.0b11";
   pyproject = true;
   __structuredAttrs = true;
 
@@ -51,7 +51,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     owner = "music-assistant";
     repo = "server";
     tag = finalAttrs.version;
-    hash = "sha256-JN5HejQHhO/Xl75at4uHYu8tPT+ouc5bSirJJEqmcTU=";
+    hash = "sha256-dL+E5qsXWHBGCsEta7VYBD0YjFWkyIeaT0LXpkbpVMM=";
   };
 
   patches = [
@@ -112,6 +112,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
 
   pythonRelaxDeps = [
     "aiosqlite"
+    "cryptography"
     "torch"
   ];
 
@@ -200,6 +201,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       "fully_kiosk"
       "heos"
       "jellyfin"
+      "local_audio"
       "mpd"
       "msx_bridge"
       "opensubsonic"
