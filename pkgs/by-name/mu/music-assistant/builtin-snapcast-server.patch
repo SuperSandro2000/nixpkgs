@@ -1,8 +1,8 @@
 diff --git a/music_assistant/providers/snapcast/constants.py b/music_assistant/providers/snapcast/constants.py
-index 8c897c72..d89a0cd2 100644
+index f3acce023..620f669fa 100644
 --- a/music_assistant/providers/snapcast/constants.py
 +++ b/music_assistant/providers/snapcast/constants.py
-@@ -46,7 +46,8 @@
+@@ -44,7 +44,8 @@
  MASS_STREAM_PREFIX = "Music Assistant - "
  MASS_ANNOUNCEMENT_POSTFIX = " (announcement)"
  SNAPWEB_DIR = pathlib.Path(__file__).parent.resolve().joinpath("snapweb")
@@ -13,18 +13,18 @@ index 8c897c72..d89a0cd2 100644
  DEFAULT_SNAPCAST_FORMAT = AudioFormat(
      content_type=ContentType.PCM_S16LE,
 diff --git a/music_assistant/providers/snapcast/provider.py b/music_assistant/providers/snapcast/provider.py
-index 049fb934..316b6cf8 100644
+index d0402a90b..aa24f3bed 100644
 --- a/music_assistant/providers/snapcast/provider.py
 +++ b/music_assistant/providers/snapcast/provider.py
-@@ -35,6 +35,7 @@
+@@ -39,6 +39,7 @@
      CONF_STREAM_IDLE_THRESHOLD,
      CONF_USE_EXTERNAL_SERVER,
      CONTROL_SCRIPT,
 +    CONTROL_SCRIPT_DIR,
      DEFAULT_SNAPSERVER_CONFIG_FILE,
+     DEFAULT_SNAPSERVER_IP,
      DEFAULT_SNAPSERVER_PLUGIN_DIR,
-     DEFAULT_SNAPSERVER_PORT,
-@@ -270,6 +271,10 @@ async def _builtin_server_runner(self) -> None:
+@@ -448,6 +449,10 @@ async def _builtin_server_runner(self) -> None:
  
          args = [
              "snapserver",
@@ -35,7 +35,7 @@ index 049fb934..316b6cf8 100644
              # config settings taken from
              # https://raw.githubusercontent.com/badaix/snapcast/86cd4b2b63e750a72e0dfe6a46d47caf01426c8d/server/etc/snapserver.conf
              f"--config={self._snapcast_server_config_file}",
-@@ -286,8 +291,7 @@ async def _builtin_server_runner(self) -> None:
+@@ -464,8 +469,7 @@ async def _builtin_server_runner(self) -> None:
              f"--stream.send_to_muted={str(self._snapcast_server_send_to_muted).lower()}",
              f"--streaming_client.initial_volume={self._snapcast_server_initial_volume}",
          ]

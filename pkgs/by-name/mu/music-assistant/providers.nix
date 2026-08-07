@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0b11";
+  version = "2.10.0b12";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -322,6 +322,10 @@
     squeezelite =
       ps: with ps; [
         aioslimproto
+      ];
+    storytel =
+      ps: with ps; [
+        pycryptodome
       ];
     subsonic_scrobble = ps: [
     ];

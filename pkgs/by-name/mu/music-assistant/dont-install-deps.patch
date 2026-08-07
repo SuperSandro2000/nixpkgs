@@ -1,8 +1,8 @@
 diff --git a/music_assistant/helpers/util.py b/music_assistant/helpers/util.py
-index 9b9a32ef7..b100bb5fa 100644
+index 2eea3bcff..055f8f2e8 100644
 --- a/music_assistant/helpers/util.py
 +++ b/music_assistant/helpers/util.py
-@@ -1349,35 +1349,11 @@ async def _get_provider_module() -> ProviderModuleType:
+@@ -1413,35 +1413,11 @@ async def _get_provider_module() -> ProviderModuleType:
          module = await import_module_in_thread(f".{domain}", "music_assistant.providers")
          return cast("ProviderModuleType", module)
  
