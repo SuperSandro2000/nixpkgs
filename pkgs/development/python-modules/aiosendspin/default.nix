@@ -17,6 +17,7 @@
   numpy,
   orjson,
   pillow,
+  soxr,
   zeroconf,
 
   # test dependencies
@@ -33,14 +34,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "aiosendspin";
-  version = "7.0.0";
+  version = "9.0.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Sendspin";
     repo = "aiosendspin";
     tag = finalAttrs.version;
-    hash = "sha256-jkywLGhCWgQx1pvLqgsCr8ozaFBuluM9S3y2q/VcKCI=";
+    hash = "sha256-GGys2jwOBJDsL3c6vGL8Tx3uspEM8e3n2fcz8IvmFq4=";
   };
 
   postPatch = ''
@@ -68,10 +69,19 @@ buildPythonPackage (finalAttrs: {
   ];
 
   optional-dependencies = {
+    asrc = [
+      av
+      numpy
+      soxr
+    ];
     server = [
       av
       numpy
       pillow
+    ];
+    source = [
+      av
+      numpy
     ];
   };
 
