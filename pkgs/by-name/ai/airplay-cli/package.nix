@@ -16,7 +16,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "airplay-cli";
-  version = "0.4.12";
+  version = "0.4.13";
 
   __structuredAttrs = true;
   strictDeps = true;
@@ -28,7 +28,7 @@ stdenv.mkDerivation (finalAttrs: {
     # https://github.com/music-assistant/server/blob/stable/Dockerfile#L7
     tag = "v${finalAttrs.version}";
     fetchSubmodules = true;
-    hash = "sha256-msPx7p8SwztE+OrKfxEF9VnSVtNYq466AzuCdxJtbbo=";
+    hash = "sha256-XqYOQ1HaZu4lvLU7bVEahVSAa72nWZ3ypjjAfty0YOw=";
   };
 
   postPatch = ''
