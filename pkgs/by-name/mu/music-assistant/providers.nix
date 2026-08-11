@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0b13";
+  version = "2.10.0b14";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -13,6 +13,7 @@
     "musicbrainz"
     "playlist_metadata"
     "radio_playlist"
+    "recommendations"
     "sendspin"
     "sync_group"
     "theaudiodb"
@@ -171,6 +172,8 @@
     ];
     lrclib = ps: [
     ];
+    milkdrop_visualizer = ps: [
+    ];
     mpd =
       ps: with ps; [
         python-mpd2
@@ -252,6 +255,8 @@
     radioparadise = ps: [
     ];
     rain_mood = ps: [
+    ];
+    recommendations = ps: [
     ];
     roku_media_assistant =
       ps: with ps; [
