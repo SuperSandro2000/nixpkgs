@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0b14";
+  version = "2.10.0b15";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -171,6 +171,8 @@
     loudness_analysis = ps: [
     ];
     lrclib = ps: [
+    ];
+    mammamiradio = ps: [
     ];
     milkdrop_visualizer = ps: [
     ];
