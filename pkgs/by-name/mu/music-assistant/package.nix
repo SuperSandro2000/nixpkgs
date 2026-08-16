@@ -14,19 +14,54 @@
 
 let
   pythonPackages = python3Packages.overrideScope (
-    prev: final: {
+    final: prev: {
       # TODO: package properly when no longer using a fork
-      aiolibdatachannel = prev.callPackage ./aiolibdatachannel.nix { };
+      aiolibdatachannel = final.callPackage ./aiolibdatachannel.nix { };
 
-      music-assistant-frontend = prev.callPackage ./frontend.nix { };
+      music-assistant-frontend = final.callPackage ./frontend.nix { };
 
-      music-assistant-models = final.music-assistant-models.overridePythonAttrs (oldAttrs: {
+      music-assistant-models = prev.music-assistant-models.overridePythonAttrs (oldAttrs: {
         version = "1.1.188";
 
         src = oldAttrs.src.override {
           hash = "sha256-UyRk/13bs3bRevfaOLeTnvrsPwTt+38vYyPrQ3LBMnE=";
         };
       });
+    }
+  );
+
+  # 6.0.0.post1 causes 10+ tests to fail with encoding errors
+  # Overwriting chardet for the package set causes many rebuilds and failures in other packages,
+  # but luckily nothing is propagating it, so we can get away with only overlaying it for music-assistant
+  chardet = pythonPackages.chardet.overridePythonAttrs (
+    { src, meta, ... }:
+    let
+      version = "7.6.0";
+    in
+    {
+      inherit version;
+      src = src.override {
+        hash = "sha256-7xloMYaoAB1uwj4/5KK8PFd/mjXTgMFjS0SGW7Rrynw=";
+      };
+
+      nativeCheckInputs = with pythonPackages; [
+        pytestCheckHook
+      ];
+
+      preCheck = ''
+        ln -s ${
+          fetchFromGitHub {
+            owner = "chardet";
+            repo = "test-data";
+            tag = version;
+            hash = "sha256-kgD/fCxVuxgn6x2JVf4ij8ptzRi7AfqswccQ0akWL0s=";
+          }
+        } tests/data
+      '';
+
+      meta = meta // {
+        license = lib.licenses.bsd0;
+      };
     }
   );
 
@@ -45,7 +80,7 @@ assert
 
 pythonPackages.buildPythonApplication (finalAttrs: {
   pname = "music-assistant";
-  version = "2.10.0b15";
+  version = "2.10.0rc1";
   pyproject = true;
   __structuredAttrs = true;
 
@@ -53,7 +88,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     owner = "music-assistant";
     repo = "server";
     tag = finalAttrs.version;
-    hash = "sha256-AEfRrgVgv2SeAJ7n8/NHlX3yQxDP3WBh4+/prLWIqBg=";
+    hash = "sha256-5K9E9rGxpID7puztm/wkbPVITMPmNsU5zeczHp/sH4g=";
   };
 
   patches = [
@@ -192,6 +227,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     [
       ffmpeg_7-headless
       openssl
+      pytest-xdist
       pytest9_0CheckHook
       writableTmpDirAsHomeHook
     ]

@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0b15";
+  version = "2.10.0rc1";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -15,6 +15,7 @@
     "radio_playlist"
     "recommendations"
     "sendspin"
+    "sendspin_source"
     "sync_group"
     "theaudiodb"
     "universal_player"
@@ -275,6 +276,10 @@
         av
       ]
       ++ aiosendspin.optional-dependencies.server;
+    sendspin_source =
+      ps: with ps; [
+        soxr
+      ];
     siriusxm = ps: [
     ]; # missing sxm
     smart_fades =
