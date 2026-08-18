@@ -21197,6 +21197,8 @@ self: super: with self; {
 
   tunit = callPackage ../development/python-modules/tunit { };
 
+  turbopuffer = callPackage ../development/python-modules/turbopuffer { };
+
   turnt = callPackage ../development/python-modules/turnt { };
 
   turrishw = callPackage ../development/python-modules/turrishw { };
