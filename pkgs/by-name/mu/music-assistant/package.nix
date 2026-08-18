@@ -21,10 +21,10 @@ let
       music-assistant-frontend = final.callPackage ./frontend.nix { };
 
       music-assistant-models = prev.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.188";
+        version = "1.1.190";
 
         src = oldAttrs.src.override {
-          hash = "sha256-UyRk/13bs3bRevfaOLeTnvrsPwTt+38vYyPrQ3LBMnE=";
+          hash = "sha256-YNVpvw7bELjcpmO+2kYLn6VSiDsS3GC+Outrxi4fejk=";
         };
       });
     }
@@ -80,7 +80,7 @@ assert
 
 pythonPackages.buildPythonApplication (finalAttrs: {
   pname = "music-assistant";
-  version = "2.10.0rc1";
+  version = "2.10.0rc2";
   pyproject = true;
   __structuredAttrs = true;
 
@@ -88,7 +88,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     owner = "music-assistant";
     repo = "server";
     tag = finalAttrs.version;
-    hash = "sha256-5K9E9rGxpID7puztm/wkbPVITMPmNsU5zeczHp/sH4g=";
+    hash = "sha256-adEQh2RkOLAkMCaGlD2q7PQAB2Zy3fnONH/OX6ayrKo=";
   };
 
   patches = [
@@ -218,6 +218,8 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     test = [
       pytest-aiohttp
       pytest-cov-stub
+      pytest-timeout
+      pytest-xdist
       syrupy
     ];
   };
@@ -227,7 +229,6 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     [
       ffmpeg_7-headless
       openssl
-      pytest-xdist
       pytest9_0CheckHook
       writableTmpDirAsHomeHook
     ]
@@ -263,10 +264,10 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       "sonos"
       "sonos_s1"
       "soundcloud"
+      "spotify"
       "squeezelite"
       "tidal"
       "vban_receiver"
-      "wiim"
       "ytmusic"
     ]);
 
@@ -289,6 +290,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     "tests/providers/nicovideo"
     "tests/providers/qqmusic"
     "tests/providers/siriusxm"
+    "tests/providers/wiim"
     "tests/providers/yandex_music"
     "tests/providers/yandex_smarthome"
     "tests/providers/yandex_station"

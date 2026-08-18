@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0rc1";
+  version = "2.10.0rc2";
   builtins = [
     "builtin"
     "coverartarchive"
@@ -351,10 +351,8 @@
     ];
     theaudiodb = ps: [
     ];
-    tidal =
-      ps: with ps; [
-        pkce
-      ];
+    tidal = ps: [
+    ];
     tunein = ps: [
     ];
     universal_group = ps: [
@@ -370,7 +368,7 @@
     wiim =
       ps: with ps; [
         wiim
-      ];
+      ]; # missing pywiim
     wikipedia = ps: [
     ];
     yandex_music =
