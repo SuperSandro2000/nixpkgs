@@ -21,10 +21,10 @@ let
       music-assistant-frontend = final.callPackage ./frontend.nix { };
 
       music-assistant-models = prev.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.190";
+        version = "1.1.193";
 
         src = oldAttrs.src.override {
-          hash = "sha256-YNVpvw7bELjcpmO+2kYLn6VSiDsS3GC+Outrxi4fejk=";
+          hash = "sha256-vLsH6d4Xa2+v0RIsaAQnIhIS1WhVlR6iLWZLiq2d5Mg=";
         };
       });
     }
@@ -80,7 +80,7 @@ assert
 
 pythonPackages.buildPythonApplication (finalAttrs: {
   pname = "music-assistant";
-  version = "2.10.0rc2";
+  version = "2.10.0rc3";
   pyproject = true;
   __structuredAttrs = true;
 
@@ -88,7 +88,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     owner = "music-assistant";
     repo = "server";
     tag = finalAttrs.version;
-    hash = "sha256-adEQh2RkOLAkMCaGlD2q7PQAB2Zy3fnONH/OX6ayrKo=";
+    hash = "sha256-Kke6uNJQMd/yzzKXZgWik/3mZxheEYY8Qr6p+Rz3+Bw=";
   };
 
   patches = [
@@ -290,6 +290,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     "tests/providers/nicovideo"
     "tests/providers/qqmusic"
     "tests/providers/siriusxm"
+    "tests/providers/stream_limits"
     "tests/providers/wiim"
     "tests/providers/yandex_music"
     "tests/providers/yandex_smarthome"
