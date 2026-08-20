@@ -27,9 +27,6 @@ let
   finalPackage = cfg.package.override {
     inherit (cfg) providers;
   };
-
-  # YouTube Music needs deno with JIT to solve yt-dlp challenges
-  useYTMusic = lib.elem "ytmusic" cfg.providers;
 in
 
 {
@@ -154,7 +151,8 @@ in
         ++ lib.optionals (lib.elem "snapcast" cfg.providers) [
           snapcast
         ]
-        ++ lib.optionals useYTMusic [
+        # YouTube Music needs deno with JIT to solve yt-dlp challenges
+        ++ lib.optionals (lib.elem "ytmusic" cfg.providers) [
           deno
           ffmpeg-headless
         ];
@@ -203,7 +201,8 @@ in
           "~@privileged"
           "mbind"
         ]
-        ++ lib.optionals useYTMusic [
+        # YouTube Music needs deno with JIT to solve yt-dlp challenges
+        ++ lib.optionals (lib.elem "ytmusic" cfg.providers) [
           "@pkey"
         ];
         RestrictSUIDSGID = true;
