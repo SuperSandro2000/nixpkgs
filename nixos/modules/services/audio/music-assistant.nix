@@ -172,8 +172,8 @@ in
         );
         DynamicUser = true;
         StateDirectory = "music-assistant";
-        AmbientCapabilities = "";
-        CapabilityBoundingSet = [ "" ];
+        AmbientCapabilities = [ "" ] ++ lib.optionals (lib.elem "airplay" cfg.providers) [ "CAP_NET_BIND_SERVICE" ];
+        CapabilityBoundingSet = [ "" ] ++ lib.optionals (lib.elem "airplay" cfg.providers) [ "CAP_NET_BIND_SERVICE" ];
         DevicePolicy = "closed";
         LockPersonality = true;
         # breaks pyopenssl's cffi calls, used in remote access feature
