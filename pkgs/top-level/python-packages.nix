@@ -18436,6 +18436,8 @@ self: super: with self; {
 
   s3fs = callPackage ../development/python-modules/s3fs { };
 
+  s3tokenizer = callPackage ../development/python-modules/s3tokenizer { };
+
   s3transfer = callPackage ../development/python-modules/s3transfer { };
 
   sabctools = callPackage ../development/python-modules/sabctools { };
