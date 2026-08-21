@@ -15325,6 +15325,8 @@ self: super: with self; {
 
   pylookyloo = callPackage ../development/python-modules/pylookyloo { };
 
+  pyloudnorm = callPackage ../development/python-modules/pyloudnorm { };
+
   pylpsd = callPackage ../development/python-modules/pylpsd { };
 
   pylru = callPackage ../development/python-modules/pylru { };
