@@ -18026,6 +18026,8 @@ self: super: with self; {
 
   resampy = callPackage ../development/python-modules/resampy { };
 
+  resemble-perth = callPackage ../development/python-modules/resemble-perth { };
+
   resend = callPackage ../development/python-modules/resend { };
 
   resize-right = callPackage ../development/python-modules/resize-right { };
