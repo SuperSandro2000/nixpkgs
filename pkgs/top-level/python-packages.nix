@@ -3064,6 +3064,8 @@ self: super: with self; {
 
   chatlas = callPackage ../development/python-modules/chatlas { };
 
+  chatterbox-tts = callPackage ../development/python-modules/chatterbox-tts { };
+
   check-manifest = callPackage ../development/python-modules/check-manifest { };
 
   checkdmarc = callPackage ../development/python-modules/checkdmarc { };
