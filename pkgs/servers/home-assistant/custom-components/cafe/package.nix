@@ -9,13 +9,13 @@
 buildHomeAssistantComponent (finalAttrs: {
   owner = "FezVrasta";
   domain = "cafe";
-  version = "0.6.0";
+  version = "0.8.0";
 
   src = fetchFromGitHub {
     owner = "FezVrasta";
     repo = "cafe-hass";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-JTt0HYAvlP7JoUc9Caj1ZpyIZup/cDSN5HELe/jViPk=";
+    hash = "sha256-jWHPR4nWZt4vtTF0KqNtzZoUCmL6hYrnncIgWAY9T0E=";
   };
 
   patches = [
@@ -36,7 +36,7 @@ buildHomeAssistantComponent (finalAttrs: {
       postPatch
       missingHashes
       ;
-    hash = "sha256-UsL/Zn831i0lBDzCLjVjcYWl4a4Mf05ctufQ7iezMx4=";
+    hash = "sha256-IpR07g5NNN9cXxuBbr7thfXC227dIAHlmEegfXkuqZ8=";
   };
 
   nativeBuildInputs = [
