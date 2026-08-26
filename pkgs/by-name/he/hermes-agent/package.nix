@@ -1,7 +1,6 @@
 {
   lib,
   fetchFromGitHub,
-  fetchpatch,
   makeWrapper,
   python313Packages,
   stdenvNoCC,
@@ -20,13 +19,13 @@
 }:
 let
   pname = "hermes-agent";
-  version = "0.20.1";
+  version = "0.20.5";
 
   src = fetchFromGitHub {
     owner = "NousResearch";
     repo = "hermes-agent";
-    tag = "v2026.8.13"; # (¬_¬)
-    hash = "sha256-A+pprddWqewhUjD8d+PLdTHAO5SZV6YwPhJrC2T2dFE=";
+    tag = "v2026.8.19"; # (¬_¬)
+    hash = "sha256-oeFJlEoFybqKkbuWT4mW8PRauusjt3y44ZJXAcA7TPY=";
   };
 
   meta = {
@@ -45,14 +44,6 @@ let
   hermes-agent-pkg = pythonPackages.buildPythonPackage (finalAttrs: {
     inherit pname version src;
     pyproject = true;
-
-    patches = [
-      # Add registration lifecycle to pyproject.toml
-      (fetchpatch {
-        url = "https://github.com/NousResearch/hermes-agent/commit/89d3e43f5e61146bff46923dd8a9fc7a6cfc9d63.patch";
-        hash = "sha256-x9VBWY0xs+YczVkwURKE/v78Fypn355Px0tV4Gf3frk=";
-      })
-    ];
 
     env = {
       HERMES_NIX_BUILD = 1;
@@ -100,6 +91,10 @@ let
       ++ pyjwt.optional-dependencies.crypto
       ++ uvicorn.optional-dependencies.standard;
 
+    # Upstream adds dependencies for reasons we do not need to care at this point
+    # like forcing transitive dependency updates to fix CVEs or bump transitive dependencies.
+    # For that reason the following deps are omitted:
+    # httpx, starlette
     optional-dependencies = with pythonPackages; {
       anthropic = [ anthropic ];
       exa = [ exa-py ];
