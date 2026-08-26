@@ -1,13 +1,12 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0rc4";
+  version = "2.10.0rc7";
   builtins = [
     "builtin"
     "coverartarchive"
     "fanarttv"
     "itunes_artwork"
-    "local_audio"
     "loudness_analysis"
     "lrclib"
     "musicbrainz"
@@ -165,10 +164,8 @@
       ps: with ps; [
         liblistenbrainz
       ];
-    local_audio =
-      ps: with ps; [
-        sounddevice
-      ];
+    local_audio = ps: [
+    ];
     loudness_analysis = ps: [
     ];
     lrclib = ps: [
