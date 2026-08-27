@@ -21,10 +21,10 @@ let
       music-assistant-frontend = final.callPackage ./frontend.nix { };
 
       music-assistant-models = prev.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.202";
+        version = "1.1.204";
 
         src = oldAttrs.src.override {
-          hash = "sha256-SHWjkLqeGyrsCPT5xX06gtZw6ydHFJPIPK/MLv8N1D8=";
+          hash = "sha256-nmIBjdKcgiRBJJSfPrd8lGt940/u9e3Uu//1A6Q68EY=";
         };
       });
     }
@@ -78,7 +78,7 @@ assert
 
 pythonPackages.buildPythonApplication (finalAttrs: {
   pname = "music-assistant";
-  version = "2.10.0rc7";
+  version = "2.10.0";
   pyproject = true;
   __structuredAttrs = true;
 
@@ -86,7 +86,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     owner = "music-assistant";
     repo = "server";
     tag = finalAttrs.version;
-    hash = "sha256-cAHXXDuKmJsJodRpPgpX3jPDIOlJj5C15KfAUdghIj0=";
+    hash = "sha256-6Fyi2FZp7sFTXpgxX0yYpzai8TSPqR5YkCb8jJiRtlY=";
   };
 
   patches = [

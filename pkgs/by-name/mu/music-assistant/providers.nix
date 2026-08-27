@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.10.0rc7";
+  version = "2.10.0";
   builtins = [
     "builtin"
     "coverartarchive"
