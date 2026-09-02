@@ -373,7 +373,6 @@ python3Packages.buildPythonApplication rec {
     cronsim
     cryptography
     fnv-hash-fast
-    gazetteer-matcher
     ha-ffmpeg
     hass-nabucasa
     hassil
