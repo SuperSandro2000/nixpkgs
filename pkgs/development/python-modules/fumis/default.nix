@@ -21,14 +21,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "fumis";
-  version = "0.4.0";
+  version = "0.4.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "frenck";
     repo = "python-fumis";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-yh1gxQ8iqHIE/pavzjYUXdaHnnHD0Ae6Yd/Elc/ZNmY=";
+    hash = "sha256-xW7X6SLVFH8nCRUmABp0Rk+UWM15ODknGsCkCtMYOGs=";
   };
 
   postPatch = ''
