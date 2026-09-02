@@ -386,6 +386,7 @@ python3Packages.buildPythonApplication rec {
     orjson
     packaging
     pillow
+    probatio
     propcache
     psutil-home-assistant
     pyjwt
