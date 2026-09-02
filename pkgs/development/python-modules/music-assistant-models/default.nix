@@ -26,14 +26,14 @@ buildPythonPackage (finalAttrs: {
   pname = "music-assistant-models";
   # Must be compatible with music-assistant-client package
   # nixpkgs-update: no auto update
-  version = "1.1.152";
+  version = "1.1.189";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "models";
     tag = finalAttrs.version;
-    hash = "sha256-tdjqg6N/g8fRtcpj7RLQ2QeX0f3zQlMndIfNTgtlCf4=";
+    hash = "sha256-oB2ifUUysaJU/nUyTip0C06QujoFSjgowctadIHxDiQ=";
   };
 
   nativeBuildInputs = [ pyprojectVersionPatchHook ];
@@ -41,6 +41,7 @@ buildPythonPackage (finalAttrs: {
   build-system = [ setuptools ];
 
   dependencies = [
+    anyascii
     mashumaro
     orjson
     # TODO: remove when home-assistant updated to at least this version, too
