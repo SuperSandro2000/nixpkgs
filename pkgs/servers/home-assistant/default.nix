@@ -240,6 +240,7 @@ let
       });
 
       # internal python packages only consumed by home-assistant itself
+      gazetteer-matcher = self.callPackage ./python-modules/gazetteer-matcher { };
       hass-web-proxy-lib = self.callPackage ./python-modules/hass-web-proxy-lib { };
       home-assistant-frontend = self.callPackage ./frontend.nix { };
       home-assistant-intents = self.callPackage ./intents.nix { };
@@ -372,6 +373,7 @@ python3Packages.buildPythonApplication rec {
     cronsim
     cryptography
     fnv-hash-fast
+    gazetteer-matcher
     ha-ffmpeg
     hass-nabucasa
     hassil
