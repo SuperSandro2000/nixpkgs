@@ -28,7 +28,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -40,7 +39,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "accuweather" =
       ps: with ps; [
         accuweather
@@ -96,11 +95,10 @@
       ];
     "ai_task" =
       ps: with ps; [
-        gazetteer-matcher
         hassil
         home-assistant-intents
         pyturbojpeg
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "aidot" =
       ps: with ps; [
         python-aidot
@@ -157,7 +155,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -169,7 +166,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "airtouch4" =
       ps: with ps; [
         airtouch4pyapi
@@ -298,14 +295,13 @@
     "anthropic" =
       ps: with ps; [
         anthropic
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
         mutagen
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "anwb_energie" =
       ps: with ps; [
       ];
@@ -390,7 +386,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -402,7 +397,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "arcam_fmj" =
       ps: with ps; [
         arcam-fmj
@@ -440,24 +435,22 @@
       ];
     "assist_pipeline" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
         mutagen
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "assist_satellite" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
         mutagen
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "asuswrt" =
       ps: with ps; [
         aioasuswrt
@@ -485,7 +478,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -502,7 +494,7 @@
         serialx
         yalexs
         yalexs-ble
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "august_ble" =
       ps: with ps; [
       ];
@@ -552,7 +544,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -564,7 +555,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "avosdim" =
       ps: with ps; [
       ];
@@ -671,7 +662,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -683,7 +673,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ]; # missing inputs: besen
+      ]; # missing inputs: besen gazetteer-matcher
     "beverly" =
       ps: with ps; [
       ];
@@ -743,7 +733,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -755,7 +744,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "blueprint" =
       ps: with ps; [
       ];
@@ -794,7 +783,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -806,7 +794,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "bluetooth_le_tracker" =
       ps: with ps; [
         aioesphomeapi
@@ -823,7 +811,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -835,7 +822,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "bmw_connected_drive" =
       ps: with ps; [
       ];
@@ -928,7 +915,6 @@
         bthome-ble
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -940,7 +926,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "bticino" =
       ps: with ps; [
       ];
@@ -1004,7 +990,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -1017,7 +1002,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "cast" =
       ps: with ps; [
         aiohasupervisor
@@ -1029,7 +1014,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -1050,7 +1034,7 @@
         securetar
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "ccm15" =
       ps: with ps; [
         py-ccm15
@@ -1087,7 +1071,6 @@
         chefiq-ble
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -1099,7 +1082,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "chess_com" =
       ps: with ps; [
         chess-com-api
@@ -1147,7 +1130,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -1162,7 +1144,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "cloudflare" =
       ps: with ps; [
         pycfdns
@@ -1247,10 +1229,9 @@
       ];
     "conversation" =
       ps: with ps; [
-        gazetteer-matcher
         hassil
         home-assistant-intents
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "cookidoo" =
       ps: with ps; [
         cookidoo-api
@@ -1365,7 +1346,6 @@
         dbus-fast
         file-read-backwards
         fnv-hash-fast
-        gazetteer-matcher
         go2rtc-client
         ha-ffmpeg
         habluetooth
@@ -1389,7 +1369,7 @@
         serialx
         sqlalchemy
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "delijn" =
       ps: with ps; [
         pydelijn
@@ -1403,10 +1383,9 @@
       ];
     "demo" =
       ps: with ps; [
-        gazetteer-matcher
         hassil
         home-assistant-intents
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "denon" =
       ps: with ps; [
       ];
@@ -1548,7 +1527,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -1561,7 +1539,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "downloader" =
       ps: with ps; [
       ];
@@ -1874,7 +1852,6 @@
         dbus-fast
         eq3btsmart
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -1886,7 +1863,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "escea" =
       ps: with ps; [
         pescea
@@ -1907,7 +1884,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -1918,7 +1894,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "essent" =
       ps: with ps; [
         essent-dynamic-pricing
@@ -1948,7 +1924,6 @@
         dbus-fast
         esphome-dashboard-api
         eufylife-ble-client
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -1960,7 +1935,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "eurotronic_cometblue" =
       ps: with ps; [
         aiohasupervisor
@@ -2116,7 +2091,6 @@
         dbus-fast
         esphome-dashboard-api
         fjaraskupan
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -2128,7 +2102,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "fleetgo" =
       ps: with ps; [
         ritassist
@@ -2344,7 +2318,6 @@
         dbus-fast
         esphome-dashboard-api
         gardena-bluetooth
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -2356,7 +2329,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "gate" =
       ps: with ps; [
       ];
@@ -2513,7 +2486,6 @@
       ];
     "google_generative_ai_conversation" =
       ps: with ps; [
-        gazetteer-matcher
         google-genai
         ha-ffmpeg
         hassil
@@ -2521,7 +2493,7 @@
         mutagen
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "google_health" =
       ps: with ps; [
         google-health-api
@@ -2581,7 +2553,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         govee-ble
         ha-ffmpeg
         habluetooth
@@ -2594,7 +2565,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "govee_light_local" =
       ps: with ps; [
         govee-local-api
@@ -2871,7 +2842,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -2885,7 +2855,7 @@
         python-otbr-api
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "homematic" =
       ps: with ps; [
         pyhomematic
@@ -2965,7 +2935,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -2978,7 +2947,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "huisbaasje" =
       ps: with ps; [
         energyflip-client
@@ -3018,7 +2987,6 @@
         dbus-fast
         esphome-dashboard-api
         gardena-bluetooth
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3030,7 +2998,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "huum" =
       ps: with ps; [
         huum
@@ -3080,7 +3048,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3093,7 +3060,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "icloud" =
       ps: with ps; [
         pyicloud
@@ -3114,7 +3081,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3127,7 +3093,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "idrive_e2" =
       ps: with ps; [
         aiobotocore
@@ -3208,7 +3174,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3221,7 +3186,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "incomfort" =
       ps: with ps; [
         incomfort-client
@@ -3264,7 +3229,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3277,7 +3241,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "input_boolean" =
       ps: with ps; [
       ];
@@ -3393,7 +3357,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3406,7 +3369,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "isal" =
       ps: with ps; [
         isal
@@ -3427,7 +3390,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3439,7 +3401,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ]; # missing inputs: iseo-argo-ble
+      ]; # missing inputs: gazetteer-matcher iseo-argo-ble
     "iskra" =
       ps: with ps; [
         pyiskra
@@ -3557,7 +3519,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3570,7 +3531,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "kentuckypower" =
       ps: with ps; [
       ];
@@ -3595,7 +3556,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3608,7 +3568,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "kiosker" =
       ps: with ps; [
         kiosker-python-api
@@ -3689,7 +3649,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3702,7 +3661,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "kwb" =
       ps: with ps; [
         pykwb
@@ -3734,7 +3693,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3747,7 +3705,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "lametric" =
       ps: with ps; [
         demetriek
@@ -3799,7 +3757,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3812,7 +3769,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "leaone" =
       ps: with ps; [
         aioesphomeapi
@@ -3829,7 +3786,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3842,7 +3798,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "led_ble" =
       ps: with ps; [
         aioesphomeapi
@@ -3859,7 +3815,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -3872,7 +3827,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "led_infrared" =
       ps: with ps; [
         infrared-protocols
@@ -3988,7 +3943,6 @@
       ];
     "litellm" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
@@ -3996,7 +3950,7 @@
         openai
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "litterrobot" =
       ps: with ps; [
         pylitterbot
@@ -4010,7 +3964,6 @@
       ];
     "llama_cpp" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
@@ -4018,7 +3971,7 @@
         openai
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "llamalab_automate" =
       ps: with ps; [
       ];
@@ -4082,7 +4035,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -4098,7 +4050,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "lovelace" =
       ps: with ps; [
       ];
@@ -4221,11 +4173,10 @@
       ps: with ps; [
         aiohttp-sse
         anyio
-        gazetteer-matcher
         hassil
         home-assistant-intents
         mcp
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "mealie" =
       ps: with ps; [
         aiomealie
@@ -4250,7 +4201,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -4263,7 +4213,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "media_extractor" =
       ps:
       with ps;
@@ -4309,7 +4259,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -4322,7 +4271,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "meraki" =
       ps: with ps; [
       ];
@@ -4431,7 +4380,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -4444,7 +4392,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "mobile_app" =
       ps: with ps; [
         aiohasupervisor
@@ -4456,7 +4404,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -4473,7 +4420,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "mochad" =
       ps: with ps; [
         pymochad
@@ -4533,7 +4480,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -4549,7 +4495,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "moon" =
       ps: with ps; [
       ];
@@ -4569,7 +4515,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -4582,7 +4527,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "motion" =
       ps: with ps; [
       ];
@@ -4607,7 +4552,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -4620,7 +4564,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "motioneye" =
       ps: with ps; [
         motioneye-client
@@ -4766,7 +4710,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -4782,7 +4725,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "netdata" =
       ps: with ps; [
         netdata
@@ -5010,7 +4953,6 @@
       ];
     "ollama" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
@@ -5018,7 +4960,7 @@
         ollama
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "ombi" =
       ps: with ps; [
         pyombi
@@ -5052,7 +4994,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -5068,7 +5009,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "onedrive_for_business" =
       ps: with ps; [
         aiohasupervisor
@@ -5080,7 +5021,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -5096,7 +5036,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "onewire" =
       ps: with ps; [
         aio-ownet
@@ -5119,7 +5059,6 @@
       ];
     "open_router" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
@@ -5128,10 +5067,9 @@
         pymicro-vad
         pyspeex-noise
         python-open-router
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "openai_conversation" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
@@ -5139,7 +5077,7 @@
         openai
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "openalpr_cloud" =
       ps: with ps; [
       ];
@@ -5159,7 +5097,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -5172,7 +5109,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "openerz" =
       ps: with ps; [
         openerz-api
@@ -5253,7 +5190,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -5266,7 +5202,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "oru" =
       ps: with ps; [
         oru
@@ -5331,7 +5267,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -5347,10 +5282,9 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "ovhcloud_ai_endpoints" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
@@ -5358,7 +5292,7 @@
         openai
         pymicro-vad
         pyspeex-noise
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "ovo_energy" =
       ps: with ps; [
         ovoenergy
@@ -5374,7 +5308,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -5391,7 +5324,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "p1_monitor" =
       ps: with ps; [
         p1monitor
@@ -5510,7 +5443,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -5526,7 +5458,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "plant" =
       ps: with ps; [
         fnv-hash-fast
@@ -5606,7 +5538,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -5618,7 +5549,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "pro_breeze" =
       ps: with ps; [
       ];
@@ -5638,7 +5569,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -5651,7 +5581,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "profiler" =
       ps: with ps; [
         guppy3
@@ -5781,7 +5711,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -5794,7 +5723,7 @@
         qingping-ble
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "qld_bushfire" =
       ps: with ps; [
         georss-qld-bushfire-alert-client
@@ -5844,7 +5773,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -5860,7 +5788,7 @@
         rachiopy
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "radarr" =
       ps: with ps; [
         aiopyarr
@@ -5921,7 +5849,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -5934,7 +5861,7 @@
         rapt-ble
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "raspberry_pi" =
       ps: with ps; [
         aiohasupervisor
@@ -6175,7 +6102,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -6188,7 +6114,7 @@
         ruuvitag-ble
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "rympro" =
       ps: with ps; [
         pyrympro
@@ -6315,7 +6241,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -6328,7 +6253,7 @@
         sensirion-ble
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "sensor" =
       ps: with ps; [
         fnv-hash-fast
@@ -6354,7 +6279,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -6367,7 +6291,7 @@
         sensorpro-ble
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "sensorpush" =
       ps: with ps; [
         aioesphomeapi
@@ -6384,7 +6308,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -6397,7 +6320,7 @@
         sensorpush-ble
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "sensorpush_cloud" =
       ps: with ps; [
         sensorpush-api
@@ -6665,7 +6588,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -6678,7 +6600,7 @@
         pyspeex-noise
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "sofar" =
       ps:
       with ps;
@@ -6776,7 +6698,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -6790,7 +6711,7 @@
         specialized-turbo
         zeroconf
       ]
-      ++ specialized-turbo.optional-dependencies.cloud;
+      ++ specialized-turbo.optional-dependencies.cloud; # missing inputs: gazetteer-matcher
     "speedtestdotnet" =
       ps: with ps; [
         speedtest-cli
@@ -6959,7 +6880,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -6972,7 +6892,7 @@
         pyswitchbot
         serialx
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "switchbot_cloud" =
       ps: with ps; [
         aiohasupervisor
@@ -6984,7 +6904,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -7000,7 +6919,7 @@
         securetar
         serialx
         switchbot-api
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "switcher_kis" =
       ps: with ps; [
         aioswitcher
@@ -7199,7 +7118,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -7212,7 +7130,7 @@
         serialx
         thermobeacon-ble
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "thermoplus" =
       ps: with ps; [
       ];
@@ -7232,7 +7150,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -7245,7 +7162,7 @@
         serialx
         thermopro-ble
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "thethingsnetwork" =
       ps: with ps; [
         ttn-client
@@ -7298,7 +7215,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -7311,7 +7227,7 @@
         serialx
         tilt-ble
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "tilt_pi" =
       ps: with ps; [
         tilt-pi
@@ -7381,7 +7297,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -7397,7 +7312,7 @@
         securetar
         serialx
         toonapi
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "torque" =
       ps: with ps; [
       ];
@@ -7751,7 +7666,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -7764,7 +7678,7 @@
         serialx
         victron-ble-ha-parser
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "victron_gx" =
       ps: with ps; [
         victron-mqtt
@@ -7801,7 +7715,6 @@
       ];
     "voip" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
@@ -7810,7 +7723,7 @@
         pymicro-vad
         pyspeex-noise
         voip-utils
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "volkszaehler" =
       ps: with ps; [
         volkszaehler
@@ -7870,7 +7783,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -7886,7 +7798,7 @@
         securetar
         serialx
         visionpluspython
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "watttime" =
       ps: with ps; [
         aiowatttime
@@ -7987,7 +7899,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -8002,7 +7913,7 @@
         pyturbojpeg
         securetar
         serialx
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "wiz" =
       ps: with ps; [
         ifaddr
@@ -8043,7 +7954,6 @@
       ];
     "wyoming" =
       ps: with ps; [
-        gazetteer-matcher
         ha-ffmpeg
         hassil
         home-assistant-intents
@@ -8051,7 +7961,7 @@
         pymicro-vad
         pyspeex-noise
         wyoming
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "x10" =
       ps: with ps; [
       ];
@@ -8087,7 +7997,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -8100,7 +8009,7 @@
         serialx
         xiaomi-ble
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "xiaomi_miio" =
       ps: with ps; [
         construct
@@ -8135,7 +8044,6 @@
         bluetooth-data-tools
         cronsim
         dbus-fast
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hass-nabucasa
@@ -8152,7 +8060,7 @@
         serialx
         yalexs
         yalexs-ble
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "yale_smart_alarm" =
       ps: with ps; [
         yalesmartalarmclient
@@ -8173,7 +8081,6 @@
         bluetooth-data-tools
         dbus-fast
         esphome-dashboard-api
-        gazetteer-matcher
         ha-ffmpeg
         habluetooth
         hassil
@@ -8186,7 +8093,7 @@
         serialx
         yalexs-ble
         zeroconf
-      ];
+      ]; # missing inputs: gazetteer-matcher
     "yamaha" =
       ps: with ps; [
         rxv
@@ -8327,7 +8234,6 @@
   # components listed in tests/components for which all dependencies are packaged
   supportedComponentsWithTests = [
     "abode"
-    "acaia"
     "accuweather"
     "acmeda"
     "actron_air"
@@ -8337,7 +8243,6 @@
     "aemet"
     "aftership"
     "agent_dvr"
-    "ai_task"
     "aidot"
     "air_quality"
     "airgradient"
@@ -8348,7 +8253,6 @@
     "airpatrol"
     "airq"
     "airthings"
-    "airthings_ble"
     "airtouch4"
     "airtouch5"
     "airvisual"
@@ -8373,7 +8277,6 @@
     "anglian_water"
     "anova"
     "anthemav"
-    "anthropic"
     "aosmith"
     "apache_kafka"
     "apcupsd"
@@ -8387,16 +8290,12 @@
     "aquacell"
     "aqualogic"
     "aqvify"
-    "aranet"
     "arcam_fmj"
     "arve"
     "arwn"
     "aseko_pool_live"
-    "assist_pipeline"
-    "assist_satellite"
     "asuswrt"
     "atag"
-    "august"
     "aurora"
     "aurora_abb_powerone"
     "aussie_broadband"
@@ -8404,7 +8303,6 @@
     "auth"
     "automation"
     "autoskope"
-    "avea"
     "awair"
     "aws"
     "aws_s3"
@@ -8425,12 +8323,9 @@
     "blebox"
     "blink"
     "blue_current"
-    "bluemaestro"
     "blueprint"
     "bluesound"
     "bluetooth"
-    "bluetooth_adapters"
-    "bluetooth_le_tracker"
     "bmw_connected_drive"
     "bond"
     "bosch_alarm"
@@ -8444,7 +8339,6 @@
     "brunt"
     "bryant_evolution"
     "bsblan"
-    "bthome"
     "buienradar"
     "button"
     "caldav"
@@ -8452,19 +8346,15 @@
     "cambridge_audio"
     "camera"
     "canary"
-    "casper_glow"
-    "cast"
     "ccm15"
     "centriconnect"
     "cert_expiry"
     "chacon_dio"
-    "chef_iq"
     "chess_com"
     "cielo_home"
     "citybikes"
     "clicksend_tts"
     "climate"
-    "cloud"
     "cloudflare"
     "cloudflare_r2"
     "co2signal"
@@ -8480,7 +8370,6 @@
     "config"
     "configurator"
     "control4"
-    "conversation"
     "cookidoo"
     "coolmaster"
     "counter"
@@ -8497,9 +8386,7 @@
     "debugpy"
     "deconz"
     "decora_wifi"
-    "default_config"
     "deluge"
-    "demo"
     "denon_rs232"
     "denonavr"
     "derivative"
@@ -8523,7 +8410,6 @@
     "door"
     "doorbell"
     "doorbird"
-    "dormakaba_dkey"
     "downloader"
     "dremel_3d_printer"
     "drop_connect"
@@ -8580,11 +8466,8 @@
     "epic_games_store"
     "epion"
     "epson"
-    "eq3btsmart"
     "escea"
-    "esphome"
     "essent"
-    "eufylife_ble"
     "eurotronic_cometblue"
     "event"
     "everlights"
@@ -8612,7 +8495,6 @@
     "fish_audio"
     "fitbit"
     "fivem"
-    "fjaraskupan"
     "flexit_bacnet"
     "flic"
     "flipr"
@@ -8644,7 +8526,6 @@
     "fyta"
     "garage_door"
     "garages_amsterdam"
-    "gardena_bluetooth"
     "gate"
     "gatus"
     "gdacs"
@@ -8675,7 +8556,6 @@
     "google_assistant_sdk"
     "google_cloud"
     "google_drive"
-    "google_generative_ai_conversation"
     "google_health"
     "google_mail"
     "google_photos"
@@ -8686,7 +8566,6 @@
     "google_travel_time"
     "google_weather"
     "google_wifi"
-    "govee_ble"
     "govee_light_local"
     "gpsd"
     "gpslogger"
@@ -8730,7 +8609,6 @@
     "homeassistant_yellow"
     "homee"
     "homekit"
-    "homekit_controller"
     "homematic"
     "homematicip_cloud"
     "homevolt"
@@ -8743,13 +8621,11 @@
     "http"
     "huawei_lte"
     "hue"
-    "hue_ble"
     "huisbaasje"
     "humidifier"
     "humidity"
     "hunterdouglas_powerview"
     "husqvarna_automower"
-    "husqvarna_automower_ble"
     "huum"
     "hvv_departures"
     "hydrawise"
@@ -8757,9 +8633,7 @@
     "hypontech"
     "ialarm"
     "iaqualink"
-    "ibeacon"
     "icloud"
-    "idasen_desk"
     "idrive_e2"
     "ifttt"
     "igloohome"
@@ -8773,13 +8647,11 @@
     "imgw_pib"
     "immich"
     "imou"
-    "improv_ble"
     "incomfort"
     "indevolt"
     "inels"
     "influxdb"
     "infrared"
-    "inkbird"
     "input_boolean"
     "input_button"
     "input_datetime"
@@ -8801,7 +8673,6 @@
     "ipp"
     "iqvia"
     "irm_kmi"
-    "iron_os"
     "isal"
     "iskra"
     "islamic_prayer_times"
@@ -8819,8 +8690,6 @@
     "jvc_projector"
     "kaleidescape"
     "keenetic_ndms2"
-    "kegtron"
-    "keymitt_ble"
     "kiosker"
     "kira"
     "kitchen_sink"
@@ -8832,10 +8701,8 @@
     "konnected"
     "kostal_plenticore"
     "kraken"
-    "kulersky"
     "labs"
     "lacrosse_view"
-    "lamarzocco"
     "lametric"
     "landisgyr_heat_meter"
     "lastfm"
@@ -8843,9 +8710,6 @@
     "laundrify"
     "lawn_mower"
     "lcn"
-    "ld2410_ble"
-    "leaone"
-    "led_ble"
     "led_infrared"
     "lektrico"
     "letpot"
@@ -8863,10 +8727,8 @@
     "light"
     "linkplay"
     "litejet"
-    "litellm"
     "litterrobot"
     "livisi"
-    "llama_cpp"
     "llm"
     "local_calendar"
     "local_file"
@@ -8880,7 +8742,6 @@
     "london_air"
     "london_underground"
     "lookin"
-    "loqed"
     "lovelace"
     "luci"
     "luftdaten"
@@ -8902,17 +8763,14 @@
     "maxcube"
     "mazda"
     "mcp"
-    "mcp_server"
     "mealie"
     "meater"
-    "medcom_ble"
     "media_extractor"
     "media_player"
     "media_source"
     "melcloud"
     "melcloud_home"
     "melissa"
-    "melnor"
     "meraki"
     "met"
     "met_eireann"
@@ -8932,8 +8790,6 @@
     "minio"
     "mitsubishi_comfort"
     "mjpeg"
-    "moat"
-    "mobile_app"
     "mochad"
     "modbus"
     "modem_callerid"
@@ -8943,12 +8799,9 @@
     "mold_indicator"
     "monarch_money"
     "monoprice"
-    "monzo"
     "moon"
-    "mopeka"
     "motion"
     "motion_blinds"
-    "motionblinds_ble"
     "motioneye"
     "motionmount"
     "mpd"
@@ -8976,7 +8829,6 @@
     "nederlandse_spoorwegen"
     "ness_alarm"
     "nest"
-    "netatmo"
     "netgear"
     "netgear_lte"
     "netio"
@@ -9018,22 +8870,16 @@
     "occupancy"
     "octoprint"
     "ohme"
-    "ollama"
     "omie"
     "omnilogic"
     "onboarding"
     "oncue"
     "ondilo_ico"
-    "onedrive"
-    "onedrive_for_business"
     "onewire"
     "onkyo"
     "onvif"
     "open_meteo"
-    "open_router"
-    "openai_conversation"
     "openalpr_cloud"
-    "opendisplay"
     "openerz"
     "openevse"
     "openexchangerates"
@@ -9048,7 +8894,6 @@
     "openweathermap"
     "opnsense"
     "opower"
-    "oralb"
     "orvibo"
     "osoenergy"
     "otbr"
@@ -9056,10 +8901,7 @@
     "ouman_eh_800"
     "ourgroceries"
     "overkiz"
-    "overseerr"
-    "ovhcloud_ai_endpoints"
     "ovo_energy"
-    "owntracks"
     "p1_monitor"
     "paj_gps"
     "palazzetti"
@@ -9079,7 +8921,6 @@
     "picotts"
     "ping"
     "pjlink"
-    "plaato"
     "plant"
     "playstation_network"
     "plex"
@@ -9094,8 +8935,6 @@
     "powerfox_local"
     "powerwall"
     "prana"
-    "private_ble_device"
-    "probe_plus"
     "profiler"
     "progettihwsw"
     "prometheus"
@@ -9117,14 +8956,12 @@
     "python_script"
     "qbittorrent"
     "qbus"
-    "qingping"
     "qld_bushfire"
     "qnap"
     "qnap_qsw"
     "quantum_gateway"
     "qwikswitch"
     "rabbitair"
-    "rachio"
     "radarr"
     "radio_browser"
     "radio_frequency"
@@ -9134,7 +8971,6 @@
     "rainforest_raven"
     "rainmachine"
     "random"
-    "rapt_ble"
     "raspberry_pi"
     "rdw"
     "recollect_waste"
@@ -9173,7 +9009,6 @@
     "ruckus_unleashed"
     "russound_rio"
     "ruuvi_gateway"
-    "ruuvitag_ble"
     "rympro"
     "sabnzbd"
     "saj"
@@ -9193,10 +9028,7 @@
     "select"
     "sense"
     "sensibo"
-    "sensirion_ble"
     "sensor"
-    "sensorpro"
-    "sensorpush"
     "sensorpush_cloud"
     "sensoterra"
     "sentry"
@@ -9236,7 +9068,6 @@
     "snapcast"
     "snmp"
     "snoo"
-    "snooz"
     "solaredge"
     "solarlog"
     "solarman"
@@ -9248,7 +9079,6 @@
     "soundtouch"
     "spaceapi"
     "spc"
-    "specialized_turbo"
     "speedtestdotnet"
     "spider"
     "splunk"
@@ -9280,8 +9110,6 @@
     "switch"
     "switch_as_x"
     "switchbee"
-    "switchbot"
-    "switchbot_cloud"
     "switcher_kis"
     "syncthing"
     "syncthru"
@@ -9315,14 +9143,11 @@
     "teslemetry"
     "tessie"
     "text"
-    "thermobeacon"
-    "thermopro"
     "thethingsnetwork"
     "thread"
     "threshold"
     "tibber"
     "tile"
-    "tilt_ble"
     "tilt_pi"
     "time"
     "time_date"
@@ -9334,7 +9159,6 @@
     "tolo"
     "tomato"
     "tomorrowio"
-    "toon"
     "totalconnect"
     "touchline"
     "touchline_sl"
@@ -9397,7 +9221,6 @@
     "vesync"
     "vibration"
     "vicare"
-    "victron_ble"
     "victron_gx"
     "victron_remote_monitoring"
     "vilfo"
@@ -9406,7 +9229,6 @@
     "vlc_telnet"
     "vodafone_station"
     "voicerss"
-    "voip"
     "volumio"
     "volvo"
     "wake_on_lan"
@@ -9416,7 +9238,6 @@
     "water_heater"
     "waterfurnace"
     "watergate"
-    "watts"
     "watttime"
     "wattwaechter"
     "waze_travel_time"
@@ -9439,7 +9260,6 @@
     "wilight"
     "window"
     "wirelesstag"
-    "withings"
     "wiz"
     "wled"
     "wmspro"
@@ -9448,16 +9268,12 @@
     "worldclock"
     "ws66i"
     "wsdot"
-    "wyoming"
     "xbox"
     "xiaomi"
     "xiaomi_aqara"
-    "xiaomi_ble"
     "xiaomi_miio"
     "xthings_cloud"
-    "yale"
     "yale_smart_alarm"
-    "yalexs_ble"
     "yamaha"
     "yamaha_musiccast"
     "yandex_transport"

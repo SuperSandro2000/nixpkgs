@@ -199,15 +199,11 @@ def name_to_attr_path(req: str, packages: dict[str, dict[str, str]]) -> str | No
     for name in names:
         # treat "-" and "_" equally
         name = re.sub("[-_]", "[-_]", name)
-        # Packages from the main python package set contain a python(minor).(major)- prefix,
-        # but packages that only exist in home-assistant's own constructed pythonPackages do not.
-        # So we must match:
         # python(minor).(major)-(pname)-(version or unstable-date)
-        # OR (pname)-(version or unstable-date)
-        # The version qualifier is required, or we'll have multiple matches
+        # we need the version qualifier, or we'll have multiple matches
         # (e.g. pyserial and pyserial-asyncio when looking for pyserial)
         pattern = re.compile(
-            f"^(?:python\\d+\\.\\d+-)?{name}-(?:\\d|unstable-.*)", re.IGNORECASE
+            f"^python\\d+\\.\\d+-{name}-(?:\\d|unstable-.*)", re.IGNORECASE
         )
         for attr_path, package in packages.items():
             if pattern.match(package["name"]):
