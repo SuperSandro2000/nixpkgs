@@ -43,7 +43,7 @@ buildPythonApplication (finalAttrs: {
   meta = {
     description = "Constraint-driven intent recognizer for Home Assistant voice commands";
     homepage = "https://github.com/OHF-Voice/gazetteer-matcher";
-    changelog = "https://github.com/OHF-Voice/gazetteer-matcher/blob/${finalAttrs.src.rev}/CHANGELOG.md";
+    changelog = "https://github.com/OHF-Voice/gazetteer-matcher/blob/${finalAttrs.src.tag}/CHANGELOG.md";
     license = lib.licenses.asl20;
     maintainers = [ ];
     mainProgram = "gazetteer-matcher";
