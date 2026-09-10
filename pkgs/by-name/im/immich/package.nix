@@ -183,6 +183,7 @@ stdenv.mkDerivation (finalAttrs: {
     # install node_modules and built files in $out
     # upstream uses pnpm deploy to build their docker images
     pnpm --filter immich deploy --prod --no-optional "$packageOut"
+    pnpm --dir "$packageOut/node_modules/sharp" exec npm run build
 
     # build sharp from source
     pnpm --dir "$packageOut/node_modules/sharp" exec npm run build
