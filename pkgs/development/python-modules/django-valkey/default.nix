@@ -25,14 +25,14 @@
 
 buildPythonPackage rec {
   pname = "django-valkey";
-  version = "0.4.1";
+  version = "0.4.1-unstable-2026-09-18";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "django-commons";
     repo = "django-valkey";
-    tag = version;
-    hash = "sha256-kXp4i7E2DnrMi0tTg8kdWmuImIWIPKTM5s7sPLWPFko=";
+    rev = "9c4992a685477b625dbd71d7297dc6c7af2be9ed";
+    hash = "sha256-TZmzwPNTIcaUJ5dlj8CGtUWgf7Fz76DDZVQAW0cURjg=";
   };
 
   build-system = [ hatchling ];
