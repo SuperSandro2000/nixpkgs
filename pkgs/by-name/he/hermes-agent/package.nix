@@ -19,13 +19,13 @@
 }:
 let
   pname = "hermes-agent";
-  version = "0.20.5";
+  version = "0.21.5";
 
   src = fetchFromGitHub {
     owner = "NousResearch";
     repo = "hermes-agent";
-    tag = "v2026.8.19"; # (¬_¬)
-    hash = "sha256-oeFJlEoFybqKkbuWT4mW8PRauusjt3y44ZJXAcA7TPY=";
+    tag = "v2026.9.24"; # (¬_¬)
+    hash = "sha256-y6NaoG+HCeMPhxRsBXrRFef4hp3FF1svSPNKpI6Xz/E=";
   };
 
   meta = {
@@ -69,9 +69,11 @@ let
         ruamel-yaml
         requests
         jinja2
+        firecrawl-anydoc
         pydantic
         prompt-toolkit
         croniter
+        snowballstemmer
         packaging
         markdown
         pyjwt
@@ -82,20 +84,23 @@ let
         pathspec
         fastapi
         uvicorn
+        httptools
+        watchfiles
         python-multipart
         ptyprocess
         pillow
+        pillow-heif
         nemo-relay
       ]
       ++ httpx.optional-dependencies.socks
-      ++ pyjwt.optional-dependencies.crypto
-      ++ uvicorn.optional-dependencies.standard;
+      ++ pyjwt.optional-dependencies.crypto;
 
     # Upstream adds dependencies for reasons we do not need to care at this point
     # like forcing transitive dependency updates to fix CVEs or bump transitive dependencies.
     # For that reason the following deps are omitted:
     # httpx, starlette
     optional-dependencies = with pythonPackages; {
+      uvloop = [ uvloop ];
       anthropic = [ anthropic ];
       exa = [ exa-py ];
       firecrawl = [ firecrawl-py ];
@@ -105,7 +110,6 @@ let
       modal = [ modal ];
       # daytona = [ daytona ]; # not packaged
       # vercel = [ vercel ]; # not packaged
-      # hindsight = [ hindsight-client ]; # not packaged
       messaging = [
         python-telegram-bot
         discordpy
@@ -194,6 +198,15 @@ let
         google-auth-oauthlib
         google-auth-httplib2
       ];
+      google-chat = [
+        google-cloud-pubsub
+        google-api-python-client
+        google-auth
+        google-auth-oauthlib
+        google-auth-httplib2
+        httplib2
+        pyasn1
+      ];
       youtube = [
         youtube-transcript-api
       ];
@@ -201,8 +214,7 @@ let
         fastapi
         uvicorn
         python-multipart
-      ]
-      ++ uvicorn.optional-dependencies.standard;
+      ];
       all =
         finalAttrs.passthru.optional-dependencies.cron
         ++ finalAttrs.passthru.optional-dependencies.pty
