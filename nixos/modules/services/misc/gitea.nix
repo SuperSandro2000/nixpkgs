@@ -42,10 +42,6 @@ in
       [ "services" "gitea" "settings" "service" "DISABLE_REGISTRATION" ]
     )
     (lib.mkRenamedOptionModule
-      [ "services" "gitea" "domain" ]
-      [ "services" "gitea" "settings" "server" "DOMAIN" ]
-    )
-    (lib.mkRenamedOptionModule
       [ "services" "gitea" "httpAddress" ]
       [ "services" "gitea" "settings" "server" "HTTP_ADDR" ]
     )
@@ -88,6 +84,11 @@ in
       "gitea"
       "useWizard"
     ] "Has been removed because it was broken and lacked automated testing.")
+    (lib.mkRemovedOptionModule [
+      "services"
+      "gitea"
+      "domain"
+    ] "server.DOMAIN was removed upstream and fully replace by the existing server.ROOT_URL option.")
   ];
 
   options = {
@@ -535,16 +536,8 @@ in
                   description = "Listen port. Ignored when using a unix socket.";
                 };
 
-                DOMAIN = lib.mkOption {
-                  type = lib.types.str;
-                  default = "localhost";
-                  description = "Domain name of your server.";
-                };
-
                 ROOT_URL = lib.mkOption {
                   type = lib.types.str;
-                  default = "http://${cfg.settings.server.DOMAIN}:${toString cfg.settings.server.HTTP_PORT}/";
-                  defaultText = lib.literalExpression ''"http://''${config.${options.server.DOMAIN}:''${toString config.${options.server.HTTP_PORT}/"'';
                   description = "Full public URL of gitea server.";
                 };
 
@@ -577,12 +570,13 @@ in
 
               service = {
                 DISABLE_REGISTRATION = lib.mkEnableOption "the registration lock" // {
+                  default = true;
                   description = ''
-                    By default any user can create an account on this `gitea` instance.
-                    This can be disabled by using this option.
+                    By default registration is disabled. It can be enabled by setting this to option to false.
 
-                    *Note:* please keep in mind that this should be added after the initial
-                    deploy as the first registered user will be the administrator.
+                    ::: {.note}
+                    This option is required to be set to `false` for the initial installation and the first registered user will be admin.
+                    :::
                   '';
                 };
               };
