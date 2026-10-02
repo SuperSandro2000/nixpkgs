@@ -7,7 +7,7 @@ index 18ffc97..42d9ca8 100644
  
  __metadata:
 -  version: 8
-+  version: 9
++  version: 10
    cacheKey: 10c0
  
  "@alloc/quick-lru@npm:^5.2.0":
