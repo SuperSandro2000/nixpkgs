@@ -11,12 +11,12 @@
   nix-update-script,
   nixosTests,
   readline,
-  stdenv,
+  gcc15Stdenv,
   versionCheckHook,
   xxd,
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+gcc15Stdenv.mkDerivation (finalAttrs: {
   pname = "pihole-ftl";
   version = "6.7.1";
 
@@ -43,7 +43,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   cmakeFlags = [
-    (lib.cmakeBool "STATIC" stdenv.hostPlatform.isStatic)
+    (lib.cmakeBool "STATIC" gcc15Stdenv.hostPlatform.isStatic)
   ];
 
   postPatch = ''
