@@ -442,7 +442,7 @@ in
       trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
       trusted-users = [ "root" ];
       substituters = mkAfter [ "https://cache.nixos.org/" ];
-      system-features = defaultSystemFeatures;
+      system-features = lib.mkDefault defaultSystemFeatures;
     };
 
     nix.nrBuildUsers = lib.mkDefault (
