@@ -312,6 +312,8 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     "tests/benchmarks/test_bench_helpers.py"
     # timing sensitive
     "tests/controllers/music/test_music_migrations.py::test_migrate_database_backfills_external_id_lookup"
+    # depends on exact ffmpeg warnings
+    "tests/helpers/test_ffmpeg.py::test_ffmpeg_stream_logs_provider_stream_limit_at_debug"
   ]
   ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64) [
     # RuntimeError: failed to initialize QNNPACK
