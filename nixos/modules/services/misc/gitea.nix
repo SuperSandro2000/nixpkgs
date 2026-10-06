@@ -29,6 +29,7 @@ let
 
   inherit (cfg.settings) mailer;
   useSendmail = mailer.ENABLED && mailer.PROTOCOL == "sendmail";
+  domain = builtins.baseNameOf cfg.settings.server.ROOT_URL;
 in
 
 {
@@ -582,8 +583,8 @@ in
                 COOKIE_SECURE = lib.mkOption {
                   type = lib.types.bool;
                   default =
-                    if cfg.configureNginx then nginx.virtualHosts.${cfg.settings.server.DOMAIN}.forceSSL else false;
-                  defaultText = lib.literalExpression ''if config.${opt.configureNginx} then config.services.nginx.virtualHosts.''${cfg.settings.server.DOMAIN}.forceSSL else false'';
+                    if cfg.configureNginx then nginx.virtualHosts.${domain}.forceSSL else false;
+                  defaultText = lib.literalExpression ''if config.${opt.configureNginx} then config.services.nginx.virtualHosts.''${lib..baseNameOf cfg.settings.server.ROOT_URL}.forceSSL else false'';
                   description = ''
                     Marks session cookies as "secure" as a hint for browsers to only send
                     them via HTTPS. This option is recommend, if gitea is being served over HTTPS.
@@ -846,23 +847,14 @@ in
           };
         };
       };
-      virtualHosts."${cfg.settings.server.DOMAIN}" = {
+      virtualHosts."${domain}" = {
         root = "${cfg.customDir}/public";
         locations =
           let
             nginxCommonHeaders =
-              lib.optionalString nginx.virtualHosts.${cfg.settings.server.DOMAIN}.forceSSL ''
+              lib.optionalString nginx.virtualHosts.${domain}.forceSSL ''
                 more_set_headers "Strict-Transport-Security: max-age=31536000";
-              ''
-              +
-                lib.optionalString
-                  (
-                    nginx.virtualHosts.${cfg.settings.server.DOMAIN}.quic
-                    && nginx.virtualHosts.${cfg.settings.server.DOMAIN}.http3
-                  )
-                  ''
-                    more_set_headers 'Alt-Svc: h3=":$server_port"; ma=604800';
-                  '';
+              '';
           in
           {
             "/" = {
