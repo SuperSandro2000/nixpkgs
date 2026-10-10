@@ -6233,6 +6233,8 @@ self: super: with self; {
 
   flashtext = callPackage ../development/python-modules/flashtext { };
 
+  flightradarapi = callPackage ../development/python-modules/flightradarapi { };
+
   flask = callPackage ../development/python-modules/flask { };
 
   flask-admin = callPackage ../development/python-modules/flask-admin { };
