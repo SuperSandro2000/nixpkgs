@@ -2,7 +2,7 @@
   lib,
   fetchFromGitHub,
   makeWrapper,
-  python313Packages,
+  python3Packages,
   stdenvNoCC,
 
   optionalDependencyNames ? [ ],
@@ -13,19 +13,18 @@
   nodejs,
   openssh,
   ripgrep,
-  tirith,
   wl-clipboard,
   xclip,
 }:
 let
   pname = "hermes-agent";
-  version = "0.21.5";
+  version = "0.22.2";
 
   src = fetchFromGitHub {
     owner = "NousResearch";
     repo = "hermes-agent";
-    tag = "v2026.9.24"; # (¬_¬)
-    hash = "sha256-y6NaoG+HCeMPhxRsBXrRFef4hp3FF1svSPNKpI6Xz/E=";
+    tag = "v${version}";
+    hash = "sha256-i9rob9jtBv6XTV0acNbHDEUM+9f3ZsN1zJkD6dMBzTc=";
   };
 
   meta = {
@@ -39,9 +38,7 @@ let
     mainProgram = "hermes-agent";
   };
 
-  pythonPackages = python313Packages;
-
-  hermes-agent-pkg = pythonPackages.buildPythonPackage (finalAttrs: {
+  hermes-agent-pkg = python3Packages.buildPythonPackage (finalAttrs: {
     inherit pname version src;
     pyproject = true;
 
@@ -49,23 +46,32 @@ let
       HERMES_NIX_BUILD = 1;
     };
 
+    nativeBuildInputs = [
+      python3Packages.pyprojectVersionPatchHook
+    ];
+
     build-system = [
-      pythonPackages.setuptools
+      python3Packages.setuptools
     ];
 
     pythonRelaxDeps = true;
 
+    pythonRemoveDeps = [
+      "browser-harness" # not packaged
+    ];
+
     dependencies =
-      with pythonPackages;
+      with python3Packages;
       [
         openai
         certifi
+        truststore
         python-dotenv
         fire
         httpx
         rich
         tenacity
-        pyyaml
+        tomli-w
         ruamel-yaml
         requests
         jinja2
@@ -79,8 +85,10 @@ let
         pyjwt
         urllib3
         cryptography
+        tzdata
         psutil
         websockets
+        # browser-harness # not packaged
         pathspec
         fastapi
         uvicorn
@@ -90,6 +98,7 @@ let
         ptyprocess
         pillow
         pillow-heif
+        resvg-py
         nemo-relay
       ]
       ++ httpx.optional-dependencies.socks
@@ -98,15 +107,19 @@ let
     # Upstream adds dependencies for reasons we do not need to care at this point
     # like forcing transitive dependency updates to fix CVEs or bump transitive dependencies.
     # For that reason the following deps are omitted:
-    # httpx, starlette
-    optional-dependencies = with pythonPackages; {
+    # httpx, starlette, aiohttp
+    optional-dependencies = with python3Packages; {
       uvloop = [ uvloop ];
       anthropic = [ anthropic ];
       exa = [ exa-py ];
       firecrawl = [ firecrawl-py ];
       # parallel-web = [ parallel-web ]; # not packaged
       # fal = [ fal-client ]; # not packaged
+      ddgs = [ ddgs ];
       edge-tts = [ edge-tts ];
+      # neutts = [ neutts ] ++ neutts.optional-dependencies.all; # not packaged
+      # kittentts = [ kittentts misaki soundfile ] ++ misaki.optional-dependencies.en;
+      piper = [ piper-tts ];
       modal = [ modal ];
       # daytona = [ daytona ]; # not packaged
       # vercel = [ vercel ]; # not packaged
@@ -130,6 +143,7 @@ let
         mautrix
         aiosqlite
         asyncpg
+        aiohttp-socks
       ]
       ++ mautrix.optional-dependencies.encryption;
       wecom = [ defusedxml ];
@@ -140,25 +154,31 @@ let
         numpy
       ];
       wake = [
-        # openwakeword # not packaged
-        onnxruntime
+        pyopen-wakeword
         sherpa-onnx
         sentencepiece
+        pypinyin
         # pvporcupine # not packaged
         sounddevice
         numpy
-      ]
-      ++ lib.optionals stdenvNoCC.hostPlatform.isDarwin ai-edge-litert;
-      # honcho = [ honcho-ai ]; # not packaged
-      # supermemory = [ supermemory ]; # not packaged
-      # mem0 = [ mem0ai ]; # not packaged
+      ];
+      telegram = [ python-telegram-bot ] ++ python-telegram-bot.optional-dependencies.webhooks;
+      discord = [ discordpy ] ++ discordpy.optional-dependencies.voice;
+      stt-whisper = [ sounddevice numpy ];
+      # silk = [ pilk ]; # not packaged
+      wake-openwakeword = [ pyopen-wakeword ];
+      wake-sherpa = [ sherpa-onnx sherpa-onnx-core sentencepiece pypinyin ];
+      # wake-porcupine = [ pvporcupine ]; # not packaged
+      google-chat = [ google-cloud-pubsub ];
+      doc-extract = [ firecrawl-anydoc ];
+      trace-upload = [ huggingface-hub ];
       vision = [ ]; # kept for back-compat
       pty = [ ]; # kept for back-compat
       mcp = [ mcp ];
-      homeassistant = [ aiohttp ];
+      nemo-relay = [ ]; # kept for back-compat
       sms = [ aiohttp ];
       # teams = [ microsoft-teams-apps ]; # not packaged
-      computer-use = [ mcp ];
+      computer-use = [ mcp httpx2 ];
       acp = [ agent-client-protocol ];
       mistral = [ mistralai ];
       otlp = [
@@ -174,12 +194,10 @@ let
       ++ python-telegram-bot.optional-dependencies.webhooks
       ++ finalAttrs.passthru.optional-dependencies.cron
       ++ finalAttrs.passthru.optional-dependencies.mcp
-      # ++ finalAttrs.passthru.optional-dependencies.honcho
       ++ finalAttrs.passthru.optional-dependencies.acp;
       termux-all =
         finalAttrs.passthru.optional-dependencies.termux
         ++ finalAttrs.passthru.optional-dependencies.google
-        ++ finalAttrs.passthru.optional-dependencies.homeassistant
         ++ finalAttrs.passthru.optional-dependencies.sms
         ++ finalAttrs.passthru.optional-dependencies.web
         ++ finalAttrs.passthru.optional-dependencies.pty;
@@ -198,15 +216,6 @@ let
         google-auth-oauthlib
         google-auth-httplib2
       ];
-      google-chat = [
-        google-cloud-pubsub
-        google-api-python-client
-        google-auth
-        google-auth-oauthlib
-        google-auth-httplib2
-        httplib2
-        pyasn1
-      ];
       youtube = [
         youtube-transcript-api
       ];
@@ -219,7 +228,7 @@ let
         finalAttrs.passthru.optional-dependencies.cron
         ++ finalAttrs.passthru.optional-dependencies.pty
         ++ finalAttrs.passthru.optional-dependencies.mcp
-        ++ finalAttrs.passthru.optional-dependencies.homeassistant
+        ++ finalAttrs.passthru.optional-dependencies.uvloop
         ++ finalAttrs.passthru.optional-dependencies.sms
         ++ finalAttrs.passthru.optional-dependencies.acp
         ++ finalAttrs.passthru.optional-dependencies.google
@@ -261,7 +270,6 @@ stdenvNoCC.mkDerivation {
               nodejs
               openssh
               ripgrep
-              tirith
             ]
             ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [
               wl-clipboard
@@ -280,7 +288,7 @@ stdenvNoCC.mkDerivation {
         --set HERMES_PYTHON ${lib.getExe hermes-agent-pkg} \
         --set HERMES_NODE ${lib.getExe nodejs} \
         --suffix PYTHONPATH : "${
-          lib.makeSearchPath pythonPackages.python.sitePackages (
+          lib.makeSearchPath python3Packages.python.sitePackages (
             map (d: hermes-agent-pkg.passthru.optional-dependencies.${d}) optionalDependencyNames
           )
         }"
