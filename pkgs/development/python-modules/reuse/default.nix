@@ -45,7 +45,17 @@ buildPythonPackage (finalAttrs: {
 
   build-system = [
     poetry-core
-    sphinxHook
+    # Remove this override once https://github.com/NixOS/nixpkgs/pull/573479 lands.
+    (sphinxHook.overrideAttrs (oldAttrs: {
+      buildCommand = oldAttrs.buildCommand + ''
+        substituteInPlace "$out/nix-support/setup-hook" \
+          --replace-fail 'eval "__sphinxBuilders=($sphinxBuilders)"' \
+            'concatTo __sphinxBuilders sphinxBuilders' || {
+          echo "Remove the sphinxHook override in reuse/default.nix; the upstream hook has changed." >&2
+          exit 1
+        }
+      '';
+    }))
     furo
     myst-parser
     pbr
