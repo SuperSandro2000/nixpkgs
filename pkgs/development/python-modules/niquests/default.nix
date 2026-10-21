@@ -70,8 +70,7 @@ buildPythonPackage (finalAttrs: {
     pytest-asyncio
     pytest-httpbin
     pytestCheckHook
-  ]
-  ++ finalAttrs.passthru.optional-dependencies.socks;
+  ];
 
   disabledTestPaths = [
     # tests connect to the internet
@@ -92,13 +91,15 @@ buildPythonPackage (finalAttrs: {
   ];
 
   disabledTests =
-    lib.optionals stdenv.hostPlatform.isLinux [
+    [
+      # This niquests test fails because its dependency urllib3-future is incompatible with python-socks v3.
+      # urllib3-future's maintainers declined v3 support and plan to replace their optional python-socks dependency.
+      # https://github.com/jawah/urllib3.future/issues/437
+      "test_use_proxy_from_environment"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
       "test_docker_version_info"
       "test_docker_404_unknown_path"
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      # PermissionError: [Errno 1] Operation not permitted
-      "test_use_proxy_from_environment"
     ];
 
   meta = {
