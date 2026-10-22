@@ -10,10 +10,10 @@ stdenv.mkDerivation {
     runHook preInstall
 
     mkdir $out
-    cp custom_components/valetudo/res/icons.js $out/
+    cp custom_components/valetudo/res/icons.js $out/valetudo-icons.js
 
     runHook postInstall
   '';
 
-  passthru.entrypoint = "icons.js";
+  passthru.entrypoint = "valetudo-icons.js";
 }
