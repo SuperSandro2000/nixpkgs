@@ -12,14 +12,14 @@ let
 in
 python.pkgs.buildPythonPackage (finalAttrs: {
   pname = "searxng";
-  version = "0-unstable-2026-10-13";
+  version = "0-unstable-2026-10-23";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "searxng";
     repo = "searxng";
-    rev = "22c64b8d394b680c7ea96be25f36dad14126420a";
-    hash = "sha256-QD4ZX94b7UYoUwbkBAcJeXlyvrHVWg8khrWTPluEYiY=";
+    rev = "81371861f67226091d1c4df2e3908a11d3b54eb9";
+    hash = "sha256-d9KztINkg47H1Shr6lzJEN6B/zhUcZT0ec66BipJnnI=";
   };
 
   postPatch = ''
