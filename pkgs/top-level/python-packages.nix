@@ -22364,6 +22364,8 @@ self: super: with self; {
     callPackage ../development/python-modules/vacuum-map-parser-roborock
       { };
 
+  valetudo-map-parser = callPackage ../development/python-modules/valetudo-map-parser { };
+
   valhallaapi = callPackage ../development/python-modules/valhallaapi { };
 
   validate-email = callPackage ../development/python-modules/validate-email { };
