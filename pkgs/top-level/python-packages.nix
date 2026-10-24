@@ -22307,6 +22307,8 @@ self: super: with self; {
 
   valhallaapi = callPackage ../development/python-modules/valhallaapi { };
 
+  valetudo-map-parser = callPackage ../development/python-modules/valetudo-map-parser { };
+
   validate-email = callPackage ../development/python-modules/validate-email { };
 
   validate-pyproject = callPackage ../development/python-modules/validate-pyproject { };
