@@ -63,6 +63,10 @@ buildPythonPackage (finalAttrs: {
   postPatch = ''
     substituteInPlace whisperx/audio.py --replace-fail \
       '"ffmpeg"' '"${lib.getExe ffmpeg}"'
+
+    # avoid updating the model at runtime on every load
+    TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1 python -m lightning.pytorch.utilities.upgrade_checkpoint \
+      --map-to-cpu whisperx/assets/pytorch_model.bin
   '';
 
   build-system = [ setuptools ];
