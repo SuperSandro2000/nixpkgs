@@ -7,13 +7,13 @@
 buildHomeAssistantComponent (finalAttrs: {
   owner = "Franz646";
   domain = "orphan_cleaner";
-  version = "4.1.2";
+  version = "4.2.1";
 
   src = fetchFromGitHub {
     inherit (finalAttrs) owner;
     repo = "orphan-cleaner";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-A3UnHrQ/mUtvzi5DGCPxmFXGifQJcM9LCo6Kl6Iwj9g=";
+    hash = "sha256-SHUIfLd3L/Q7sjxu+BoU6OGCG9k/ywOTJDM74+vybWs=";
   };
 
   meta = {
