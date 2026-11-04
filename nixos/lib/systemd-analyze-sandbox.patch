@@ -1,0 +1,23 @@
+diff --git a/src/analyze/analyze-verify-util.c b/src/analyze/analyze-verify-util.c
+index 40952531d7..b9fd2be255 100644
+--- a/src/analyze/analyze-verify-util.c
++++ b/src/analyze/analyze-verify-util.c
+@@ -15,6 +15,7 @@
+ #include "manager.h"
+ #include "pager.h"
+ #include "path-util.h"
++#include "sd-path.h"
+ #include "set.h"
+ #include "string-table.h"
+ #include "string-util.h"
+@@ -304,6 +305,10 @@ int verify_units(
+         if (r < 0)
+                 return log_error_errno(r, "Failed to initialize manager: %m");
+
++        r = sd_path_lookup(SD_PATH_TEMPORARY, NULL, &m->prefix[EXEC_DIRECTORY_RUNTIME]);
++        if (r < 0)
++                return log_error_errno(r, "Failed to use temporary directory as runtime directory: %m");
++
+         log_debug("Starting manager...");
+
+         r = manager_startup(m, /* serialization= */ NULL, /* fds= */ NULL, /* named_listen_fds= */ NULL, root);

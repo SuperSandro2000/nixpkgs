@@ -137,6 +137,7 @@ let
 
   stage1Units = generateUnits {
     type = "initrd";
+    verify = cfg.verifyDefaultTarget;
     units = enabledUnits;
     upstreamUnits = enabledUpstreamUnits;
     inherit upstreamWants;
@@ -235,6 +236,16 @@ in
     '');
 
   options.boot.initrd.systemd = {
+    verifyDefaultTarget = lib.mkOption {
+      type = lib.types.bool;
+      default = config.systemd.verifyDefaultTarget;
+      defaultText = lib.literalExpression "config.systemd.verifyDefaultTarget";
+      description = ''
+        Whether to run `systemd-analyze verify` on *default.target*.
+        Enabling this will fail the build if the default target contains circular dependencies or similar errors.
+      '';
+    };
+
     package = lib.mkOption {
       type = lib.types.package;
       default = config.systemd.package;
