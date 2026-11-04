@@ -58,6 +58,9 @@ let
 
   cfg = config.systemd;
   lndir = "${pkgs.buildPackages.lndir}/bin/lndir";
+  patchedSystemd = cfg.package.overrideAttrs ({ patches ? [ ], ... }: {
+    patches = patches ++ [ ./systemd-analyze-sandbox.patch ];
+  });
 in
 rec {
 
@@ -377,6 +380,8 @@ rec {
   generateUnits =
     {
       allowCollisions ? true,
+      # This requires namespaces to work in the build environment.
+      verify ? false,
       type,
       units,
       upstreamUnits,
@@ -552,7 +557,22 @@ rec {
           ln -s ${cfg.ctrlAltDelUnit} $out/ctrl-alt-del.target
 
           ln -s ../remote-fs.target $out/multi-user.target.wants/
+          ${optionalString verify ''
+            # systemd-analyze emits output for errors such as dependency cycles.
+            ${patchedSystemd}/bin/systemd-analyze verify \
+                --no-pager --man=no --recursive-errors=yes \
+                $out/default.target \
+              2>&1 \
+              | if grep ^.; then
+                printf '%s\n' "" \
+                  'Failed to verify systemd configuration.' \
+                  'You can disable this check using `systemd.verifyDefaultTarget`.' \
+                  >&2
+                exit 1
+              fi
+          ''}
         ''}
+
       ''; # */
 
   makeJobScript =

@@ -306,6 +306,15 @@ in
       '';
     };
 
+    verifyDefaultTarget = lib.mkEnableOption "" // {
+      description = ''
+        Whether to run `systemd-analyze verify` on *default.target*.
+        Enabling this will fail the build if the default target contains circular dependencies or similar errors.
+
+        This requires namespaces to work in the Nix build environment.
+      '';
+    };
+
     units = mkOption {
       description = "Definition of systemd units; see {manpage}`systemd.unit(5)`.";
       default = { };
@@ -681,6 +690,7 @@ in
       {
         "systemd/system".source = generateUnits {
           type = "system";
+          verify = cfg.verifyDefaultTarget;
           units = enabledUnits;
           upstreamUnits = enabledUpstreamSystemUnits;
           upstreamWants = upstreamSystemWants;

@@ -14,7 +14,6 @@
   libxslt,
   xz,
   zstd,
-  elf-header,
   withDevdoc ? stdenv.hostPlatform == stdenv.buildPlatform,
   withStatic ? stdenv.hostPlatform.isStatic,
   gitUpdater,
