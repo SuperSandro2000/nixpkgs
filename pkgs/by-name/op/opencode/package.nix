@@ -77,7 +77,7 @@ let
       # NOTE: Required else we get errors that our fixed-output derivation references store paths
       dontFixup = true;
 
-      outputHash = "sha256-xfOVcw1+waLVNhFDwzOtzxrUSQEogvn88YomydOlhwc=";
+      outputHash = "sha256-prx9dX7kUvs/E3zopkaPk5LXh3xJAy5sZeum/W8L7cA=";
       outputHashMode = "recursive";
     };
 in
