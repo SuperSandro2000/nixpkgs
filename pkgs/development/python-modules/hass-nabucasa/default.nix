@@ -45,7 +45,8 @@ buildPythonPackage (finalAttrs: {
 
   postPatch = ''
     substituteInPlace pyproject.toml \
-      --replace-fail "0.0.0" "${finalAttrs.version}"
+      --replace-fail "0.0.0" "${finalAttrs.version}" \
+      --replace-fail "timeout = 5" "timeout = 30"
   '';
 
   build-system = [ setuptools ];
@@ -81,11 +82,6 @@ buildPythonPackage (finalAttrs: {
     pytestCheckHook
     syrupy
     xmltodict
-  ];
-
-  disabledTests = [
-    # snapshot formatting changed
-    "test_subscribe_and_publish"
   ];
 
   pythonImportsCheck = [ "hass_nabucasa" ];
