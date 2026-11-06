@@ -15375,8 +15375,6 @@ self: super: with self; {
 
   pyi2cflash = callPackage ../development/python-modules/pyi2cflash { };
 
-  pyialarm = callPackage ../development/python-modules/pyialarm { };
-
   pyiceberg = callPackage ../development/python-modules/pyiceberg { };
 
   pyiceberg-core = callPackage ../development/python-modules/pyiceberg-core {
