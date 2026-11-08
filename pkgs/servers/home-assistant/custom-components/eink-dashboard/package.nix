@@ -6,10 +6,11 @@
   epaper-dithering,
   fetchFromGitHub,
   fetchPnpmDeps,
+  home-assistant,
   nodejs,
   pnpmConfigHook,
   pnpm_10,
-  pytest-homeassistant-custom-component,
+  pytest-homeassistant,
   pytestCheckHook,
   resvg-py,
 }:
@@ -17,13 +18,13 @@
 buildHomeAssistantComponent (finalAttrs: {
   owner = "cryptomilk";
   domain = "eink_dashboard";
-  version = "0.8.0";
+  version = "0.9.0";
 
   src = fetchFromGitHub {
     owner = "cryptomilk";
     repo = "hass-eink-dashboard";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-s9tIuzE1hn9GmabPIUzAGZfaI92hob3a1I9Egp8rR1w=";
+    hash = "sha256-Q2kwlM6FZATgqAkkdcoDGvYg4xMuHW4INP2CGMuoiZI=";
   };
 
   pnpmRoot = "custom_components/eink_dashboard/frontend";
@@ -33,12 +34,18 @@ buildHomeAssistantComponent (finalAttrs: {
       pname
       version
       src
-      pnpmRoot
       ;
+    sourceRoot = "${finalAttrs.src.name}/${finalAttrs.pnpmRoot}";
     pnpm = pnpm_10;
     fetcherVersion = 4;
     hash = "sha256-lFXzitYX/gqP1lTh5/t6YTHkjM/ZoeqBC2Hsnh36ixI=";
   };
+
+  postPatch = ''
+    for file in tests/*.py; do
+      sed -i 's/pytest_homeassistant_custom_component/pytest_homeassistant/g' "$file"
+    done
+  '';
 
   nativeBuildInputs = [
     nodejs
@@ -60,7 +67,8 @@ buildHomeAssistantComponent (finalAttrs: {
   ];
 
   nativeCheckInputs = [
-    pytest-homeassistant-custom-component
+    home-assistant
+    pytest-homeassistant
     pytestCheckHook
   ];
 
