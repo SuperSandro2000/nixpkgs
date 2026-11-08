@@ -1185,8 +1185,6 @@ self: super: with self; {
 
   anthropic = callPackage ../development/python-modules/anthropic { };
 
-  anthropic_0 = callPackage ../development/python-modules/anthropic/0.nix { };
-
   anthropic_2 = callPackage ../development/python-modules/anthropic/2.nix { };
 
   antlr4-python3-runtime = callPackage ../development/python-modules/antlr4-python3-runtime {
