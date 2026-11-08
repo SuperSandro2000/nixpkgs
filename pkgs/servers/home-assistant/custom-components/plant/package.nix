@@ -32,6 +32,8 @@ buildHomeAssistantComponent rec {
     pytestCheckHook
   ];
 
+  dontUsePytestXdist = true;
+
   meta = {
     description = "Alternative Plant component of home assistant";
     homepage = "https://github.com/Olen/homeassistant-plant";
