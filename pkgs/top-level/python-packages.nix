@@ -1187,6 +1187,8 @@ self: super: with self; {
 
   anthropic_0 = callPackage ../development/python-modules/anthropic/0.nix { };
 
+  anthropic_2 = callPackage ../development/python-modules/anthropic/2.nix { };
+
   antlr4-python3-runtime = callPackage ../development/python-modules/antlr4-python3-runtime {
     inherit (pkgs) antlr4;
   };
