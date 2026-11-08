@@ -1,0 +1,795 @@
+diff --git a/.github/scripts/ha_version_matrix.py b/.github/scripts/ha_version_matrix.py
+index 5ea8e4573..245267d15 100644
+--- a/.github/scripts/ha_version_matrix.py
++++ b/.github/scripts/ha_version_matrix.py
+@@ -17,11 +17,12 @@
+ import urllib.request
+ 
+ PYPI_URL = "https://pypi.org/pypi/homeassistant/json"
+-PLUGIN_URL = "https://pypi.org/pypi/pytest-homeassistant-custom-component/json"
++PLUGIN_URL = "https://pypi.org/pypi/pytest-homeassistant/json"
+ CONST_FILE = "custom_components/powercalc/const.py"
+ STABLE_VERSION = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
+ PYTHON_FLOOR = re.compile(r">=\s*(\d+)\.(\d+)")
+ PLUGIN_HA_PIN = re.compile(r"^homeassistant\s*==\s*(\d+)\.(\d+)\.(\d+)([^\s;]*)\s*(?:;.*)?$")
++NEW_PLUGIN_VERSION = (2026, 11, 0)
+ 
+ 
+ def read_min_version() -> tuple[int, int]:
+@@ -65,7 +66,7 @@ def fetch_releases() -> dict[str, str]:
+ def fetch_max_supported_version() -> tuple[int, int, int]:
+     """Return the newest Home Assistant release the test plugin can be installed against.
+ 
+-    pytest-homeassistant-custom-component pins one exact Home Assistant release. During a beta,
++    pytest-homeassistant pins one exact Home Assistant release. During a beta,
+     its newest release may pin a prerelease such as 2026.9.0b6. In that case, cap the matrix below
+     that patch so the stable release is not tested until a plugin that supports it is published.
+     """
+@@ -78,7 +79,7 @@ def fetch_max_supported_version() -> tuple[int, int, int]:
+                 patch -= 1
+             return int(pin.group(1)), int(pin.group(2)), patch
+ 
+-    raise RuntimeError(f"pytest-homeassistant-custom-component {info['version']} does not pin a Home Assistant release")
++    raise RuntimeError(f"pytest-homeassistant {info['version']} does not pin a Home Assistant release")
+ 
+ 
+ def python_version_for(release: str, requires_python: str) -> str:
+@@ -114,10 +115,18 @@ def build_matrix(
+         if known is None or patch > known[0]:
+             latest_per_month[month] = (patch, release)
+ 
+-    return [
+-        {"ha_version": release, "python_version": python_version_for(release, releases[release])}
+-        for _, (_, release) in sorted(latest_per_month.items())
+-    ]
++    matrix = []
++    for _, (_, release) in sorted(latest_per_month.items()):
++        version = tuple(map(int, release.split(".")))
++        plugin = "pytest-homeassistant" if version >= NEW_PLUGIN_VERSION else "pytest-homeassistant-custom-component"
++        matrix.append(
++            {
++                "ha_version": release,
++                "python_version": python_version_for(release, releases[release]),
++                "pytest_plugin": plugin,
++            }
++        )
++    return matrix
+ 
+ 
+ def main() -> None:
+diff --git a/.github/scripts/tests/test_ha_version_matrix.py b/.github/scripts/tests/test_ha_version_matrix.py
+index 91cb009f7..ad9382449 100644
+--- a/.github/scripts/tests/test_ha_version_matrix.py
++++ b/.github/scripts/tests/test_ha_version_matrix.py
+@@ -24,7 +24,7 @@ def test_fetch_max_supported_version_caps_prereleases(
+     """A prerelease plugin pin must not enable its corresponding stable release."""
+     response: dict[str, Any] = {
+         "info": {
+-            "version": "0.13.362",
++            "version": "2026.11.0",
+             "requires_dist": [f"homeassistant=={home_assistant_pin}"],
+         },
+     }
+@@ -37,10 +37,24 @@ def test_fetch_max_supported_version_accepts_environment_marker(monkeypatch: pyt
+     """Environment markers after an exact stable pin remain supported."""
+     response: dict[str, Any] = {
+         "info": {
+-            "version": "0.13.362",
++            "version": "2026.11.0",
+             "requires_dist": ['homeassistant==2026.8.3; python_version >= "3.14"'],
+         },
+     }
+     monkeypatch.setattr(ha_version_matrix, "fetch_pypi_json", lambda _url: response)
+ 
+     assert ha_version_matrix.fetch_max_supported_version() == (2026, 8, 3)
++
++
++def test_build_matrix_uses_legacy_plugin_before_2026_11() -> None:
++    """Older Home Assistant releases need the legacy testing plugin."""
++    matrix = ha_version_matrix.build_matrix(
++        {"2026.10.4": ">=3.14.2", "2026.11.0": ">=3.14.2"},
++        (2026, 10),
++        (2026, 11, 0),
++    )
++
++    assert [entry["pytest_plugin"] for entry in matrix] == [
++        "pytest-homeassistant-custom-component",
++        "pytest-homeassistant",
++    ]
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+index 4550fdfa4..39a6c63b2 100644
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -127,8 +127,9 @@ jobs:
+       - name: Pin Home Assistant version
+         env:
+           HA_VERSION: ${{ matrix.target.ha_version }}
+-        # pytest-homeassistant-custom-component pins an exact homeassistant version,
+-        # so resolving it against the requested release picks the matching plugin.
++          PYTEST_PLUGIN: ${{ matrix.target.pytest_plugin }}
++        # Both plugins pin an exact Home Assistant release. The Core plugin is
++        # available starting with 2026.11; older releases use the legacy package.
+         # --no-config skips the override-dependencies from pyproject.toml, which are
+         # pinned against the locked release and conflict with older ones. --python is
+         # required because UV_PYTHON, set by setup-uv, otherwise wins over .venv here.
+@@ -136,9 +137,15 @@ jobs:
+         # error: without them the resolver walks back to a plugin old enough to pin no
+         # homeassistant at all, and silently swaps in a pytest that predates our Python.
+         run: |
++          uv pip uninstall --python .venv pytest-homeassistant
++          if [ "$PYTEST_PLUGIN" = "pytest-homeassistant" ]; then
++            plugin_spec="pytest-homeassistant==${HA_VERSION}"
++          else
++            plugin_spec="pytest-homeassistant-custom-component>=0.13"
++          fi
+           uv pip install --no-config --python .venv \
+             "homeassistant==${HA_VERSION}" \
+-            "pytest-homeassistant-custom-component>=0.13" \
++            "$plugin_spec" \
+             "pytest>=9"
+       - name: Prepare test env
+         run: bash tests/setup.sh
+diff --git a/custom_components/powercalc/flow_helper/flows/library.py b/custom_components/powercalc/flow_helper/flows/library.py
+index ee1f38bf2..60a8479e6 100644
+--- a/custom_components/powercalc/flow_helper/flows/library.py
++++ b/custom_components/powercalc/flow_helper/flows/library.py
+@@ -513,7 +513,7 @@ def _build_profile_details(self, profile: PowerProfile) -> str:
+             "common",
+             DOMAIN,
+         )
+-        label = translations[f"component.{DOMAIN}.common.view_measurement_details"]
++        label = translations.get(f"component.{DOMAIN}.common.view_measurement_details", "View measurement details")
+         return f"\n\n[{label}]({profile_url(profile.manufacturer, profile.model)})"
+ 
+ 
+diff --git a/pyproject.toml b/pyproject.toml
+index 4da5df7e1..ab8843334 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -34,6 +34,7 @@ markers = [
+ ]
+ log_level = "DEBUG"
+ asyncio_default_fixture_loop_scope = "function"
++addopts = "-p no:respx"
+ 
+ [tool.ruff.lint.isort]
+ known-first-party = ["custom_components", "powercalc"]
+@@ -139,7 +140,9 @@ dev = [
+     "voluptuous-stubs>=0.1",
+     "probatio>=0.11.2",
+     "homeassistant-stubs",
+-    "pytest-homeassistant-custom-component==0.13.375",
++    "pytest-homeassistant>=2026.11.0",
++    "pytest-cov>=7.1.0",
++    "pytest-timeout>=2.4.0",
+     "types-pytz>=2024.1",
+     "types-croniter>=2.0",
+     "croniter>=6.0.0",
+diff --git a/tests/analytics/test_analytics.py b/tests/analytics/test_analytics.py
+index 2e38b1784..8391d1701 100644
+--- a/tests/analytics/test_analytics.py
++++ b/tests/analytics/test_analytics.py
+@@ -11,7 +11,7 @@
+ from homeassistant.setup import async_setup_component
+ from homeassistant.util import dt
+ import pytest
+-from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
++from pytest_homeassistant.test_util.aiohttp import AiohttpClientMocker
+ 
+ from custom_components.powercalc import (
+     CONF_CREATE_STANDBY_GROUP,
+diff --git a/tests/common.py b/tests/common.py
+index 3dcd6fe06..4b0200d21 100644
+--- a/tests/common.py
++++ b/tests/common.py
+@@ -19,7 +19,7 @@
+ from homeassistant.setup import async_setup_component
+ from homeassistant.util import dt
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     MockConfigEntry,
+     RegistryEntryWithDefaults,
+     async_fire_time_changed,
+diff --git a/tests/config_flow/test_discovery.py b/tests/config_flow/test_discovery.py
+index 4bffb7134..91c5d655f 100644
+--- a/tests/config_flow/test_discovery.py
++++ b/tests/config_flow/test_discovery.py
+@@ -4,7 +4,7 @@
+ from homeassistant.helpers import device_registry as dr, entity_registry as er
+ from homeassistant.helpers.selector import SelectSelector
+ import pytest
+-from pytest_homeassistant_custom_component.common import mock_device_registry
++from pytest_homeassistant.common import mock_device_registry
+ import voluptuous as vol
+ 
+ from custom_components.powercalc.common import SourceEntity, create_source_entity
+diff --git a/tests/config_flow/test_global_configuration.py b/tests/config_flow/test_global_configuration.py
+index da3f3f073..dae2a3ada 100644
+--- a/tests/config_flow/test_global_configuration.py
++++ b/tests/config_flow/test_global_configuration.py
+@@ -8,7 +8,7 @@
+ from homeassistant.core import HomeAssistant
+ from homeassistant.data_entry_flow import FlowResult
+ import pytest
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
++from pytest_homeassistant.common import MockConfigEntry
+ 
+ from custom_components.powercalc import (
+     CONF_CREATE_STANDBY_GROUP,
+diff --git a/tests/config_flow/test_group.py b/tests/config_flow/test_group.py
+index 7425d5650..cdbd6822c 100644
+--- a/tests/config_flow/test_group.py
++++ b/tests/config_flow/test_group.py
+@@ -16,7 +16,7 @@
+ from homeassistant.helpers.floor_registry import FloorRegistry
+ from homeassistant.helpers.selector import SelectSelector
+ from homeassistant.helpers.translation import async_get_translations
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
++from pytest_homeassistant.common import MockConfigEntry
+ import voluptuous as vol
+ 
+ from custom_components.powercalc import SensorType
+diff --git a/tests/config_flow/test_virtual_power_library.py b/tests/config_flow/test_virtual_power_library.py
+index f3f44c909..575bbd45b 100644
+--- a/tests/config_flow/test_virtual_power_library.py
++++ b/tests/config_flow/test_virtual_power_library.py
+@@ -1,5 +1,5 @@
+ import logging
+-from unittest.mock import MagicMock
++from unittest.mock import MagicMock, patch
+ 
+ from homeassistant import data_entry_flow
+ from homeassistant.components.sensor import SensorDeviceClass
+@@ -963,6 +963,20 @@ def test_custom_profile_has_no_public_library_link() -> None:
+     assert LibraryConfigFlow(flow)._build_profile_details(profile) == ""  # noqa: SLF001
+ 
+ 
++def test_profile_details_falls_back_when_translation_is_not_cached() -> None:
++    """The config flow should still work before common translations have been cached."""
++    flow = MagicMock()
++    profile = MagicMock(is_custom_profile=False, manufacturer="ikea", model="LED1545G12")
++
++    with patch(
++        "custom_components.powercalc.flow_helper.flows.library.translation.async_get_cached_translations",
++        return_value={},
++    ):
++        profile_details = LibraryConfigFlow(flow)._build_profile_details(profile)  # noqa: SLF001
++
++    assert profile_details == "\n\n[View measurement details](https://library.powercalc.nl/profiles/ikea/led1545g12)"
++
++
+ async def test_custom_fields_documentation_url_placeholder(
+     hass: HomeAssistant,
+ ) -> None:
+diff --git a/tests/config_flow/test_virtual_power_multi_switch.py b/tests/config_flow/test_virtual_power_multi_switch.py
+index 6b88e9a3b..62042e2e4 100644
+--- a/tests/config_flow/test_virtual_power_multi_switch.py
++++ b/tests/config_flow/test_virtual_power_multi_switch.py
+@@ -8,7 +8,7 @@
+ from homeassistant.helpers.entity_registry import EntityRegistry, RegistryEntry
+ from homeassistant.helpers.selector import EntitySelector
+ import pytest
+-from pytest_homeassistant_custom_component.common import RegistryEntryWithDefaults, mock_registry
++from pytest_homeassistant.common import RegistryEntryWithDefaults, mock_registry
+ import voluptuous as vol
+ 
+ from custom_components.powercalc import DiscoveryManager
+diff --git a/tests/config_flow/test_virtual_power_wled.py b/tests/config_flow/test_virtual_power_wled.py
+index 21d0d1316..367840399 100644
+--- a/tests/config_flow/test_virtual_power_wled.py
++++ b/tests/config_flow/test_virtual_power_wled.py
+@@ -4,7 +4,7 @@
+ from homeassistant.const import CONF_ENTITY_ID, CONF_PLATFORM, STATE_ON, UnitOfElectricCurrent
+ from homeassistant.core import HomeAssistant
+ from homeassistant.setup import async_setup_component
+-from pytest_homeassistant_custom_component.common import setup_test_component_platform
++from pytest_homeassistant.common import setup_test_component_platform
+ 
+ from custom_components.powercalc.config_flow import Step
+ from custom_components.powercalc.const import (
+diff --git a/tests/configuration/test_config_entry_conversion.py b/tests/configuration/test_config_entry_conversion.py
+index 486954836..a66231e64 100644
+--- a/tests/configuration/test_config_entry_conversion.py
++++ b/tests/configuration/test_config_entry_conversion.py
+@@ -5,7 +5,7 @@
+ from homeassistant.core import HomeAssistant
+ from homeassistant.helpers.template import Template
+ import pytest
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
++from pytest_homeassistant.common import MockConfigEntry
+ 
+ from custom_components.powercalc.configuration.config_entry_conversion import convert_config_entry_to_sensor_config
+ from custom_components.powercalc.const import (
+diff --git a/tests/conftest.py b/tests/conftest.py
+index 6d7d63564..521a81cb2 100644
+--- a/tests/conftest.py
++++ b/tests/conftest.py
+@@ -1,31 +1,36 @@
+ import asyncio
+ from collections.abc import Generator
+-import contextlib
+ from functools import lru_cache
+ import gzip
++import importlib
++import importlib.util
+ import inspect
+ import json
+ import logging
+-import os
+ from pathlib import Path
+ import shutil
++import sys
+ from typing import Any, cast
+ from unittest.mock import AsyncMock, Mock, patch
+ 
+ from _pytest.fixtures import SubRequest
+ import aiohttp
+ import aioresponses.core
+-from homeassistant import loader
+ from homeassistant.const import CONF_ENTITY_ID
+ from homeassistant.core import HomeAssistant
+ from homeassistant.helpers.storage import STORAGE_DIR
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++
++# The compatibility matrix still exercises Home Assistant releases predating the
++# Core package; expose its former namespace under the new import path for those runs.
++if importlib.util.find_spec("pytest_homeassistant") is None:
++    sys.modules["pytest_homeassistant"] = importlib.import_module("pytest_homeassistant_custom_component")
++
++from pytest_homeassistant.common import (
+     MockConfigEntry,
+ )
+ 
+ from custom_components.powercalc.const import (
+-    BUILT_IN_LIBRARY_DIR,
+     CONF_FIXED,
+     CONF_POWER,
+     CONF_SENSOR_TYPE,
+@@ -69,23 +74,16 @@ def set_logging_levels(request: SubRequest) -> None:
+ 
+ 
+ @pytest.fixture(autouse=True)
+-def auto_enable_custom_integrations(request: SubRequest) -> None:
+-    if "hass" in request.fixturenames:
+-        request.getfixturevalue("enable_custom_integrations")
+-
+-
+-@pytest.fixture(autouse=True)
+-def configure_hass_config_dir(request: SubRequest) -> None:
++def configure_hass_config_dir(request: SubRequest, tmp_path: Path) -> None:
+     if "hass" not in request.fixturenames:
+         return
+     hass = request.getfixturevalue("hass")
+-    hass.config.config_dir = get_test_config_dir()
+-
+-    # The test .storage directory is scratch that survives between runs. The loader prefers a
+-    # cached library.json when there is one, so drop it to keep every test starting from the
+-    # same state a clean checkout has. Downloaded profiles are kept, they are only a cache.
+-    with contextlib.suppress(FileNotFoundError):
+-        os.remove(hass.config.path(STORAGE_DIR, BUILT_IN_LIBRARY_DIR, "library.json"))
++    config_dir = tmp_path / "config"
++    config_dir.mkdir()
++    for path in Path(get_test_config_dir()).iterdir():
++        if path.name != STORAGE_DIR:
++            (config_dir / path.name).symlink_to(path, target_is_directory=path.is_dir())
++    hass.config.config_dir = str(config_dir)
+ 
+ 
+ @pytest.fixture(autouse=True)
+@@ -94,12 +92,6 @@ async def enable_event_loop_debug() -> None:
+     asyncio.get_running_loop().set_debug(False)
+ 
+ 
+-@pytest.fixture
+-def enable_custom_integrations(hass: HomeAssistant) -> None:
+-    """Enable custom integrations defined in the test dir."""
+-    hass.data.pop(loader.DATA_CUSTOM_COMPONENTS)
+-
+-
+ @pytest.fixture(autouse=True)
+ def expected_lingering_timers() -> bool:
+     return True
+diff --git a/tests/group_include/test_filter.py b/tests/group_include/test_filter.py
+index 04054afbf..f79bd35d3 100644
+--- a/tests/group_include/test_filter.py
++++ b/tests/group_include/test_filter.py
+@@ -7,7 +7,7 @@
+ from homeassistant.helpers.floor_registry import FloorRegistry
+ from homeassistant.helpers.label_registry import LabelRegistry
+ import pytest
+-from pytest_homeassistant_custom_component.common import RegistryEntryWithDefaults
++from pytest_homeassistant.common import RegistryEntryWithDefaults
+ 
+ from custom_components.powercalc.const import CONF_AND, CONF_AREA, CONF_FILTER, CONF_OR, CONF_WILDCARD
+ from custom_components.powercalc.errors import SensorConfigurationError
+diff --git a/tests/group_include/test_include.py b/tests/group_include/test_include.py
+index 950bd217d..3a092119d 100644
+--- a/tests/group_include/test_include.py
++++ b/tests/group_include/test_include.py
+@@ -20,7 +20,7 @@
+ from homeassistant.helpers.label_registry import LabelRegistry
+ from homeassistant.setup import async_setup_component
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     MockConfigEntry,
+ )
+ 
+diff --git a/tests/power_profile/loader/test_remote.py b/tests/power_profile/loader/test_remote.py
+index 20b42bdd5..c1ef360d8 100644
+--- a/tests/power_profile/loader/test_remote.py
++++ b/tests/power_profile/loader/test_remote.py
+@@ -63,6 +63,12 @@ def mock_library_json_response(mock_aioresponse: aioresponses) -> None:
+     )
+ 
+ 
++def _copy_local_library_json(hass: HomeAssistant) -> None:
++    local_path = Path(hass.config.path(STORAGE_DIR, "powercalc_profiles", "library.json"))
++    local_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copy(get_library_json_path(), local_path)
++
++
+ @pytest.fixture
+ async def remote_loader(hass: HomeAssistant, mock_library_json_response: None) -> RemoteLoader:
+     loader = RemoteLoader(hass)
+@@ -1072,7 +1078,7 @@ async def test_fallback_to_local_library(
+     Test that the local library is used when the remote library is not available.
+     When unavailable, it should retry 3 times before falling back to the local library.
+     """
+-    shutil.copy(get_library_json_path(), hass.config.path(STORAGE_DIR, "powercalc_profiles", "library.json"))
++    _copy_local_library_json(hass)
+ 
+     caplog.set_level(logging.WARNING)
+     mock_aioresponse.get(ENDPOINT_LIBRARY, repeat=True, **response_kwargs)
+@@ -1113,7 +1119,7 @@ async def test_prefer_cached_skips_download(
+     mock_aioresponse: aioresponses,
+ ) -> None:
+     """With a library.json in local storage, initialize must not touch the download API."""
+-    shutil.copy(get_library_json_path(), hass.config.path(STORAGE_DIR, "powercalc_profiles", "library.json"))
++    _copy_local_library_json(hass)
+ 
+     # Any request to the library endpoint fails the test, nothing may be downloaded.
+     mock_aioresponse.get(ENDPOINT_LIBRARY, repeat=True, exception=AssertionError("library.json was downloaded"))
+@@ -1326,7 +1332,7 @@ async def test_library_update_refreshes_from_remote(
+     mock_aioresponse: aioresponses,
+ ) -> None:
+     """The periodic update must re-download, even though a local copy exists."""
+-    shutil.copy(get_library_json_path(), hass.config.path(STORAGE_DIR, "powercalc_profiles", "library.json"))
++    _copy_local_library_json(hass)
+ 
+     mock_aioresponse.get(
+         ENDPOINT_LIBRARY,
+diff --git a/tests/power_profile/test_power_profile.py b/tests/power_profile/test_power_profile.py
+index 1c7f350ec..851f3d061 100644
+--- a/tests/power_profile/test_power_profile.py
++++ b/tests/power_profile/test_power_profile.py
+@@ -6,7 +6,7 @@
+ from homeassistant.const import CONF_ENTITY_ID, STATE_PAUSED, STATE_PLAYING
+ from homeassistant.core import HomeAssistant
+ import pytest
+-from pytest_homeassistant_custom_component.common import MockConfigEntry, RegistryEntryWithDefaults
++from pytest_homeassistant.common import MockConfigEntry, RegistryEntryWithDefaults
+ 
+ from custom_components.powercalc.common import SourceEntity
+ from custom_components.powercalc.const import (
+diff --git a/tests/power_profile/test_sub_profile_selector.py b/tests/power_profile/test_sub_profile_selector.py
+index 7d5e04a1b..89a0e31a0 100644
+--- a/tests/power_profile/test_sub_profile_selector.py
++++ b/tests/power_profile/test_sub_profile_selector.py
+@@ -3,7 +3,7 @@
+ from homeassistant.helpers.device_registry import DeviceRegistry
+ from homeassistant.helpers.entity_registry import RegistryEntry
+ import pytest
+-from pytest_homeassistant_custom_component.common import MockConfigEntry, RegistryEntryWithDefaults
++from pytest_homeassistant.common import MockConfigEntry, RegistryEntryWithDefaults
+ 
+ from custom_components.powercalc.common import SourceEntity
+ from custom_components.powercalc.errors import PowercalcSetupError
+diff --git a/tests/sensors/group/test_custom.py b/tests/sensors/group/test_custom.py
+index 7dea6b932..815c7704a 100644
+--- a/tests/sensors/group/test_custom.py
++++ b/tests/sensors/group/test_custom.py
+@@ -36,7 +36,7 @@
+ from homeassistant.helpers.entity_registry import EntityRegistry
+ from homeassistant.util import dt
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     MockConfigEntry,
+     async_fire_time_changed,
+     mock_restore_cache_with_extra_data,
+diff --git a/tests/sensors/group/test_tracked_untracked.py b/tests/sensors/group/test_tracked_untracked.py
+index d738658ca..9dac477d0 100644
+--- a/tests/sensors/group/test_tracked_untracked.py
++++ b/tests/sensors/group/test_tracked_untracked.py
+@@ -2,7 +2,7 @@
+ from homeassistant.const import CONF_ENTITY_ID, CONF_NAME, CONF_UNIQUE_ID
+ from homeassistant.core import HomeAssistant
+ from homeassistant.helpers import entity_registry
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
++from pytest_homeassistant.common import MockConfigEntry
+ 
+ from custom_components.powercalc.const import (
+     CONF_CREATE_COST_SENSOR,
+diff --git a/tests/sensors/test_cost.py b/tests/sensors/test_cost.py
+index 88760d36b..adacdf0a3 100644
+--- a/tests/sensors/test_cost.py
++++ b/tests/sensors/test_cost.py
+@@ -17,7 +17,7 @@
+ from homeassistant.core import HomeAssistant, State
+ from homeassistant.util import dt as dt_util
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     MockConfigEntry,
+     mock_restore_cache,
+ )
+diff --git a/tests/sensors/test_daily_energy.py b/tests/sensors/test_daily_energy.py
+index 29667a553..d81412a79 100644
+--- a/tests/sensors/test_daily_energy.py
++++ b/tests/sensors/test_daily_energy.py
+@@ -19,7 +19,7 @@
+ from homeassistant.helpers.entity_registry import EntityRegistry
+ from homeassistant.helpers.typing import ConfigType
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     mock_restore_cache,
+ )
+ 
+diff --git a/tests/sensors/test_power.py b/tests/sensors/test_power.py
+index 58db4efa2..1b87656ef 100644
+--- a/tests/sensors/test_power.py
++++ b/tests/sensors/test_power.py
+@@ -38,7 +38,7 @@
+ from homeassistant.helpers.template import Template
+ from homeassistant.util import dt
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     async_fire_time_changed,
+ )
+ 
+diff --git a/tests/sensors/test_standby_energy.py b/tests/sensors/test_standby_energy.py
+index 61448a791..159089131 100644
+--- a/tests/sensors/test_standby_energy.py
++++ b/tests/sensors/test_standby_energy.py
+@@ -1,7 +1,7 @@
+ from datetime import timedelta
+ 
+ from freezegun.api import FrozenDateTimeFactory
+-from homeassistant.components.integration.sensor import ATTR_SOURCE_ID
++from homeassistant.components.integration.const import IntegrationEntityStateAttribute
+ from homeassistant.components.sensor import SensorDeviceClass
+ from homeassistant.const import (
+     ATTR_DEVICE_CLASS,
+@@ -13,7 +13,7 @@
+     UnitOfEnergy,
+ )
+ from homeassistant.core import HomeAssistant
+-from pytest_homeassistant_custom_component.common import async_fire_time_changed
++from pytest_homeassistant.common import async_fire_time_changed
+ 
+ from custom_components.powercalc.const import (
+     ATTR_ENTITIES,
+@@ -53,7 +53,7 @@ async def test_standby_energy_sensor_tracks_only_standby_consumption(
+     assert standby_energy
+     assert standby_energy.attributes[ATTR_DEVICE_CLASS] == SensorDeviceClass.ENERGY
+     assert standby_energy.attributes[ATTR_UNIT_OF_MEASUREMENT] == UnitOfEnergy.KILO_WATT_HOUR
+-    assert standby_energy.attributes[ATTR_SOURCE_ID] == "sensor.test_power"
++    assert standby_energy.attributes[IntegrationEntityStateAttribute.SOURCE] == "sensor.test_power"
+     assert standby_energy.attributes[ATTR_SOURCE_ENTITY] == "input_boolean.test"
+     assert not hass.states.get("sensor.test_energy")
+ 
+diff --git a/tests/sensors/test_utility_meter.py b/tests/sensors/test_utility_meter.py
+index cc3d7c44d..c5cc85331 100644
+--- a/tests/sensors/test_utility_meter.py
++++ b/tests/sensors/test_utility_meter.py
+@@ -5,10 +5,8 @@
+ from freezegun import freeze_time
+ from homeassistant.components import utility_meter
+ from homeassistant.components.sensor import SensorDeviceClass
+-from homeassistant.components.utility_meter.const import DAILY, HOURLY, QUARTER_HOURLY
++from homeassistant.components.utility_meter.const import DAILY, HOURLY, QUARTER_HOURLY, UtilityMeterEntityStateAttribute
+ from homeassistant.components.utility_meter.sensor import (
+-    ATTR_STATUS,
+-    ATTR_TARIFF,
+     COLLECTING,
+     CONF_UNIQUE_ID,
+     PAUSED,
+@@ -69,13 +67,13 @@ async def test_tariff_sensors_are_created(hass: HomeAssistant) -> None:
+     assert_entity_state(
+         hass,
+         "sensor.test_energy_daily_peak",
+-        attributes={ATTR_TARIFF: "peak", ATTR_STATUS: COLLECTING},
++        attributes={UtilityMeterEntityStateAttribute.TARIFF: "peak", UtilityMeterEntityStateAttribute.STATUS: COLLECTING},
+     )
+ 
+     assert_entity_state(
+         hass,
+         "sensor.test_energy_daily_offpeak",
+-        attributes={ATTR_TARIFF: "offpeak", ATTR_STATUS: PAUSED},
++        attributes={UtilityMeterEntityStateAttribute.TARIFF: "offpeak", UtilityMeterEntityStateAttribute.STATUS: PAUSED},
+     )
+ 
+     general_sensor_daily = hass.states.get("sensor.test_energy_daily")
+@@ -87,9 +85,9 @@ async def test_tariff_sensors_are_created(hass: HomeAssistant) -> None:
+     assert_entity_state(hass, "select.test_energy_daily", "peak")
+ 
+     await set_states(hass, [("select.test_energy_daily", "offpeak")])
+-    assert_entity_state(hass, "sensor.test_energy_daily_peak", attributes={ATTR_STATUS: PAUSED})
++    assert_entity_state(hass, "sensor.test_energy_daily_peak", attributes={UtilityMeterEntityStateAttribute.STATUS: PAUSED})
+ 
+-    assert_entity_state(hass, "sensor.test_energy_daily_offpeak", attributes={ATTR_STATUS: COLLECTING})
++    assert_entity_state(hass, "sensor.test_energy_daily_offpeak", attributes={UtilityMeterEntityStateAttribute.STATUS: COLLECTING})
+ 
+ 
+ async def test_tariff_sensors_created_for_gui_sensors(hass: HomeAssistant, entity_registry: EntityRegistry) -> None:
+diff --git a/tests/service/test_gui_configuration.py b/tests/service/test_gui_configuration.py
+index 737b95ad5..b6af6996e 100644
+--- a/tests/service/test_gui_configuration.py
++++ b/tests/service/test_gui_configuration.py
+@@ -5,7 +5,7 @@
+ from homeassistant.exceptions import ServiceValidationError
+ from homeassistant.helpers.typing import ConfigType
+ import pytest
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
++from pytest_homeassistant.common import MockConfigEntry
+ 
+ from custom_components.powercalc.const import (
+     CONF_CREATE_STANDBY_ENERGY_SENSOR,
+diff --git a/tests/strategy/test_wled.py b/tests/strategy/test_wled.py
+index 08fe84c55..0fd0f4d39 100644
+--- a/tests/strategy/test_wled.py
++++ b/tests/strategy/test_wled.py
+@@ -8,7 +8,7 @@
+ from homeassistant.data_entry_flow import FlowResultType
+ from homeassistant.setup import async_setup_component
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     setup_test_component_platform,
+ )
+ 
+diff --git a/tests/test_common.py b/tests/test_common.py
+index a3665f86e..aadf1a914 100644
+--- a/tests/test_common.py
++++ b/tests/test_common.py
+@@ -3,7 +3,7 @@
+ from homeassistant.helpers.device_registry import DeviceEntry
+ from homeassistant.helpers.entity_registry import RegistryEntry
+ import pytest
+-from pytest_homeassistant_custom_component.common import RegistryEntryWithDefaults
++from pytest_homeassistant.common import RegistryEntryWithDefaults
+ 
+ from custom_components.powercalc import (
+     CONF_CREATE_ENERGY_SENSORS,
+diff --git a/tests/test_device_binding.py b/tests/test_device_binding.py
+index 809fd1596..a80aabd3d 100644
+--- a/tests/test_device_binding.py
++++ b/tests/test_device_binding.py
+@@ -8,7 +8,7 @@
+ from homeassistant.helpers.device_registry import DeviceEntryDisabler, DeviceRegistry
+ import homeassistant.helpers.entity_registry as er
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     MockConfigEntry,
+     mock_device_registry,
+ )
+diff --git a/tests/test_device_naming.py b/tests/test_device_naming.py
+index 3fcf61c57..bd121851f 100644
+--- a/tests/test_device_naming.py
++++ b/tests/test_device_naming.py
+@@ -12,8 +12,8 @@
+ import homeassistant.helpers.entity_registry as er
+ from homeassistant.util import dt as dt_util
+ import pytest
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
+-from pytest_homeassistant_custom_component.components.recorder.common import (
++from pytest_homeassistant.common import MockConfigEntry
++from pytest_homeassistant.components.recorder.common import (
+     async_wait_recording_done,
+     do_adhoc_statistics,
+     get_start_time,
+diff --git a/tests/test_diagnostics.py b/tests/test_diagnostics.py
+index 819792b99..9dcfeb0ae 100644
+--- a/tests/test_diagnostics.py
++++ b/tests/test_diagnostics.py
+@@ -1,6 +1,6 @@
+ from homeassistant.const import CONF_ENABLED, CONF_ENTITY_ID, CONF_NAME
+ from homeassistant.core import HomeAssistant
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
++from pytest_homeassistant.common import MockConfigEntry
+ 
+ from custom_components.powercalc import CONF_DISCOVERY, CONF_SENSOR_TYPE, SensorType
+ from custom_components.powercalc.const import (
+diff --git a/tests/test_discovery.py b/tests/test_discovery.py
+index 169ced7ca..4a4a8d2f3 100644
+--- a/tests/test_discovery.py
++++ b/tests/test_discovery.py
+@@ -29,7 +29,7 @@
+ from homeassistant.helpers.entity_registry import RegistryEntry
+ from homeassistant.setup import async_setup_component
+ import pytest
+-from pytest_homeassistant_custom_component.common import (
++from pytest_homeassistant.common import (
+     MockConfigEntry,
+     RegistryEntryWithDefaults,
+     mock_device_registry,
+diff --git a/tests/test_helpers.py b/tests/test_helpers.py
+index 3c391f72c..8d7f7f4fb 100644
+--- a/tests/test_helpers.py
++++ b/tests/test_helpers.py
+@@ -11,7 +11,7 @@
+ from homeassistant.helpers.entity_registry import RegistryEntryDisabler
+ from homeassistant.helpers.template import Template
+ import pytest
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
++from pytest_homeassistant.common import MockConfigEntry
+ 
+ from custom_components.powercalc.common import SourceEntity
+ from custom_components.powercalc.const import DUMMY_ENTITY_ID, PLACEHOLDER_ENTITY_BY_DEVICE_CLASS, CalculationStrategy
+diff --git a/tests/test_migrate.py b/tests/test_migrate.py
+index be5275af7..f5dba1e6e 100644
+--- a/tests/test_migrate.py
++++ b/tests/test_migrate.py
+@@ -7,7 +7,7 @@
+ import homeassistant.helpers.entity_registry as er
+ from homeassistant.helpers.issue_registry import IssueRegistry
+ import pytest
+-from pytest_homeassistant_custom_component.common import MockConfigEntry
++from pytest_homeassistant.common import MockConfigEntry
+ 
+ from custom_components.powercalc import (
+     CONF_DISCOVERY_EXCLUDE_SELF_USAGE_DEPRECATED,
+diff --git a/tests/test_sensor.py b/tests/test_sensor.py
+index dd20f2217..cd579cb9a 100644
+--- a/tests/test_sensor.py
++++ b/tests/test_sensor.py
+@@ -3,7 +3,7 @@
+ from unittest.mock import MagicMock, patch
+ 
+ from homeassistant.components import light, sensor
+-from homeassistant.components.integration.sensor import ATTR_SOURCE_ID
++from homeassistant.components.integration.const import IntegrationEntityStateAttribute
+ from homeassistant.components.light import (
+     ATTR_BRIGHTNESS,
+     ATTR_COLOR_MODE,
+@@ -109,7 +109,7 @@ async def test_fixed_power_sensor_from_yaml(hass: HomeAssistant) -> None:
+         attributes={
+             ATTR_DEVICE_CLASS: SensorDeviceClass.ENERGY,
+             ATTR_UNIT_OF_MEASUREMENT: UnitOfEnergy.KILO_WATT_HOUR,
+-            ATTR_SOURCE_ID: "sensor.test_power",
++            IntegrationEntityStateAttribute.SOURCE: "sensor.test_power",
+             ATTR_SOURCE_ENTITY: "input_boolean.test",
+         },
+     )
+diff --git a/tests/testing_config/custom_components/test/light.py b/tests/testing_config/custom_components/test/light.py
+index d4d0e67ee..1af79980d 100644
+--- a/tests/testing_config/custom_components/test/light.py
++++ b/tests/testing_config/custom_components/test/light.py
+@@ -14,7 +14,7 @@
+ from homeassistant.helpers.device_registry import DeviceInfo
+ from homeassistant.helpers.entity_platform import AddEntitiesCallback
+ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+-from pytest_homeassistant_custom_component.common import MockToggleEntity
++from pytest_homeassistant.common import MockToggleEntity
+ 
+ ENTITIES = []
+ 
+diff --git a/tests/testing_config/custom_components/test/sensor.py b/tests/testing_config/custom_components/test/sensor.py
+index 27979bd81..0ae2da9a8 100644
+--- a/tests/testing_config/custom_components/test/sensor.py
++++ b/tests/testing_config/custom_components/test/sensor.py
+@@ -30,7 +30,7 @@
+ from homeassistant.core import HomeAssistant
+ from homeassistant.helpers.entity_platform import AddEntitiesCallback
+ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType, StateType
+-from pytest_homeassistant_custom_component.common import MockEntity
++from pytest_homeassistant.common import MockEntity
+ 
+ DEVICE_CLASSES.append("none")
+ 
