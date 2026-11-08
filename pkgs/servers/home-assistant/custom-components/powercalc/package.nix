@@ -10,9 +10,10 @@
   aioresponses,
   gitMinimal,
   gitpython,
+  home-assistant,
   jsonschema,
   pytest-freezegun,
-  pytest-homeassistant-custom-component,
+  pytest-homeassistant,
   pytestCheckHook,
 }:
 
@@ -28,15 +29,18 @@ buildHomeAssistantComponent (finalAttrs: {
     hash = "sha256-cutPSIXOPrA1PkFbgRxZWoiQxpS/nbaJvKdBKJJ+Ne0=";
   };
 
+  patches = [ ./2026-11.diff ];
+
   dependencies = [ numpy ];
 
   nativeCheckInputs = [
     aioresponses
     gitMinimal
     gitpython
+    home-assistant
     jsonschema
     pytest-freezegun
-    pytest-homeassistant-custom-component
+    pytest-homeassistant
     pytestCheckHook
   ];
 
