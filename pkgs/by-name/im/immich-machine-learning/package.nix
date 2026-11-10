@@ -26,8 +26,6 @@ python.pkgs.buildPythonApplication (finalAttrs: {
 
   pythonRelaxDeps = [
     "huggingface-hub"
-    "onnx"
-    "pillow"
   ];
 
   build-system = with python.pkgs; [
@@ -37,7 +35,6 @@ python.pkgs.buildPythonApplication (finalAttrs: {
   dependencies =
     with python.pkgs;
     [
-      aiocache
       fastapi
       gunicorn
       huggingface-hub
@@ -46,6 +43,7 @@ python.pkgs.buildPythonApplication (finalAttrs: {
       opencv-python-headless
       orjson
       pillow
+      pillow-jxl-plugin
       pydantic
       pydantic-settings
       python-multipart
@@ -70,9 +68,6 @@ python.pkgs.buildPythonApplication (finalAttrs: {
   ];
 
   postInstall = ''
-    mkdir -p $out/share/immich
-    cp immich_ml/log_conf.json $out/share/immich
-
     cp -r ann $out/${python.sitePackages}/
 
     makeWrapper ${lib.getExe python.pkgs.gunicorn} "''${!outputBin}"/bin/machine-learning \
@@ -85,8 +80,7 @@ python.pkgs.buildPythonApplication (finalAttrs: {
       --add-flags "immich_ml.main:app -k immich_ml.config.CustomUvicornWorker \
         -w \"\$MACHINE_LEARNING_WORKERS\" \
         -b \"\$IMMICH_HOST:\$IMMICH_PORT\" \
-        -t \"\$MACHINE_LEARNING_WORKER_TIMEOUT\"
-        --log-config-json $out/share/immich/log_conf.json"
+        -t \"\$MACHINE_LEARNING_WORKER_TIMEOUT\""
   '';
 
   passthru = {
