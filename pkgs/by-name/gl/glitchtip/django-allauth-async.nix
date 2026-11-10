@@ -22,7 +22,6 @@
   python3-openid,
   python3-saml,
   requests,
-  requests-oauthlib,
   pyjwt,
   qrcode,
 
@@ -39,14 +38,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "django-allauth-async";
-  version = "65.16.1.7";
+  version = "65.19.1.1";
   pyproject = true;
 
   src = fetchFromGitLab {
     owner = "glitchtip";
     repo = "django-allauth-async";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-0eUqIbQT4+8qH3oiGrXUzXBzy9iE5vhn00xdUBCGDh0=";
+    hash = "sha256-KLD1FHR4bhwtW28pid+9K+VOsTxvHyXNQ3UFIjdkJag=";
   };
 
   nativeBuildInputs = [ gettext ];
@@ -84,8 +83,8 @@ buildPythonPackage (finalAttrs: {
     openid = [ python3-openid ];
     saml = [ python3-saml ];
     socialaccount = [
+      oauthlib
       requests
-      requests-oauthlib
       pyjwt
     ]
     ++ pyjwt.optional-dependencies.crypto;
