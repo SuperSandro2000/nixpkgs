@@ -8904,6 +8904,8 @@ self: super: with self; {
 
   jenkinsapi = callPackage ../development/python-modules/jenkinsapi { };
 
+  jevclient = callPackage ../development/python-modules/jevclient { };
+
   jh2 = callPackage ../development/python-modules/jh2 { };
 
   jianpu-ly = callPackage ../development/python-modules/jianpu-ly { };
