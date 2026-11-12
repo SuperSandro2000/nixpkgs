@@ -64,6 +64,44 @@ in
           prometheus_sensor
           # tests loading multiple components from a single package
           spook
+          (pkgs.runCommand "home-assistant-test-custom-sentences"
+            {
+              passthru = {
+                domain = "test_custom_sentences";
+                isHomeAssistantComponent = true;
+              };
+            }
+            ''
+              mkdir -p $out/custom_components/test_custom_sentences "$out/custom_sentences/{de,en}
+              cat > "$out/custom_components/test_custom_sentences/manifest.json" <<'EOF'
+              {
+                "domain": "test_custom_sentences",
+                "name": "Test custom sentences",
+                "codeowners": [],
+                "documentation": "https://www.home-assistant.io/",
+                "dependencies": [],
+                "requirements": [],
+                "version": "1.0.0"
+              }
+              EOF
+              cat > $out/custom_sentences/de/test_custom_sentences.yaml <<'EOF'
+              language: "de"
+              intents:
+                TestIntent:
+                  data:
+                    - sentences:
+                        - "Beispiel Satz"
+              EOF
+              cat > $out/custom_sentences/en/test_custom_sentences.yaml <<'EOF'
+              language: "en"
+              intents:
+                TestIntent:
+                  data:
+                    - sentences:
+                        - "test sentence"
+              EOF
+            ''
+          )
         ];
 
         # test loading lovelace modules
@@ -88,7 +126,7 @@ in
           # configure the recorder component to use the postgresql db
           recorder.db_url = "postgresql://@/hass";
 
-          # this is effecitvely default_config (2026.5.0), but with components
+          # this is effectively default_config (2026.5.0), but with components
           # skipped that would cause ERRORs in the sandbox
           bluetooth = { };
           cloud = { };
@@ -248,6 +286,8 @@ in
 
       with subtest("Check that custom components get installed"):
           hass.succeed("test -f ${configDir}/custom_components/prometheus_sensor/manifest.json")
+          hass.succeed("test -L ${configDir}/custom_sentences/de/test_custom_sentences.yaml")
+          hass.succeed("test -L ${configDir}/custom_sentences/en/test_custom_sentences.yaml")
           for integration in ("prometheus_sensor", "spook", "spook_inverse"):
               hass.wait_until_succeeds(f"journalctl -u home-assistant.service | grep -q 'We found a custom integration {integration} which has not been tested by Home Assistant'")
 
@@ -305,7 +345,7 @@ in
           hass.succeed("${system}/specialisation/newFeature/bin/switch-to-configuration test")
           wait_for_homeassistant(cursor)
           new_pid = hass.succeed("systemctl show --property=MainPID home-assistant.service")
-          assert pid != new_pid, "The PID of the process must change when its PYTHONPATH changess"
+          assert pid != new_pid, "The PID of the process must change when its PYTHONPATH changes"
 
       with subtest("Check that new components get setup after restart"):
           journal = get_journal_since(cursor)
@@ -318,6 +358,8 @@ in
           hass.fail("grep -q 'mini-graph-card-bundle.js' '${configDir}/ui-lovelace.yaml'")
           for integration in ("prometheus_sensor", "spook", "spook_inverse"):
               hass.fail(f"test -f ${configDir}/custom_components/{integration}/manifest.json")
+          hass.fail("test -e '${configDir}/custom_sentences/de/test_custom_sentences.yaml'")
+          hass.fail("test -e '${configDir}/custom_sentences/en/test_custom_sentences.yaml'")
           hass.fail("test -e '${configDir}/blueprints/automation/motion_light.yaml'")
           hass.fail("test -e '${configDir}/blueprints/template/inverted_binary_sensor.yaml'")
           wait_for_homeassistant(cursor)
