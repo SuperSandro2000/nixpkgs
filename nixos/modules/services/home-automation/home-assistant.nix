@@ -33,7 +33,6 @@ let
     mkMerge
     mkOption
     mkRemovedOptionModule
-    mkRenamedOptionModule
     optionals
     optionalString
     recursiveUpdate
@@ -934,6 +933,30 @@ in
               ln -fns "''${paths[@]}" "${cfg.configDir}/custom_components/"
             done
           '';
+          copyCustomSentences = ''
+            mkdir -p "${cfg.configDir}/custom_sentences"
+
+            # remove sentences symlinked in from below the /nix/store
+            readarray -d "" sentences < <(find "${cfg.configDir}/custom_sentences" -maxdepth 2 -type l -print0)
+            for sentence in "''${sentences[@]}"; do
+              if [[ "$(readlink "$sentence")" =~ ^${escapeShellArg builtins.storeDir} ]]; then
+                rm "$sentence"
+              fi
+            done
+
+            # recreate symlinks for desired sentences
+            declare -a components=(${escapeShellArgs cfg.customComponents})
+            for component in "''${components[@]}"; do
+              if [[ -d "$component/custom_sentences" ]]; then
+                while IFS= read -r -d "" sentence; do
+                  relativePath="''${sentence#"$component/custom_sentences/"}"
+                  target="${cfg.configDir}/custom_sentences/$relativePath"
+                  mkdir -p "$(dirname "$target")"
+                  ln -fnsT "$sentence" "$target"
+                done < <(find "$component/custom_sentences" -type f -print0)
+              fi
+            done
+          '';
 
           removeBlueprints = ''
             # remove blueprints symlinked in from below the /nix/store
@@ -963,6 +986,7 @@ in
         + (optionalString (cfg.lovelaceConfig != null) copyLovelaceConfig)
         + copyCustomLovelaceModules
         + copyCustomComponents
+        + copyCustomSentences
         + removeBlueprints
         + copyBlueprints;
       environment.PYTHONPATH = package.pythonPath;
