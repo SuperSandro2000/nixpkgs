@@ -8,13 +8,13 @@
 buildHomeAssistantComponent (finalAttrs: {
   owner = "AboveColin";
   domain = "jev";
-  version = "1.22.3";
+  version = "1.23.0";
 
   src = fetchFromGitHub {
     inherit (finalAttrs) owner;
     repo = "HA-Jev";
     tag = finalAttrs.version;
-    hash = "sha256-NN6UmYc8uryacNEg0qJiHpjt5FOoiw0TU7skbN7GXS0=";
+    hash = "sha256-vcPySCxOY6Ys3S9XaaA5t1yubiXN4uyqJbposbwfAFE=";
   };
 
   dependencies = [ jevclient ];
