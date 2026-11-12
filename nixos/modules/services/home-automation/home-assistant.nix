@@ -929,8 +929,10 @@ in
             declare -a components=(${escapeShellArgs cfg.customComponents})
             for component in "''${components[@]}"; do
               readarray -t manifests < <(find "$component" -name manifest.json)
-              readarray -t paths < <(dirname "''${manifests[@]}")
-              ln -fns "''${paths[@]}" "${cfg.configDir}/custom_components/"
+              if ((''${#manifests[@]} > 0)); then
+                readarray -t paths < <(dirname "''${manifests[@]}")
+                ln -fns "''${paths[@]}" "${cfg.configDir}/custom_components/"
+              fi
             done
           '';
           copyCustomSentences = ''
