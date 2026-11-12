@@ -10,14 +10,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "jevclient";
-  version = "1.3.1";
+  version = "1.4.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "AboveColin";
     repo = "jevclient";
     tag = finalAttrs.version;
-    hash = "sha256-zrW1nphbqfU59tyVU/TVsX45cPjyGFV7C2BolWMD29U=";
+    hash = "sha256-2g/97E2PoceTIie93G++wQEyjJJuQhFY6D/+9E44OGE=";
   };
 
   build-system = [ setuptools ];
