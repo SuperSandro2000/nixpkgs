@@ -141,6 +141,7 @@ in
           9090 # Slimproto CLI
         ];
       allowedTCPPortRanges =
+        # AirPlay2 ports
         # https://github.com/music-assistant/server/blob/2.11.0b7/music_assistant/providers/airplay_receiver/provider.py#L68-L75
         lib.optionals (lib.elem "airplay_receiver" cfg.providers) [
           {
@@ -163,16 +164,25 @@ in
           # https://lyrion.org/reference/slimproto-protocol/
           3483 # Slimproto discovery
         ];
-      # The information published by Apple 1 seem to not apply to libraop.
-      # The closest we could find that represents the port range being used as observed by tcpdump is the ephemeral port range.
-      # 1: https://support.apple.com/en-us/103229#:~:text=49152%E2%80%93-,65535,-TCP%2C%20UDP
-      # 2: https://en.wikipedia.org/wiki/Ephemeral_port#Range
-      allowedUDPPortRanges = lib.mkIf (lib.elem "airplay" cfg.providers) [
-        {
-          from = 32768;
-          to = 65535;
-        }
-      ];
+      allowedUDPPortRanges =
+        # AirPlay1 ports
+        # https://github.com/mikebrady/shairport-sync/blob/5.6.3/scripts/shairport-sync.conf#L44-L45
+        lib.optionals (lib.elem "airplay_receiver" cfg.providers) [
+          {
+            from = 6001;
+            to = 6011;
+          }
+        ]
+        # The information published by Apple 1 seem to not apply to libraop.
+        # The closest we could find that represents the port range being used as observed by tcpdump is the ephemeral port range.
+        # 1: https://support.apple.com/en-us/103229#:~:text=49152%E2%80%93-,65535,-TCP%2C%20UDP
+        # 2: https://en.wikipedia.org/wiki/Ephemeral_port#Range
+        ++ lib.optionals (lib.elem "airplay" cfg.providers) [
+          {
+            from = 32768;
+            to = 65535;
+          }
+        ];
     };
 
     services = {
