@@ -62,11 +62,7 @@ python3Packages.buildPythonApplication (finalAttrs: {
     mainProgram = "emote";
     homepage = "https://github.com/tom-james-watson/emote";
     license = lib.licenses.gpl3Plus;
-    maintainers = with lib.maintainers; [
-      emilytrau
-      SuperSandro2000
-      aleksana
-    ];
+    maintainers = with lib.maintainers; [ SuperSandro2000 ];
     platforms = lib.platforms.linux;
   };
 })
