@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.11.0b8";
+  version = "2.11.0b9";
   builtinProviders = [
     "builtin"
     "coverartarchive"
@@ -9,6 +9,7 @@
     "itunes_artwork"
     "loudness_analysis"
     "lrclib"
+    "mcp_server"
     "musicbrainz"
     "playlist_metadata"
     "radio_playlist"
@@ -96,6 +97,8 @@
       ];
     builtin = _: [
     ];
+    cbc_listen = _: [
+    ];
     chromecast =
       ps: with ps; [
         pychromecast
@@ -113,6 +116,8 @@
         async-upnp-client
         defusedxml
       ];
+    dr_lyd = _: [
+    ];
     emby = _: [
     ];
     fanarttv = _: [
@@ -194,6 +199,8 @@
     lrclib = _: [
     ];
     mammamiradio = _: [
+    ];
+    mcp_server = _: [
     ];
     milkdrop_visualizer = _: [
     ];
@@ -286,7 +293,7 @@
     raumfeld =
       ps: with ps; [
         async-upnp-client
-      ]; # missing hassfeld
+      ];
     recommendations = _: [
     ];
     roku_media_assistant =
@@ -343,6 +350,8 @@
     sonos =
       ps: with ps; [
         aiosonos
+        async-upnp-client
+        defusedxml
       ];
     sonos_s1 =
       ps: with ps; [
@@ -366,6 +375,8 @@
         pycryptodome
       ];
     subsonic_scrobble = _: [
+    ];
+    sunshine_live = _: [
     ];
     sverigesradio = _: [
     ];
@@ -444,7 +455,6 @@
     "kion_music"
     "nicovideo"
     "qqmusic"
-    "raumfeld"
     "samsung_wam"
     "siriusxm"
     "yandex_music"
