@@ -11,14 +11,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "python-slugify";
-  version = "9.1.2";
+  version = "9.1.3";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "un33k";
     repo = "python-slugify";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-WBhw5TnjxEks8tNLGTptL3ydwOzahRsdMFc54rnLGYA=";
+    hash = "sha256-bCOsExVFv+R4T6HQcJK3biyIHOXf5Ax8ZA9jQfno8v4=";
   };
 
   build-system = [ setuptools ];
