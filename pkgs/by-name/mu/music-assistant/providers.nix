@@ -1,7 +1,7 @@
 # Do not edit manually, run ./update-providers.py
 
 {
-  version = "2.11.0b9";
+  version = "2.11.0b10";
   builtinProviders = [
     "builtin"
     "coverartarchive"
@@ -15,10 +15,8 @@
     "radio_playlist"
     "recommendations"
     "sendspin"
-    "sendspin_source"
     "sync_group"
     "theaudiodb"
-    "universal_player"
     "wikipedia"
   ];
   providerDependencies = {
@@ -26,7 +24,6 @@
     hue_entertainment = [ "sendspin" ];
     neteasecloudmusic_scrobble = [ "neteasecloudmusic" ];
     plex_connect = [ "plex" ];
-    sendspin_source = [ "sendspin" ];
     sonic_similarity = [ "sonic_analysis" ];
     subsonic_scrobble = [ "opensubsonic" ];
     wled_audio_sync = [ "sendspin" ];
@@ -81,10 +78,8 @@
       ps: with ps; [
         bandcamp-async-api
       ];
-    bbc_sounds =
-      ps: with ps; [
-        pytz
-      ]; # missing auntie-sounds
+    bbc_sounds = _: [
+    ]; # missing auntie-sounds
     bluesound =
       ps: with ps; [
         pyblu
@@ -309,12 +304,11 @@
       [
         aiosendspin
         av
+        soxr
       ]
       ++ aiosendspin.optional-dependencies.server;
-    sendspin_source =
-      ps: with ps; [
-        soxr
-      ];
+    share_provider = _: [
+    ];
     siriusxm = _: [
     ]; # missing aiosxm
     smart_fades =
@@ -395,8 +389,6 @@
     tunein = _: [
     ];
     universal_group = _: [
-    ];
-    universal_player = _: [
     ];
     vban_receiver =
       ps: with ps; [

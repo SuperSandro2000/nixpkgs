@@ -25,10 +25,10 @@ let
       music-assistant-frontend = final.callPackage ./frontend.nix { };
 
       music-assistant-models = prev.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.239";
+        version = "1.1.248";
 
         src = oldAttrs.src.override {
-          hash = "sha256-ZbJlLvBCtGBRC/ilGLNfpHOKAJo6pXu4EgKV3ArAUWM=";
+          hash = "sha256-TNUdvOUsuUtbec7NusHsANwvgz4aH6dB/210wiGW9sM=";
         };
       });
 
@@ -52,14 +52,14 @@ let
 in
 pythonPackages.buildPythonApplication (finalAttrs: {
   pname = "music-assistant";
-  version = "2.11.0b9";
+  version = "2.11.0b10";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = finalAttrs.version;
-    hash = "sha256-NarGxd4MKjEjf4szYfKY1XvV6YX8dFl4mzIYKroil30=";
+    hash = "sha256-JSyN0DbxXEU2QthdiEteBl3XPySL5bTFkV4xlKwJYSo=";
   };
 
   patches = [
@@ -79,6 +79,9 @@ pythonPackages.buildPythonApplication (finalAttrs: {
 
     # Disable interactive dependency resolution, which clashes with the immutable Python environment
     ./dont-install-deps.patch
+
+    # Upstream expects the tests to be run with the version set to 0.0.0
+    ./upstream-test-version.patch
 
     # Fix running the built-in snapcast server
     ./builtin-snapcast-server.patch
@@ -132,11 +135,6 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     "pillow"
   ];
 
-  pythonRemoveDeps = [
-    # no runtime dependency resolution
-    "uv"
-  ];
-
   dependencies =
     with pythonPackages;
     [
@@ -180,6 +178,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       torch
       torchaudio
       unidecode
+      uv
       xmltodict
       zeroconf
 
@@ -274,7 +273,6 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     "tests/providers/kion_music"
     "tests/providers/nicovideo"
     "tests/providers/qqmusic"
-    "tests/providers/raumfeld"
     "tests/providers/samsung_wam"
     "tests/providers/siriusxm"
     "tests/providers/yandex_music"
@@ -282,6 +280,14 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     "tests/providers/yandex_station"
     "tests/providers/yandex_ynison"
     "tests/providers/zvuk_music"
+    # Cannot succeed, since we do not have all dependencies packaged
+    "tests/models/test_player_provider.py::test_no_player_provider_replaces_the_features_of_the_base_class"
+    "tests/test_provider_manifests.py"
+    # Would require not setting PYTHONPATH
+    "tests/controllers/community_catalog/test_dependencies.py::test_clash_with_server"
+    "tests/controllers/community_catalog/test_dependencies.py::test_server_package_is_not_installed"
+    "tests/controllers/community_catalog/test_dependencies.py::test_sync_removes_what_the_lock_no_longer_has"
+    "tests/controllers/community_catalog/test_dependencies.py::test_version_that_needs_another_server_package_is_passed_over"
     # hue_entertainment is not packaged
     "tests/controllers/config/test_setup_flows.py::test_hue_pairing_flow_retry_then_success"
     # sounds is not packaged
@@ -290,19 +296,16 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     "tests/helpers/test_util.py::TestLoadProviderModule"
     "tests/providers/airplay/test_helpers.py::test_get_cli_binary_uses_release_asset_name"
     # We do not have a full git repo to work with
+    "tests/scripts/test_dev_image.py::test_dev_app_bump"
     "tests/scripts/test_release_workflow.py"
     # save compute
     "tests/benchmarks/test_bench_helpers.py"
-    # timing sensitive
+    # timing sensitive and racy tests
     "tests/controllers/music/test_music_migrations.py::test_migrate_database_backfills_external_id_lookup"
-    # assert 2.144418200259679 < 2
     "tests/controllers/players/test_player_controller.py::TestReleaseWaitForPlayMedia::test_plays_as_soon_as_the_player_reports_its_leave"
-    # TimeoutError
     "tests/helpers/test_tags.py::test_async_parse_tags_reaps_hanging_process"
-    # AssertionError: playback loop stalled (appears to be a race)
-    "tests/providers/sendspin/test_dsp_channel_alignment.py"
-    # flaky
     "tests/providers/playlist_metadata/test_ai.py::test_an_unreachable_engine_is_retried_far_longer"
+    "tests/providers/sendspin/test_dsp_channel_alignment.py"
   ]
   ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64) [
     # Timing sensitive
