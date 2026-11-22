@@ -9,6 +9,7 @@
   openssl,
   replaceVars,
   writableTmpDirAsHomeHook,
+  writers,
   providers ? [ ],
 }:
 
@@ -103,8 +104,19 @@ pythonPackages.buildPythonApplication (finalAttrs: {
 
   postPatch = ''
     substituteInPlace pyproject.toml \
-      --replace-fail "0.0.0" "${finalAttrs.version}" \
       --replace-fail "==" ">="
+
+    # Let the pythonRuntimeDepsCheckHook validate the frontend version
+    sed -i pyproject.toml \
+      -Ee 's|"music-assistant-frontend @ https://github.com/music-assistant/frontend/releases/download/([0-9][^/]*).*",|"music-assistant-frontend==\1",|'
+
+    # Mimic an official build to avoid scary looking warnings that the installation method is not supported.
+    substituteInPlace music_assistant/helpers/build_info.py \
+      --replace-fail 'Path("/app/build_info.json")' 'Path("${writers.writeJSON "music-assistant-build-info.json" {
+    inherit (finalAttrs) version;
+    commit = finalAttrs.src.rev;
+    source = "nixpkgs";
+    }}")'
 
     rm -rv \
       music_assistant/providers/airplay_receiver/bin/{build_binaries.sh,shairport-sync-*} \
@@ -122,6 +134,8 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       exit 5
     fi
   '';
+
+  nativeBuildInputs = with pythonPackages; [ pyprojectVersionPatchHook ];
 
   build-system = with pythonPackages; [
     setuptools
