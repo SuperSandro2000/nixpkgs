@@ -1,5 +1,6 @@
 {
   _experimental-update-script-combinators,
+  bash,
   cmake,
   fetchFromGitHub,
   pkg-config,
@@ -118,6 +119,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   buildInputs = [
     aws-lc
+    bash
     libevdev
     libgbm
     libopus
@@ -143,6 +145,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   '';
 
   postInstall = ''
+    install -Dm755 dist/moonshine-gamescope "$out/bin/moonshine-gamescope"
+
     install -Dm644 -t "$out/share/vulkan/implicit_layer.d" \
       "${ferriscope-wsi}/share/vulkan/implicit_layer.d/VkLayer_FERRISCOPE_wsi.${wsiArch}.json"
 
