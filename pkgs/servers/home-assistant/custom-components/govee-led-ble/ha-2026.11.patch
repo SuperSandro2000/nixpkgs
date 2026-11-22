@@ -1,0 +1,104 @@
+diff --git a/custom_components/ha_govee_led_ble/__init__.py b/custom_components/ha_govee_led_ble/__init__.py
+--- a/custom_components/ha_govee_led_ble/__init__.py
++++ b/custom_components/ha_govee_led_ble/__init__.py
+@@ -8,7 +8,7 @@
+ from homeassistant.config_entries import ConfigEntry
+ from homeassistant.const import Platform
+ from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+-from homeassistant.exceptions import ConfigEntryNotReady
++from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
+ from homeassistant.helpers import config_validation as cv
+ from homeassistant.helpers import device_registry as dr
+ from homeassistant.helpers import entity_registry as er
+@@ -357,17 +357,17 @@
+     return True
+ 
+ 
+-async def async_unload_entry(hass: HomeAssistant, entry: GoveeBLEConfigEntry) -> bool:
++async def async_unload_entry(hass: HomeAssistant, entry: GoveeBLEConfigEntry) -> None:
+     effect_backend = get_effect_backend(hass)
+     if effect_backend is not None:
+         await effect_backend.preview.async_unload_device(entry.entry_id)
+     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
+         if (coordinator := getattr(entry, "runtime_data", None)) is not None:
+             await coordinator.disconnect()
+         await _async_update_editor_panel(hass)
+     elif effect_backend is not None:
+         await effect_backend.preview.async_load_device(entry.entry_id)
+-    return unload_ok
++    if not unload_ok: raise HomeAssistantError(translation_domain=DOMAIN, translation_key="platform_unload_failed")
+ 
+ 
+ async def async_remove_entry(hass: HomeAssistant, entry: GoveeBLEConfigEntry) -> None:
+diff --git a/custom_components/ha_govee_led_ble/strings.json b/custom_components/ha_govee_led_ble/strings.json
+--- a/custom_components/ha_govee_led_ble/strings.json
++++ b/custom_components/ha_govee_led_ble/strings.json
+@@ -130,6 +130,9 @@
+     "kelvin_out_of_range": {
+       "message": "Choose a colour temperature between {minimum} K and {maximum} K for this device."
+     },
++    "platform_unload_failed": {
++      "message": "Could not unload device platforms."
++    },
+     "device_command_failed": {
+       "message": "The device command failed."
+     },
+diff --git a/custom_components/ha_govee_led_ble/translations/en.json b/custom_components/ha_govee_led_ble/translations/en.json
+--- a/custom_components/ha_govee_led_ble/translations/en.json
++++ b/custom_components/ha_govee_led_ble/translations/en.json
+@@ -130,6 +130,9 @@
+     "kelvin_out_of_range": {
+       "message": "Choose a colour temperature between {minimum} K and {maximum} K for this device."
+     },
++    "platform_unload_failed": {
++      "message": "Could not unload device platforms."
++    },
+     "device_command_failed": {
+       "message": "The device command failed."
+     },
+diff --git a/tests/test_init.py b/tests/test_init.py
+--- a/tests/test_init.py
++++ b/tests/test_init.py
+@@ -6,7 +6,8 @@
+ from bleak import BleakClient, BleakError
+ from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState
+ from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+ from homeassistant.core import CoreState, HomeAssistant
++from homeassistant.exceptions import HomeAssistantError
+ from homeassistant.helpers import issue_registry as ir
+ from homeassistant.util import dt as dt_util
+ from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
+@@ -449,7 +449,11 @@
+         patch("custom_components.ha_govee_led_ble._async_update_editor_panel", new_callable=AsyncMock),
+         patch.object(hass.config_entries, "async_unload_platforms", return_value=unload_ok),
+     ):
+-        assert await async_unload_entry(hass, entry) is unload_ok
++        if unload_ok:
++            await async_unload_entry(hass, entry)
++        else:
++            with pytest.raises(HomeAssistantError):
++                await async_unload_entry(hass, entry)
+         assert stale_gatt_recovery_pending(hass, entry.unique_id)
+         assert stale_gatt_recovery_pending(hass, other_address)
+         await async_remove_entry(hass, entry)
+@@ -467,7 +471,11 @@
+         patch("custom_components.ha_govee_led_ble._async_update_editor_panel", new_callable=AsyncMock) as update_panel,
+         patch.object(hass.config_entries, "async_unload_platforms", new_callable=AsyncMock, return_value=unload_ok),
+     ):
+-        assert await async_unload_entry(hass, entry) is unload_ok
++        if unload_ok:
++            await async_unload_entry(hass, entry)
++        else:
++            with pytest.raises(HomeAssistantError):
++                await async_unload_entry(hass, entry)
+     getattr(entry.runtime_data.disconnect, disc)()
+     if unload_ok:
+         update_panel.assert_awaited_once_with(hass)
+@@ -494,6 +502,6 @@
+         ),
+         patch.object(hass.config_entries, "async_unload_platforms", side_effect=unload_platforms),
+     ):
+-        assert await async_unload_entry(hass, entry) is True
++        await async_unload_entry(hass, entry)
+ 
+     assert order == ["preview", "platforms", "disconnect"]
