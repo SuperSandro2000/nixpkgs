@@ -44,7 +44,7 @@ let
 in
 buildGoModule (finalAttrs: {
   pname = "gotenberg";
-  version = "9.9.0";
+  version = "9.9.2";
 
   outputs = [
     "out"
@@ -55,14 +55,14 @@ buildGoModule (finalAttrs: {
     owner = "gotenberg";
     repo = "gotenberg";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-+WzujV76UpBwTLqgIJ9RTnxjp5FpTOKQzsT8fZKQSvc=";
+    hash = "sha256-OqLnbLymIzvuPeNwPOX+kI4EpuesaClvV0EKrKsDcMs=";
   };
 
-  vendorHash = "sha256-KXUmTpVQNBqPCiHiutqIMSe6EHWI3ykYscx/88QXebY=";
+  vendorHash = "sha256-AvAiSB61otqcMLGhebnLhFU7N+Gb98Tatz0H58htw5w=";
 
   postPatch = ''
-    # Unpin go version
-    sed -i -E 's/^go ([0-9]+\.[0-9]+)\.[0-9]+$/go \1/' go.mod
+    # github.com/gotenberg/litho explicitly requires Go 1.27.3
+    substituteInPlace go.mod --replace-fail 'go 1.27.4' 'go 1.27.3'
 
     find ./pkg -name '*_test.go' -exec sed -i -e 's#/tests#${finalAttrs.src}#g' {} \;
 
