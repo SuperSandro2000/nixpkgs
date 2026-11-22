@@ -339,7 +339,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       pythonPackages
       ;
     pythonPath =
-      pythonPackages.makePythonPath providerPackageDependencies
+      pythonPackages.makePythonPath (finalAttrs.passthru.dependencies ++ providerPackageDependencies)
       + ":${finalAttrs.finalPackage}/${pythonPackages.python.sitePackages}";
     tests = nixosTests.music-assistant;
   };
