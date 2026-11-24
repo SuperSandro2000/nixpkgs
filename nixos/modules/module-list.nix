@@ -484,6 +484,7 @@
   ./services/audio/soloist.nix
   ./services/audio/spotifyd.nix
   ./services/audio/squeezelite.nix
+  ./services/audio/toothspin.nix
   ./services/audio/tts.nix
   ./services/audio/ympd.nix
   ./services/autotierfs.nix
