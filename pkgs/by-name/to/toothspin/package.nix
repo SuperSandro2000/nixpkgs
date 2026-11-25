@@ -7,14 +7,14 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "toothspin";
-  version = "0.6.2";
+  version = "0.7.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "eknoes";
     repo = "toothspin";
     tag = "v${version}";
-    hash = "sha256-bXWldlHU7ccR2MNP0ziFsfNpuuCWCre5hkAGSf+ZmzU=";
+    hash = "sha256-NgZFL+EQumvlPy+y7yLnykz5DuxDjcTZrZwMs9HGRuk=";
   };
 
   pythonRelaxDeps = [ "aiosendspin" ];
@@ -22,6 +22,7 @@ python3Packages.buildPythonApplication rec {
   build-system = with python3Packages; [ setuptools ];
 
   dependencies = with python3Packages; [
+    aiomqtt
     aiosendspin
     dbus-fast
   ];
